@@ -3,8 +3,8 @@
 > Fill this in and submit your repository's link on Canvas by **Fri Oct 23, 11:59 PM**.
 > Keep it short: about one page. You may update the plan later; record changes in `JOURNAL.md`.
 
-- **Name:**
-- **GitHub username:**
+- **Name: Leonardo Masini Aleman**
+- **GitHub username: Cerluain**
 - **Repository is private, with @3rdAT and @Slash0BZ as collaborators:** yes / no
 
 ## 1. The baseline, reproduced
