@@ -50,4 +50,3 @@ Risk 1 - Candidate Pool being unecessary: Choosing only one option between the g
 Risk 2 - Worried about possible overfitting to the most recent games in training because of the bigger history depth from idea 1. 
 
 Question:
-When will the Beta for the ELO formula be announced?
