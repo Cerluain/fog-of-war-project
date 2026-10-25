@@ -46,7 +46,7 @@ def teacher_move(engine, game, nodes):
 def worker(args):
     wid, n_games, nodes, keep, out, seed = args
     rng = random.Random(seed + wid)
-    engine = chess.engine.SimpleEngine.popen_uci(stockfish_path())
+    engine = chess .engine.SimpleEngine.popen_uci(stockfish_path())
     engine.configure({"Threads": 1, "Hash": 16})
     bots = {}
     xs, ys, legals = [], [], []

@@ -50,3 +50,4 @@ Risk 1 - Candidate Pool being unecessary: Choosing only one option between the g
 Risk 2 - Worried about possible overfitting to the most recent games in training because of the bigger history depth from idea 1. 
 
 Question:
+Is the amount of training saved worth using the Maia 2 weights and possibly have to keep its features and do an ensemble network. Or is it better to train my own network with the exact features since the get go?
