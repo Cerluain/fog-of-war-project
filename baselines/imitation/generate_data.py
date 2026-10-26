@@ -27,9 +27,9 @@ from fow.game import Game  # noqa: E402
 from fow.memory import Memory  # noqa: E402
 
 # who plays the games the positions come from (pairs are sampled uniformly)
-MATCHUPS = [("bot:guess-sf-4x500", "bot:guess-sf-4x500"), ("bot:guess-sf-4x500", "bot:greedy"),
-            ("bot:naive-sf", "bot:guess-sf-4x500"), ("bot:greedy", "bot:greedy"),
-            ("bot:guess-sf-4x500", "bot:random")]
+MATCHUPS = [("bot:guess-sf-20x500", "bot:guess-sf-20x500"), ("bot:guess-sf-20x500", "bot:greedy"),
+            ("bot:naive-sf", "bot:guess-sf-20x500"), ("bot:guess-sf-20x500", "bot:greedy"),
+            ("bot:guess-sf-20x500", "bot:random")]
 
 
 def teacher_move(engine, game, nodes):
