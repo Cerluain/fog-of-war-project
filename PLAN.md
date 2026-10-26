@@ -5,7 +5,7 @@
 
 - **Name: Leonardo Masini Aleman**
 - **GitHub username: Cerluain**
-- **Repository is private, with @3rdAT and @Slash0BZ as collaborators:** yes / no
+- **Repository is private, with @3rdAT and @Slash0BZ as collaborators:** yes
 
 ## 1. The baseline, reproduced
 
@@ -46,7 +46,6 @@ The current plan for training is making a compact ~1M model running on a single 
 
 What might not work, and what you would do instead. Questions for the staff.
 Risk 1 - Candidate Pool being unecessary: Choosing only one option between the guess-sf and baseline would cut the data used in half while keeping the compute the same. So it's possible the candidate pool doesn't cause an improvement or even makes it worse.
-
 Risk 2 - Worried about possible overfitting to the most recent games in training because of the bigger history depth from idea 1. 
 
 Question:
