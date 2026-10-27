@@ -1,23 +1,53 @@
-"""Minimal agent: shows the interface every submission implements.
-
-The referee loads this file in its own process and calls:
-    Agent(agent_dir, device)        once, when your agent starts
-    reset(color, seed)              at the start of every game ("white" or "black")
-    act(obs) -> str                 every time it is your move; return one of obs["legal_moves"]
-
-See docs/COMPETITION.md for the observation format and the limits.
+"""SE-ResNet agent: loads config.json and weights/model.safetensors from its own directory,
+tracks enemy piece memory, encodes the observation, and plays the highest-scoring legal move.
 """
-import random
+import importlib.util
+import json
+import os
+
+import torch
+from safetensors.torch import load_file
+from fow.memory import Memory
+
+
+def _load_local_module(agent_dir: str, name: str):
+    """Dynamically load features.py or model.py from this specific agent_dir."""
+    path = os.path.join(agent_dir, f"{name}.py")
+    spec = importlib.util.spec_from_file_location(f"agent_{os.path.basename(agent_dir.rstrip('/\\'))}_{name}", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class Agent:
     def __init__(self, agent_dir: str, device: str):
-        self.agent_dir = agent_dir
-        self.device = device
+        with open(os.path.join(agent_dir, "config.json")) as f:
+            cfg = json.load(f)
+
+        self.device = torch.device(device)
+        if self.device.type == "cpu":
+            torch.set_num_threads(1)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+        # Load this agent's own features.py and model.py
+        self.features = _load_local_module(agent_dir, "features")
+        model_mod = _load_local_module(agent_dir, "model")
+
+        self.net = model_mod.PolicyNet(cfg["in_planes"], cfg["channels"], cfg["blocks"])
+        weights_path = os.path.join(agent_dir, "weights", "model.safetensors")
+        self.net.load_state_dict(load_file(weights_path))
+        self.net.to(self.device).eval()
 
     def reset(self, color: str, seed: int) -> None:
-        self.color = color
-        self.rng = random.Random(seed)   # use only this seed for randomness, so games can be replayed
+        self.memory = Memory()
 
+    @torch.no_grad()
     def act(self, obs: dict) -> str:
-        return self.rng.choice(obs["legal_moves"])
+        self.memory.update(obs)
+        encoded = self.features.encode(obs, self.memory.last_seen)
+        x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
+        logits = self.net(x)[0].cpu()
+        legal = self.features.legal_indices(obs)
+        best = max(legal, key=lambda i: logits[i].item())
+        return legal[best]
