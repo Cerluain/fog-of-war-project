@@ -58,7 +58,7 @@ class SE_Block(nn.Module):
 
 
 class PolicyNet(nn.Module):
-    def __init__(self, in_planes=22, channels=64, blocks=4, se_reduction=8):
+    def __init__(self, in_planes=22, channels=64, blocks=4, se_reduction=4):
         super().__init__()
         self.stem = nn.Sequential(
             nn.Conv2d(in_planes, channels, 3, padding=1, bias=False),
