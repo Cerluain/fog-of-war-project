@@ -50,3 +50,9 @@ Risk 2 - Worried about possible overfitting to the most recent games in training
 
 Question:
 Is the amount of training saved worth using the Maia 2 weights and possibly have to keep its features and do an ensemble network. Or is it better to train my own network with the exact features since the get go?
+
+
+# 5. TODO: 
+[] Figure out how to get more varied data (Similar to Idea 2)
+[] Add MCTS for search
+[] Add a hidden board belief component (ensemble: takes embeding or best guess, or multi-headed network: policy head, hidden head, maybe even other head)
