@@ -48,7 +48,7 @@ class PolicyNet(nn.Module):
         super().__init__()
         self.stem = nn.Sequential(nn.Conv2d(in_planes, channels, 3, padding=1, bias=False),
                                   nn.BatchNorm2d(channels), nn.ReLU())
-        self.blocks = nn.Sequential(*[Block(channels) for _ in range(blocks)])
+        self.blocks = nn.Sequential(*[SE_(channels) for _ in range(blocks)])
         self.head = nn.Conv2d(channels, 64, 1)   # channel = destination square
 
     def forward(self, x):                        # x: [B, in_planes, 8, 8]
