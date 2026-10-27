@@ -41,10 +41,27 @@ This is where the evidence for your grade lives (see docs/GRADING.md).
 - **Decision:** The training loss of these models is much better, yet their elo somehow became worse. This is most likely due to overfitting: also after I changed the matchups for the training data for both models it reduced the positions produced by half(likely due to faster games considering strength disparity)
 - **AI help:** Not really, just re ran tests with different parameters
 
-### 2026-10-26: tweaking the baseline
-- **Question / hypothesis:** Assuming the final model will be strong, there's no need for weak vs weak training data, only for strong vs weak and strong vs strong. Therefore I got rid of the greedy vs greedy.
-- **Commit:** 584f4d264d839eb073b745d8589d774c925a1284
-- **Setup:** 8k games, 314k parameter model, UNKNOWN-minutes in 4060(GPU-hours)...
+Update: Added/used a reinforecement training pipeline starting with the "warmup bots" to try to escape the 1000s Elo trap.
+
+
+### 2026-10-27: SE Reduction and Reinforcement Learning  
+- **Question / hypothesis:** Testing various reduction ratios (r=4,2,1 or none) and evaluating performance difference. I expect r=2 to be the "best", because I expect marginal improvement in the r=1 model and being smaller in parameters.
+- **Commit:** 
+- **Setup:** 
+    Parameters: 128 channels, 8 res blocks, 22 in features. 
+    Training: 2 iterations, 1k warmup games + 1.5k dataset aggregation of self-play/iter, 500 sgd steps/iteration, 2048 batch size
 - **Result:** 
+                        |r=4    |r=2    |r=1 
+Params:                 |2.5M   |2.6M   |2.79M
+Training:               
+Final Loss:             |0.265  |0.208  |0.204    
+Best Val Accuracy:      |50.1%  |52.4%  |46.5%
+
+Arena Ratings           |1055   |1085   |1101
+
 - **Decision:** 
-- **AI help:** 
+Teacher Labels: Despite increasing the training data(not my by much though) and shifting to Reinforcement Learning we are still stuck in the 1000s ELO. And I would blame this on the fact I haven't changed how labels are made(we still use the omniscient stockfish). This is also clear because the higher validation acc. of r=2 didn't translate to arena performance.
+Reduction: The r=1 only added about 200k parameters but still had a decent improvement over r=2. I'll no longer consider a reduction of r=4 since exact tweaks over the channels prove beneficial.
+I'll work on changing the teacher labels
+
+- **AI help:** Used Gemini to develop the scripts generating the buffer data and training the model the same way as alphazero, while also keeping the simple fights between bots for warmup. And kept the teacher labels for now. Gemini for organizing the result outputs to a nice visual for myself. 
