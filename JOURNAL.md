@@ -46,7 +46,7 @@ Update: Added/used a reinforecement training pipeline starting with the "warmup 
 
 ### 2026-10-27: SE Reduction and Reinforcement Learning  
 - **Question / hypothesis:** Testing various reduction ratios (r=4,2,1 or none) and evaluating performance difference. I expect r=2 to be the "best", because I expect marginal improvement in the r=1 model and being smaller in parameters.
-- **Commit:** 
+- **Commit:** a1547bae56cf31039887b45501d02f0e158a6669
 - **Setup:** 
     Parameters: 128 channels, 8 res blocks, 22 in features. 
     Training: 2 iterations, 1k warmup games + 1.5k dataset aggregation of self-play/iter, 500 sgd steps/iteration, 2048 batch size
