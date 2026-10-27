@@ -23,3 +23,10 @@ This is where the evidence for your grade lives (see docs/GRADING.md).
 - **Decision:** I will start by increasing the total training time. I also really want to change the architecture, and also start generating games with the latest model.
 - **AI help:** Help with installing stockfish module in windows MINGW64
 
+### 2026-10-23: tweaking the baseline
+- **Question / hypothesis:** Assuming the final model will be strong, there's no need for weak vs weak training data, only for strong vs weak and strong vs strong. Therefore I got rid of the greedy vs greedy.
+- **Commit:** 584f4d264d839eb073b745d8589d774c925a1284
+- **Setup:** 8k games, 314k parameter model, UNKNOWN-minutes in 4060(GPU-hours)...
+- **Result:** 
+- **Decision:** 
+- **AI help:** 
