@@ -13,7 +13,8 @@ from fow.memory import Memory
 def _load_local_module(agent_dir: str, name: str):
     """Dynamically load features.py or model.py from this specific agent_dir."""
     path = os.path.join(agent_dir, f"{name}.py")
-    spec = importlib.util.spec_from_file_location(f"agent_{os.path.basename(agent_dir.rstrip('/\\'))}_{name}", path)
+    folder_name = os.path.basename(os.path.normpath(agent_dir))
+    spec = importlib.util.spec_from_file_location(f"agent_{folder_name}_{name}", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
