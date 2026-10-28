@@ -60,12 +60,17 @@ def main():
     for it in range(args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
 
-        # Exponentially anneal teacher weight lambda from lambda_start -> lambda_end
+        # Exponentially anneal teacher weight lambda from lambda_start -> lambda_end.
         if args.iterations > 1 and args.lambda_start > 0 and args.lambda_end > 0:
             frac = it / (args.iterations - 1)
             lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** frac)
-            
-            # Also decay teacher_rate so CPU generation speeds up and buffer teacher density drops.
+        else:
+            lam = args.lambda_start
+
+        # Decay teacher_rate independently so CPU generation speeds up and
+        # buffer teacher density drops.
+        if args.iterations > 1:
+            frac = it / (args.iterations - 1)
             if args.teacher_rate_start > 0 and args.teacher_rate_end > 0:
                 cur_t_rate = args.teacher_rate_start * (
                     (args.teacher_rate_end / args.teacher_rate_start) ** frac
@@ -75,7 +80,6 @@ def main():
                     args.teacher_rate_end - args.teacher_rate_start
                 )
         else:
-            lam = args.lambda_start
             cur_t_rate = args.teacher_rate_start
 
         # On iteration 0 warmup, reference bots play, so weight teacher higher; outcome kicks in fully on iter >= 1
