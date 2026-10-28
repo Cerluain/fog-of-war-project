@@ -70,7 +70,7 @@ I'll work on changing the teacher labels
 ### 2026-10-27: Various "teacher learning" decay rates
 - **Question / hypothesis:** At what rate of decay is it best to move away from using teacher labels(stockfish that looks at full board)?
 My hypothesis is that having a teacher learning decay would be optimal: at first the model needs can learn more aggressively by labeling each move. But no guesses of what exact rate is optimal.
-- **Commit:** 
+- **Commit:** 351d73538a19bc2e8d835bb0eb99238ab1e2bbf3
 - **Setup:** 
     Parameters: 128 channels, 6 res blocks, 22 in features. 
     Training: 4 iterations, 1.6k warmup games + 1.2k dataset aggregation of self-play/iter, 600 sgd steps/iteration, 2048 batch size
@@ -95,15 +95,16 @@ Ratings (95% interval):
 The top models, ignoring my top best model as the top benchmark, were the 0.5 to 0.1 and 1.0 to 0.05, highlighting that teacher decay is very effective
 
 - **Decision:** 
-Teacher labels
+I will run a similar experiment in the future, trying out more variations of steep decay. Will also change the decay to exponential to ensure it quickly drops
+early on and is used minimally later on
 
-- **AI help:** 
+- **AI help:** Used Gemini to write the bash experiment script, as well as a utils python file for plotting the results.
 
 
 
 ### 2026-10-27: Returning a smaller keep=0.333 for training data efficiency
 - **Question / hypothesis:** Got rid of the keep when Reinforcement Learning was addeded. Evaluating difference in performance when keep of .333 is kept at iteration 0 with 3x the games so the training data remains the same.
-- **Commit:** 
+- **Commit:** 0fc377deb600909bd2fe8ec5485d49a4b7f38ceb
 - **Setup:** 
     Parameters: 128 channels, 6 res blocks, 22 in features. 
     Training: 12 iterations, (5k vs 15k) warmup games + 3.6k dataset aggregation of self-play/iter, 1200 sgd steps/iteration, 2048 batch size, evicts warmup after 2 iterations
@@ -128,7 +129,7 @@ Ratings (95% interval):
 Very significant difference in performance, even considering the evict warmup after 2 iterations which in hindsight was aggressive.
 
 - **Decision:** 
-Teacher labels
+The keep=0.333 model outperformed the keep=1 model by nearly 100 elo points. Some of that could be noise
 
 - **AI help:** 
 
