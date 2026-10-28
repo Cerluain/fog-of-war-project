@@ -1,0 +1,642 @@
+Buffer: 62,040 pos (4 shards, min_iter=0) | W/D/L: 50.6%/0.0%/49.4% | Teacher labeled: 49.9%
+Model: 2,103,616 params | mode=advantage, outcome_w=0.50, teacher_lambda=0.50
+Traceback (most recent call last):
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\train_buffer.py", line 278, in <module>
+    main()
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\train_buffer.py", line 227, in main
+    scaler.step(opt)
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\amp\grad_scaler.py", line 478, in step
+    retval = self._maybe_opt_step(optimizer, optimizer_state, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\amp\grad_scaler.py", line 371, in _maybe_opt_step
+    if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\amp\grad_scaler.py", line 371, in <genexpr>
+    if not sum(v.item() for v in optimizer_state["found_inf_per_device"].values()):
+               ^^^^^^^^
+KeyboardInterrupt
+Buffer: 62,040 pos (4 shards, min_iter=0) | W/D/L: 50.6%/0.0%/49.4% | Teacher labeled: 49.9%
+Model: 2,103,616 params | mode=advantage, outcome_w=0.50, teacher_lambda=0.50
+step  100/600: tot=2.609 (out=2.767, teach=2.477) | val_teacher=0.324, val_win_move=0.254 (21s) *saved*
+step  200/600: tot=1.788 (out=1.940, teach=1.655) | val_teacher=0.299, val_win_move=0.242 (39s)
+step  300/600: tot=1.297 (out=1.436, teach=1.173) | val_teacher=0.317, val_win_move=0.254 (57s)
+step  400/600: tot=0.936 (out=1.053, teach=0.830) | val_teacher=0.334, val_win_move=0.259 (76s) *saved*
+step  500/600: tot=0.692 (out=0.791, teach=0.602) | val_teacher=0.334, val_win_move=0.270 (94s) *saved*
+step  600/600: tot=0.584 (out=0.671, teach=0.504) | val_teacher=0.340, val_win_move=0.271 (113s) *saved*
+Finished training -> weights saved to agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+=== Generating Iteration 1: 1200 games [DAgger/League Self-Play (agents/exp_lam_0.5_to_0.1_lowteacher)] (keep=1.0, teacher_rate=0.4) ===
+[iter 1] worker 2: 50/300 games (17095 games/hr, decisive=100.0%), 1,989 pos
+[iter 1] worker 1: 50/300 games (15242 games/hr, decisive=100.0%), 2,064 pos
+[iter 1] worker 0: 50/300 games (13734 games/hr, decisive=100.0%), 1,992 pos
+[iter 1] worker 3: 50/300 games (13758 games/hr, decisive=100.0%), 2,106 pos
+[iter 1] worker 2: 100/300 games (18162 games/hr, decisive=100.0%), 3,706 pos
+[iter 1] worker 1: 100/300 games (15514 games/hr, decisive=100.0%), 3,962 pos
+[iter 1] worker 3: 100/300 games (14163 games/hr, decisive=100.0%), 4,163 pos
+[iter 1] worker 0: 100/300 games (12705 games/hr, decisive=99.0%), 4,205 pos
+[iter 1] worker 2: 150/300 games (16910 games/hr, decisive=100.0%), 5,744 pos
+[iter 1] worker 1: 150/300 games (15002 games/hr, decisive=100.0%), 5,976 pos
+[iter 1] worker 3: 150/300 games (14050 games/hr, decisive=100.0%), 6,371 pos
+[iter 1] worker 0: 150/300 games (12622 games/hr, decisive=99.3%), 6,343 pos
+[iter 1] worker 2: 200/300 games (15673 games/hr, decisive=100.0%), 7,851 pos
+[iter 1] worker 1: 200/300 games (15441 games/hr, decisive=99.5%), 7,952 pos
+[iter 1] worker 3: 200/300 games (14692 games/hr, decisive=100.0%), 8,134 pos
+[iter 1] worker 0: 200/300 games (13413 games/hr, decisive=99.5%), 8,359 pos
+[iter 1] worker 2: 250/300 games (15963 games/hr, decisive=100.0%), 9,614 pos
+[iter 1] worker 1: 250/300 games (15506 games/hr, decisive=99.6%), 10,074 pos
+[iter 1] worker 3: 250/300 games (14881 games/hr, decisive=100.0%), 10,180 pos
+[iter 1] worker 0: 250/300 games (13746 games/hr, decisive=99.6%), 10,373 pos
+[iter 1] worker 1: 300/300 games (15923 games/hr, decisive=99.7%), 11,921 pos
+[iter 1] worker 2: 300/300 games (15198 games/hr, decisive=100.0%), 11,821 pos
+[iter 1] worker 3: 300/300 games (15051 games/hr, decisive=100.0%), 12,114 pos
+[iter 1] worker 0: 300/300 games (14396 games/hr, decisive=99.7%), 12,203 pos
+=== Iteration 1 complete: added 48,059 positions to data/buf_lam_0.5_to_0.1_lowteacher | Decisive rate: 99.8% (1198/1200) ===
+    Self-Play decisive rate: 100.0% (163/163)
+Buffer: 110,099 pos (8 shards, min_iter=0) | W/D/L: 50.5%/0.2%/49.3% | Teacher labeled: 45.7%
+Resumed weights from agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.37
+step  100/600: tot=1.861 (out=1.268, teach=1.637) | val_teacher=0.430, val_win_move=0.459 (20s) *saved*
+step  200/600: tot=1.704 (out=1.107, teach=1.646) | val_teacher=0.414, val_win_move=0.451 (39s)
+step  300/600: tot=1.385 (out=0.847, teach=1.484) | val_teacher=0.433, val_win_move=0.447 (57s)
+step  400/600: tot=1.097 (out=0.641, teach=1.255) | val_teacher=0.450, val_win_move=0.470 (76s) *saved*
+step  500/600: tot=0.887 (out=0.507, teach=1.047) | val_teacher=0.456, val_win_move=0.474 (94s) *saved*
+step  600/600: tot=0.789 (out=0.453, teach=0.927) | val_teacher=0.454, val_win_move=0.477 (113s) *saved*
+Finished training -> weights saved to agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+=== Generating Iteration 2: 1200 games [DAgger/League Self-Play (agents/exp_lam_0.5_to_0.1_lowteacher)] (keep=1.0, teacher_rate=0.4) ===
+[iter 2] worker 3: 50/300 games (11153 games/hr, decisive=100.0%), 1,779 pos
+[iter 2] worker 2: 50/300 games (10215 games/hr, decisive=100.0%), 1,904 pos
+[iter 2] worker 0: 50/300 games (9228 games/hr, decisive=100.0%), 2,055 pos
+[iter 2] worker 1: 50/300 games (8856 games/hr, decisive=100.0%), 2,122 pos
+[iter 2] worker 2: 100/300 games (10499 games/hr, decisive=100.0%), 3,706 pos
+[iter 2] worker 3: 100/300 games (9959 games/hr, decisive=100.0%), 3,818 pos
+[iter 2] worker 0: 100/300 games (9773 games/hr, decisive=100.0%), 3,846 pos
+[iter 2] worker 1: 100/300 games (9202 games/hr, decisive=100.0%), 4,283 pos
+[iter 2] worker 3: 150/300 games (10367 games/hr, decisive=100.0%), 5,710 pos
+[iter 2] worker 2: 150/300 games (10161 games/hr, decisive=100.0%), 5,915 pos
+[iter 2] worker 1: 150/300 games (9666 games/hr, decisive=100.0%), 6,190 pos
+[iter 2] worker 0: 150/300 games (9601 games/hr, decisive=99.3%), 6,088 pos
+[iter 2] worker 2: 200/300 games (10559 games/hr, decisive=99.5%), 7,674 pos
+[iter 2] worker 3: 200/300 games (10339 games/hr, decisive=100.0%), 7,639 pos
+[iter 2] worker 0: 200/300 games (10172 games/hr, decisive=99.5%), 7,912 pos
+[iter 2] worker 1: 200/300 games (9674 games/hr, decisive=100.0%), 8,244 pos
+[iter 2] worker 2: 250/300 games (10795 games/hr, decisive=99.6%), 9,472 pos
+[iter 2] worker 3: 250/300 games (10435 games/hr, decisive=100.0%), 9,656 pos
+[iter 2] worker 0: 250/300 games (10222 games/hr, decisive=99.6%), 9,864 pos
+Process SpawnPoolWorker-3:
+Process SpawnPoolWorker-1:
+Process SpawnPoolWorker-2:
+Process SpawnPoolWorker-4:
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 226, in worker
+    obs = game.observation()
+          ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\fow\game.py", line 77, in observation
+    own = {chess.square_name(s): PIECE_LETTER[b.piece_type_at(s)] for s in chess.SquareSet(b.occupied_co[c])}
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\fow\game.py", line 77, in <dictcomp>
+    own = {chess.square_name(s): PIECE_LETTER[b.piece_type_at(s)] for s in chess.SquareSet(b.occupied_co[c])}
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\chess\__init__.py", line 250, in square_name
+    def square_name(square: Square) -> str:
+    
+KeyboardInterrupt
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 244, in worker
+    played_uci = players[c].act(obs)
+                 ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 100, in act
+    out = self.agent.net(x)
+          ^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\agents/exp_lam_0.5_to_0.1_lowteacher\model.py", line 72, in forward
+    h = self.head(self.blocks(self.stem(x)))  # [B, to=64, 8, 8 (from)]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\agents/exp_lam_0.5_to_0.1_lowteacher\model.py", line 46, in forward
+    y = self.b2(self.c2(F.relu(self.b1(self.c1(x)))))  # [B, c, 8, 8]
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\conv.py", line 553, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\conv.py", line 548, in _conv_forward
+    return F.conv2d(
+           ^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 244, in worker
+    played_uci = players[c].act(obs)
+                 ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 94, in act
+    return self.agent.act(obs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\agents/exp_lam_0.5_to_0.1_lowteacher\agent.py", line 51, in act
+    logits = self.net(x)[0].cpu()
+             ^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\agents/exp_lam_0.5_to_0.1_lowteacher\model.py", line 72, in forward
+    h = self.head(self.blocks(self.stem(x)))  # [B, to=64, 8, 8 (from)]
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\container.py", line 253, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\agents/exp_lam_0.5_to_0.1_lowteacher\model.py", line 46, in forward
+    y = self.b2(self.c2(F.relu(self.b1(self.c1(x)))))  # [B, c, 8, 8]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\modules\batchnorm.py", line 194, in forward
+    return F.batch_norm(
+           ^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\torch\nn\functional.py", line 2846, in batch_norm
+    return torch.batch_norm(
+           ^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 236, in worker
+    t_uci = teacher_move(engine, game, nodes)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 128, in teacher_move
+    mv = engine.play(game.board.copy(stack=False), chess.engine.Limit(nodes=nodes)).move.uci()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\.venv\Lib\site-packages\chess\engine.py", line 2980, in play
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\concurrent\futures\_base.py", line 451, in result
+    self._condition.wait(timeout)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 327, in wait
+    waiter.acquire()
+KeyboardInterrupt
+Process SpawnPoolWorker-8:
+Process SpawnPoolWorker-6:
+Process SpawnPoolWorker-7:
+Process SpawnPoolWorker-5:
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+KeyboardInterrupt
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 365, in get
+    res = self._reader.recv_bytes()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 321, in _recv_bytes
+    waitres = _winapi.WaitForMultipleObjects(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+KeyboardInterrupt
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 365, in get
+    res = self._reader.recv_bytes()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 208, in recv_bytes
+    def recv_bytes(self, maxlength=None):
+    
+KeyboardInterrupt
+Process SpawnPoolWorker-12:
+Process SpawnPoolWorker-11:
+Process SpawnPoolWorker-9:
+Process SpawnPoolWorker-10:
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+KeyboardInterrupt
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 365, in get
+    res = self._reader.recv_bytes()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 321, in _recv_bytes
+    waitres = _winapi.WaitForMultipleObjects(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+KeyboardInterrupt
+Process SpawnPoolWorker-15:
+Process SpawnPoolWorker-14:
+Process SpawnPoolWorker-16:
+Process SpawnPoolWorker-13:
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 314, in _bootstrap
+    self.run()
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+           ^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 365, in get
+    res = self._reader.recv_bytes()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+KeyboardInterrupt
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\queues.py", line 364, in get
+    with self._rlock:
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\synchronize.py", line 95, in __enter__
+    return self._semlock.__enter__()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 321, in _recv_bytes
+    waitres = _winapi.WaitForMultipleObjects(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+KeyboardInterrupt
+forrtl: error (200): program aborting due to window-CLOSE event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFCD02D63ED  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFCD273DDA7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFCD2BFEE4C  Unknown               Unknown  Unknown
+forrtl: error (200): program aborting due to window-CLOSE event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFCD02D63ED  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFCD273DDA7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFCD2BFEE4C  Unknown               Unknown  Unknown
+forrtl: error (200): program aborting due to window-CLOSE event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFCD02D63ED  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFCD273DDA7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFCD2BFEE4C  Unknown               Unknown  Unknown
+forrtl: error (200): program aborting due to window-CLOSE event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFCD02D63ED  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFCD273DDA7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFCD2BFEE4C  Unknown               Unknown  Unknown
+forrtl: error (200): program aborting due to window-CLOSE event
+Image              PC                Routine            Line        Source             
+KERNELBASE.dll     00007FFCD02D63ED  Unknown               Unknown  Unknown
+KERNEL32.DLL       00007FFCD273DDA7  Unknown               Unknown  Unknown
+ntdll.dll          00007FFCD2BFEE4C  Unknown               Unknown  Unknown
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 979, in rebuild_pipe_connection
+    handle = dh.detach()
+             ^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\reduction.py", line 131, in detach
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 979, in rebuild_pipe_connection
+    handle = dh.detach()
+             ^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\reduction.py", line 131, in detach
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\spawn.py", line 132, in _main
+    self = reduction.pickle.load(from_parent)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\connection.py", line 979, in rebuild_pipe_connection
+    handle = dh.detach()
+             ^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\reduction.py", line 131, in detach
+    return _winapi.DuplicateHandle(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied
+=== Generating Iteration 2: 1200 games [DAgger/League Self-Play (agents/exp_lam_0.5_to_0.1_lowteacher)] (keep=1.0, teacher_rate=0.4) ===
+[iter 2] worker 3: 50/300 games (16157 games/hr, decisive=100.0%), 1,779 pos
+[iter 2] worker 2: 50/300 games (14707 games/hr, decisive=100.0%), 1,904 pos
+[iter 2] worker 0: 50/300 games (13351 games/hr, decisive=100.0%), 2,055 pos
+[iter 2] worker 1: 50/300 games (13030 games/hr, decisive=100.0%), 2,122 pos
+[iter 2] worker 2: 100/300 games (15761 games/hr, decisive=100.0%), 3,706 pos
+[iter 2] worker 3: 100/300 games (14889 games/hr, decisive=100.0%), 3,818 pos
+[iter 2] worker 0: 100/300 games (14543 games/hr, decisive=100.0%), 3,846 pos
+[iter 2] worker 1: 100/300 games (13918 games/hr, decisive=100.0%), 4,283 pos
+[iter 2] worker 3: 150/300 games (15445 games/hr, decisive=100.0%), 5,710 pos
+[iter 2] worker 2: 150/300 games (15137 games/hr, decisive=100.0%), 5,915 pos
+[iter 2] worker 1: 150/300 games (14693 games/hr, decisive=100.0%), 6,190 pos
+[iter 2] worker 0: 150/300 games (14399 games/hr, decisive=99.3%), 6,088 pos
+[iter 2] worker 2: 200/300 games (15790 games/hr, decisive=99.5%), 7,674 pos
+[iter 2] worker 3: 200/300 games (15366 games/hr, decisive=100.0%), 7,639 pos
+[iter 2] worker 0: 200/300 games (15346 games/hr, decisive=99.5%), 7,912 pos
+[iter 2] worker 1: 200/300 games (14612 games/hr, decisive=100.0%), 8,244 pos
+[iter 2] worker 2: 250/300 games (16059 games/hr, decisive=99.6%), 9,472 pos
+[iter 2] worker 3: 250/300 games (15300 games/hr, decisive=100.0%), 9,656 pos
+[iter 2] worker 0: 250/300 games (15039 games/hr, decisive=99.6%), 9,864 pos
+[iter 2] worker 1: 250/300 games (14412 games/hr, decisive=100.0%), 10,368 pos
+[iter 2] worker 2: 300/300 games (15930 games/hr, decisive=99.7%), 11,298 pos
+[iter 2] worker 0: 300/300 games (15524 games/hr, decisive=99.7%), 11,673 pos
+[iter 2] worker 3: 300/300 games (15336 games/hr, decisive=100.0%), 11,521 pos
+[iter 2] worker 1: 300/300 games (14564 games/hr, decisive=100.0%), 12,315 pos
+=== Iteration 2 complete: added 46,807 positions to data/buf_lam_0.5_to_0.1_lowteacher | Decisive rate: 99.8% (1198/1200) ===
+    Self-Play decisive rate: 100.0% (153/153)
+Buffer: 94,866 pos (8 shards, min_iter=1) | W/D/L: 50.3%/0.6%/49.1% | Teacher labeled: 40.2%
+Resumed weights from agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.23
+step  100/600: tot=1.505 (out=1.046, teach=1.997) | val_teacher=0.389, val_win_move=0.545 (21s) *saved*
+step  200/600: tot=1.207 (out=0.773, teach=1.891) | val_teacher=0.377, val_win_move=0.528 (39s)
+step  300/600: tot=0.936 (out=0.556, teach=1.651) | val_teacher=0.369, val_win_move=0.536 (58s)
+step  400/600: tot=0.733 (out=0.414, teach=1.389) | val_teacher=0.380, val_win_move=0.553 (76s)
+step  500/600: tot=0.619 (out=0.351, teach=1.169) | val_teacher=0.379, val_win_move=0.556 (95s) *saved*
+step  600/600: tot=0.562 (out=0.324, teach=1.037) | val_teacher=0.378, val_win_move=0.557 (113s) *saved*
+Finished training -> weights saved to agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+=== Generating Iteration 3: 1200 games [DAgger/League Self-Play (agents/exp_lam_0.5_to_0.1_lowteacher)] (keep=1.0, teacher_rate=0.4) ===
+[iter 3] worker 0: 50/300 games (21332 games/hr, decisive=100.0%), 1,712 pos
+[iter 3] worker 3: 50/300 games (16422 games/hr, decisive=100.0%), 2,038 pos
+[iter 3] worker 2: 50/300 games (14595 games/hr, decisive=100.0%), 2,164 pos
+[iter 3] worker 1: 50/300 games (14483 games/hr, decisive=100.0%), 2,164 pos
+[iter 3] worker 0: 100/300 games (18850 games/hr, decisive=100.0%), 3,651 pos
+[iter 3] worker 2: 100/300 games (16389 games/hr, decisive=100.0%), 3,856 pos
+[iter 3] worker 3: 100/300 games (16354 games/hr, decisive=100.0%), 4,049 pos
+[iter 3] worker 1: 100/300 games (15199 games/hr, decisive=100.0%), 4,228 pos
+[iter 3] worker 0: 150/300 games (19253 games/hr, decisive=100.0%), 5,317 pos
+[iter 3] worker 3: 150/300 games (17026 games/hr, decisive=100.0%), 5,820 pos
+[iter 3] worker 1: 150/300 games (16328 games/hr, decisive=100.0%), 5,930 pos
+[iter 3] worker 2: 150/300 games (15492 games/hr, decisive=100.0%), 6,128 pos
+[iter 3] worker 0: 200/300 games (19491 games/hr, decisive=100.0%), 6,992 pos
+[iter 3] worker 1: 200/300 games (16697 games/hr, decisive=100.0%), 7,737 pos
+[iter 3] worker 3: 200/300 games (16386 games/hr, decisive=100.0%), 7,972 pos
+[iter 3] worker 2: 200/300 games (15751 games/hr, decisive=99.5%), 8,050 pos
+[iter 3] worker 0: 250/300 games (18276 games/hr, decisive=100.0%), 9,147 pos
+[iter 3] worker 1: 250/300 games (16713 games/hr, decisive=100.0%), 9,688 pos
+[iter 3] worker 3: 250/300 games (16586 games/hr, decisive=100.0%), 10,030 pos
+[iter 3] worker 2: 250/300 games (15947 games/hr, decisive=99.6%), 10,116 pos
+[iter 3] worker 0: 300/300 games (17963 games/hr, decisive=100.0%), 11,105 pos
+[iter 3] worker 3: 300/300 games (17051 games/hr, decisive=100.0%), 11,748 pos
+[iter 3] worker 1: 300/300 games (16901 games/hr, decisive=100.0%), 11,786 pos
+[iter 3] worker 2: 300/300 games (16423 games/hr, decisive=99.7%), 11,902 pos
+=== Iteration 3 complete: added 46,541 positions to data/buf_lam_0.5_to_0.1_lowteacher | Decisive rate: 99.9% (1199/1200) ===
+    Self-Play decisive rate: 100.0% (158/158)
+Buffer: 141,407 pos (12 shards, min_iter=1) | W/D/L: 50.4%/0.5%/49.1% | Teacher labeled: 40.1%
+Resumed weights from agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.10
+step  100/600: tot=1.000 (out=0.802, teach=2.033) | val_teacher=0.381, val_win_move=0.612 (21s) *saved*
+step  200/600: tot=0.976 (out=0.751, teach=2.310) | val_teacher=0.385, val_win_move=0.609 (39s) *saved*
+step  300/600: tot=0.767 (out=0.544, teach=2.281) | val_teacher=0.391, val_win_move=0.618 (58s) *saved*
+step  400/600: tot=0.594 (out=0.388, teach=2.096) | val_teacher=0.389, val_win_move=0.638 (76s) *saved*
+step  500/600: tot=0.502 (out=0.318, teach=1.885) | val_teacher=0.396, val_win_move=0.650 (95s) *saved*
+step  600/600: tot=0.465 (out=0.291, teach=1.772) | val_teacher=0.391, val_win_move=0.650 (114s)
+Finished training -> weights saved to agents/exp_lam_0.5_to_0.1_lowteacher\weights\model.safetensors
+1. Layout
+  non-weight files: 8 KB (limit 5120 KB)
+2. Size
+       2,106,957  weights\model.safetensors
+       2,106,957  parameters in total (limit 250,000,000)
+3. Play
+  loaded in 1.3 s
+  10 games against bot:random: 10 wins
+4. Replay
+  same moves on replay
+5. Compute
+  FLOPs per move: mean 2.31e+08, max 2.31e+08 (budget 1e+12, max uses 0.0% of it)
+  time on this machine (for information; tournaments limit FLOPs, not time):
+  per move: mean 18.6 ms, 95th percentile 10.7 ms, max 787.1 ms
+
+VALID
+Playing 900 games with 1 worker(s)...
+  90/900 games
+  180/900 games
+  270/900 games
+  360/900 games
+  450/900 games
+  540/900 games
+  630/900 games
+  720/900 games
+  810/900 games
+  900/900 games
+
+Results (score of the first player in each pair):
+  agents/baseline                vs agents/exp_lam_0.5_to_0.1_lowteacher  75.0 / 150
+  agents/baseline                vs bot:greedy                      93.0 / 150
+  agents/baseline                vs bot:guess-sf-4x500              83.0 / 150
+  agents/exp_lam_0.5_to_0.1_lowteacher vs bot:greedy                     113.0 / 150
+  agents/exp_lam_0.5_to_0.1_lowteacher vs bot:guess-sf-4x500              93.0 / 150
+  bot:greedy                     vs bot:guess-sf-4x500              58.0 / 150
+
+How games ended: {'king captured': 900}
+
+Ratings (95% interval):
+  agents/exp_lam_0.5_to_0.1_lowteacher    1147   [ 1115,  1177]
+  agents/baseline                   1110   [ 1069,  1143]
+  bot:guess-sf-4x500                1060   [ 1060,  1060] (reference, fixed)
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)

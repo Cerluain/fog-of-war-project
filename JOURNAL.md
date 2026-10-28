@@ -65,3 +65,38 @@ Reduction: The r=1 only added about 200k parameters but still had a decent impro
 I'll work on changing the teacher labels
 
 - **AI help:** Used Gemini to develop the scripts generating the buffer data and training the model the same way as alphazero, while also keeping the simple fights between bots for warmup. And kept the teacher labels for now. Gemini for organizing the result outputs to a nice visual for myself. 
+
+
+### 2026-10-27: Various "teacher learning" decay rates
+- **Question / hypothesis:** At what rate of decay is it best to move away from using teacher labels(stockfish that looks at full board)?
+My hypothesis is that having a teacher learning decay would be optimal: at first the model needs can learn more aggressively by labeling each move. But no guesses of what exact rate is optimal.
+- **Commit:** 
+- **Setup:** 
+    Parameters: 128 channels, 6 res blocks, 22 in features. 
+    Training: 4 iterations, 1.6k warmup games + 1.2k dataset aggregation of self-play/iter, 600 sgd steps/iteration, 2048 batch size
+- **Result:** 
+
+When scored againts the baseline and provided bots these were the results:
+![alt text](experiments\plots\lambda_sweep_summary.png)
+
+And these were the round robin results of configuration bots that fought each other:
+Ratings (95% interval):
+  agents/v2_se_model                            1385   [ 1275,  1498]
+  agents/exp_lam_0.5_to_0.1_lowteacher/         1368   [ 1265,  1505]
+  agents/exp_lam_1.0_to_0.05_steep/             1304   [ 1193,  1431]
+  agents/exp_lam_1.0_to_0.05_winonly/           1266   [ 1165,  1384]
+  agents/exp_lam_2.0_to_0.5_heavyanchor/        1221   [ 1115,  1360]
+  agents/exp_lam_1.5_to_0.1_annealed/           1221   [ 1084,  1333]
+  agents/exp_lam_1.0_to_0.3_moderate/           1221   [ 1095,  1327]
+  agents/exp_lam_1.0_to_1.0_fixed/              1213   [ 1100,  1313]
+  agents/exp_lam_0.0_to_0.0_pureoutcome/        1144   [ 1035,  1274]
+  bot:greedy                                    1000   [ 1000,  1000] (reference, fixed)
+
+
+
+- **Decision:** 
+Teacher Labels: Despite increasing the training data(not my by much though) and shifting to Reinforcement Learning we are still stuck in the 1000s ELO. And I would blame this on the fact I haven't changed how labels are made(we still use the omniscient stockfish). This is also clear because the higher validation acc. of r=2 didn't translate to arena performance.
+Reduction: The r=1 only added about 200k parameters but still had a decent improvement over r=2. I'll no longer consider a reduction of r=4 since exact tweaks over the channels prove beneficial.
+I'll work on changing the teacher labels
+
+- **AI help:** Used Gemini to develop the scripts generating the buffer data and training the model the same way as alphazero, while also keeping the simple fights between bots for warmup. And kept the teacher labels for now. Gemini for organizing the result outputs to a nice visual for myself. 
