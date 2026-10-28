@@ -216,6 +216,8 @@ def worker(args):
         players["white"].reset("white", rng.randrange(1 << 30))
         players["black"].reset("black", rng.randrange(1 << 30))
         mem = {"white": Memory(), "black": Memory()}
+        prev_obs = {"white": None, "black": None}
+        pre_prev_obs = {"white": None, "black": None}
         game = Game()
 
         game_traj = []
@@ -227,6 +229,10 @@ def worker(args):
             c = obs["color"]
             ply += 1
             mem[c].update(obs)
+            mem_cls = getattr(features, "AgentMemory", Memory)
+            mem = {"white": mem_cls(), "black": mem_cls()}
+            
+            enc_x = encode(obs, mem[c]) if keep_pos else None
 
             keep_pos = (rng.random() < keep)
             t_idx = -1
@@ -238,10 +244,6 @@ def worker(args):
                     t_idx = move_index(normalize_uci(t_uci), c)
                     has_t = 1
 
-            mem_cls = getattr(features, "AgentMemory", Memory)
-            mem = {"white": mem_cls(), "black": mem_cls()}
-
-            enc_x = encode(obs, mem[c]) if keep_pos else None
             leg_map = legal_indices(obs) if keep_pos else None
 
             played_uci = players[c].act(obs)
