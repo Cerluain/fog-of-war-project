@@ -98,3 +98,37 @@ The top models, ignoring my top best model as the top benchmark, were the 0.5 to
 Teacher labels
 
 - **AI help:** 
+
+
+
+### 2026-10-27: Returning a smaller keep=0.333 for training data efficiency
+- **Question / hypothesis:** Got rid of the keep when Reinforcement Learning was addeded. Evaluating difference in performance when keep of .333 is kept at iteration 0 with 3x the games so the training data remains the same.
+- **Commit:** 
+- **Setup:** 
+    Parameters: 128 channels, 6 res blocks, 22 in features. 
+    Training: 12 iterations, (5k vs 15k) warmup games + 3.6k dataset aggregation of self-play/iter, 1200 sgd steps/iteration, 2048 batch size, evicts warmup after 2 iterations
+- **Result:** 
+
+And these were the round robin results of configuration bots that fought each other:
+Ratings (95% interval):
+  agents\v1_se_model(keep = 0.333)          1392   [ 1186,  1688]
+  agents\v2_se_model(keep = 1)              1295   [ 1115,  1549]
+  agents\exp_lam_0.5_to_0.1_lowteacher      1244   [  970,  1519]
+  agents\exp_lam_1.0_to_0.05_steep          1227   [ 1020,  1506]
+  agents\exp_lam_1.0_to_1.0_fixed           1164   [ 1010,  1417]
+  agents\exp_lam_1.0_to_0.3_moderate        1164   [  995,  1401]
+  agents\exp_lam_1.0_to_0.05_winonly        1164   [  923,  1451]
+  agents\exp_lam_2.0_to_0.5_heavyanchor     1132   [  838,  1355]
+  agents\exp_lam_1.5_to_0.1_annealed        1132   [  889,  1377]
+  agents\exp_lam_0.0_to_0.0_pureoutcome     1067   [  818,  1344]
+  bot:greedy                                1000   [ 1000,  1000] (reference, fixed)
+  agents\baseline                            997   [  726,  1205]
+  agents\template                            115   [  -26,   226]
+
+Very significant difference in performance, even considering the evict warmup after 2 iterations which in hindsight was aggressive.
+
+- **Decision:** 
+Teacher labels
+
+- **AI help:** 
+
