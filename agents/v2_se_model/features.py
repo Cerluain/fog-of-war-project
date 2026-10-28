@@ -14,7 +14,7 @@ Moves: index = from_square * 64 + to_square (oriented). Promotions always use th
 import numpy as np
 
 ORDER = "PNBRQK"
-N_PLANES = 22
+N_PLANES = 34 # Updated to have last 2 hidden moves
 N_MOVES = 64 * 64
 
 
@@ -26,7 +26,7 @@ def orient(sq: int, color: str) -> int:
     return sq if color == "white" else sq ^ 56
 
 
-def encode(obs: dict, last_seen: dict) -> np.ndarray:
+def encode(obs: dict, last_seen: dict, prev: dict, pre_prev: dict) -> np.ndarray:
     c = obs["color"]
     x = np.zeros((N_PLANES, 64), np.uint8)
     for s, t in obs["own"].items():
@@ -35,14 +35,20 @@ def encode(obs: dict, last_seen: dict) -> np.ndarray:
         x[6 + ORDER.index(t), orient(sq_index(s), c)] = 1
     for s in obs["visible"]:
         x[12, orient(sq_index(s), c)] = 1
+    if prev:
+        for s, t in prev["enemy"].items():
+            x[13 + ORDER.index(t), orient(sq_index(s), c)] = 1
+    if pre_prev:
+        for s, t in pre_prev["enemy"].items():
+            x[19 + ORDER.index(t), orient(sq_index(s), c)] = 1
     for s, t in last_seen.items():
-        x[13 + ORDER.index(t), orient(sq_index(s), c)] = 1
+        x[25 + ORDER.index(t), orient(sq_index(s), c)] = 1
     if obs["castling"]["kingside"]:
-        x[19] = 1
+        x[31] = 1
     if obs["castling"]["queenside"]:
-        x[20] = 1
+        x[32] = 1
     if obs.get("lost_on"):
-        x[21, orient(sq_index(obs["lost_on"]), c)] = 1
+        x[33, orient(sq_index(obs["lost_on"]), c)] = 1
     return x.reshape(N_PLANES, 8, 8)
 
 
