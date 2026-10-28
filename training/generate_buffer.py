@@ -95,7 +95,7 @@ class ExploratoryAgentWrapper:
 
         self.agent.memory.update(obs)
         legal = self.features.legal_indices(obs)
-        encoded = self.features.encode(obs, self.agent.memory.last_seen)
+        encoded = self.features.encode(obs, self.agent.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0)
         out = self.agent.net(x)
         logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
@@ -238,7 +238,10 @@ def worker(args):
                     t_idx = move_index(normalize_uci(t_uci), c)
                     has_t = 1
 
-            enc_x = encode(obs, mem[c].last_seen) if keep_pos else None
+            mem_cls = getattr(features, "AgentMemory", Memory)
+            mem = {"white": mem_cls(), "black": mem_cls()}
+
+            enc_x = encode(obs, mem[c]) if keep_pos else None
             leg_map = legal_indices(obs) if keep_pos else None
 
             played_uci = players[c].act(obs)

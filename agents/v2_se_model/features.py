@@ -11,7 +11,26 @@ Input planes (22 x 8 x 8):
    21    the square where you lost a piece on the opponent's last move
 Moves: index = from_square * 64 + to_square (oriented). Promotions always use the queen.
 """
+# Add to features.py
 import numpy as np
+# Add to features.py
+from fow.memory import Memory as BaseMemory
+
+class AgentMemory(BaseMemory):
+    """Wraps official fow.memory.Memory and tracks prior observations."""
+    def __init__(self):
+        super().__init__()
+        self.prev = {"enemy": {}}
+        self.pre_prev = {"enemy": {}}
+        self._curr = None
+
+    def update(self, obs: dict) -> None:
+        super().update(obs)
+        if self._curr is not None:
+            self.pre_prev = self.prev
+            self.prev = self._curr
+        # Store a shallow copy of the current enemy dict for the next turn
+        self._curr = {"enemy": dict(obs["enemy"])}
 
 ORDER = "PNBRQK"
 N_PLANES = 34 # Updated to have last 2 hidden moves
@@ -26,21 +45,33 @@ def orient(sq: int, color: str) -> int:
     return sq if color == "white" else sq ^ 56
 
 
-def encode(obs: dict, last_seen: dict, prev: dict, pre_prev: dict) -> np.ndarray:
+# In features.py
+def encode(obs: dict, memory) -> np.ndarray:
     c = obs["color"]
     x = np.zeros((N_PLANES, 64), np.uint8)
+
+    # Support both passing the full Memory object OR a legacy last_seen dict
+    if isinstance(memory, dict):
+        last_seen = memory
+        prev_enemy = {}
+        pre_prev_enemy = {}
+    else:
+        last_seen = getattr(memory, "last_seen", {})
+        prev_obs = getattr(memory, "prev", None) or {}
+        pre_prev_obs = getattr(memory, "pre_prev", None) or {}
+        prev_enemy = prev_obs.get("enemy", {})
+        pre_prev_enemy = pre_prev_obs.get("enemy", {})
+
     for s, t in obs["own"].items():
         x[ORDER.index(t), orient(sq_index(s), c)] = 1
     for s, t in obs["enemy"].items():
         x[6 + ORDER.index(t), orient(sq_index(s), c)] = 1
     for s in obs["visible"]:
         x[12, orient(sq_index(s), c)] = 1
-    if prev:
-        for s, t in prev["enemy"].items():
-            x[13 + ORDER.index(t), orient(sq_index(s), c)] = 1
-    if pre_prev:
-        for s, t in pre_prev["enemy"].items():
-            x[19 + ORDER.index(t), orient(sq_index(s), c)] = 1
+    for s, t in prev_enemy.items():
+        x[13 + ORDER.index(t), orient(sq_index(s), c)] = 1
+    for s, t in pre_prev_enemy.items():
+        x[19 + ORDER.index(t), orient(sq_index(s), c)] = 1
     for s, t in last_seen.items():
         x[25 + ORDER.index(t), orient(sq_index(s), c)] = 1
     if obs["castling"]["kingside"]:

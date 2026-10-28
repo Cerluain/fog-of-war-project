@@ -15,8 +15,6 @@ class Memory:
         self.last_seen: dict[str, str] = {}
         self.captured = {t: 0 for t in START_COUNT}
         self._prev: dict | None = None
-        self._pre_prev: dict | None = None 
-        
 
     def update(self, obs: dict) -> None:
         prev = self._prev
@@ -37,8 +35,6 @@ class Memory:
             hidden = [s for s, u in self.last_seen.items() if u == t and s not in obs["enemy"]]
             for s in hidden[max(0, remaining[t] - visible_t):]:
                 del self.last_seen[s]
-        
-        self._pre_prev = prev
         self._prev = obs
 
     def remaining(self) -> dict[str, int]:
