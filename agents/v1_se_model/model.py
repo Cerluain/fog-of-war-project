@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 class SE_Block_Yours_Fixed(nn.Module):
     """Your implementation with the [:, :, None, None] broadcasting fix (Standard Hu et al. SE-ResNet)."""
-    def __init__(self, c, se_reduction=2):
+    def __init__(self, c, se_reduction):
         super().__init__()
         self.c1 = nn.Conv2d(c, c, 3, padding=1, bias=False)
         self.b1 = nn.BatchNorm2d(c)
@@ -30,7 +30,7 @@ class SE_Block_Yours_Fixed(nn.Module):
 
 class SE_Block(nn.Module):
     """Enhanced Lc0-style SE-ResNet Block (Scale + Bias recalibration)."""
-    def __init__(self, c, se_reduction=2):
+    def __init__(self, c, se_reduction):
         super().__init__()
         self.c1 = nn.Conv2d(c, c, 3, padding=1, bias=False)
         self.b1 = nn.BatchNorm2d(c)
