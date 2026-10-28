@@ -73,7 +73,7 @@ def worker(args):
                         label = label[:4] + "q"
                     mask = np.zeros(N_MOVES, np.uint8)
                     mask[list(legal_indices(obs))] = 1
-                    xs.append(encode(obs, mem[c].last_seen))
+                    xs.append(encode(obs, mem[c]))
                     ys.append(move_index(label, c))
                     legals.append(np.packbits(mask))
             game.play(players[c].act(obs))

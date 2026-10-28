@@ -46,7 +46,7 @@ class Agent:
     @torch.no_grad()
     def act(self, obs: dict) -> str:
         self.memory.update(obs)
-        encoded = self.features.encode(obs, self.memory.last_seen)
+        encoded = self.features.encode(obs, self.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
         logits = self.net(x)[0].cpu()
         legal = self.features.legal_indices(obs)
