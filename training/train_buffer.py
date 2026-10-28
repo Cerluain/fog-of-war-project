@@ -188,9 +188,10 @@ def main():
         with torch.amp.autocast("cuda", enabled=use_amp):
             masked_logits, v_pred = forward_net(xb, mb)
 
-            # 1. Teacher Cross-Entropy Loss (on masked subset with teacher labels)
+            # 1. Teacher Cross-Entropy Loss (scaled by teacher_rate density in the batch)
             if args.teacher_weight > 0 and htb.any():
-                ce_t = F.cross_entropy(masked_logits[htb], ytb[htb])
+                teacher_density = htb.float().mean()  # Equals teacher_rate (N_labeled / Batch_Size)
+                ce_t = teacher_density * F.cross_entropy(masked_logits[htb], ytb[htb])
             else:
                 ce_t = torch.tensor(0.0, device=dev)
 
