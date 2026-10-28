@@ -1,0 +1,32 @@
+Playing 2000 games with 1 worker(s)...
+  200/2000 games
+  400/2000 games
+  600/2000 games
+  800/2000 games
+  1000/2000 games
+  1200/2000 games
+  1400/2000 games
+  1600/2000 games
+  1800/2000 games
+  2000/2000 games
+
+Results (score of the first player in each pair):
+  agents/baseline                vs agents/v1_se_model               0.0 / 200
+  agents/baseline                vs bot:greedy                     145.0 / 200
+  agents/baseline                vs bot:guess-sf-4x500             120.0 / 200
+  agents/baseline                vs submission                     100.0 / 200
+  agents/v1_se_model             vs bot:greedy                     170.0 / 200
+  agents/v1_se_model             vs bot:guess-sf-4x500             161.0 / 200
+  agents/v1_se_model             vs submission                     200.0 / 200
+  bot:greedy                     vs bot:guess-sf-4x500              76.0 / 200
+  bot:greedy                     vs submission                      42.0 / 200
+  bot:guess-sf-4x500             vs submission                      59.0 / 200
+
+How games ended: {'king captured': 2000}
+
+Ratings (95% interval):
+  agents/v1_se_model                1502   [ 1449,  1546]
+  submission                        1153   [ 1121,  1181]
+  agents/baseline                   1124   [ 1095,  1151]
+  bot:guess-sf-4x500                1060   [ 1060,  1060] (reference, fixed)
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)

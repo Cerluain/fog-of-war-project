@@ -11,7 +11,7 @@ Examples
     python -m fow.arena submission bot:guess-sf-4x500 --device cuda --workers 4 --official
 
     # My template for many of these: 
-    python -m fow.arena agents/baseline agents/v1_se_model bot:greedy bot:guess-sf-20x500 --games 100 --workers 3 --device cuda
+    python -m fow.arena agents/v2_se_model agents/baseline agents/v1_se_model bot:greedy bot:guess-sf-20x500 --mode round-robin --games 30 --workers 5 --device cuda
 
 Ratings are printed on the tournament scale: reference bots keep their published ratings
 (fow/bots.py REFERENCE_RATINGS); everyone else is estimated from the games played here.
