@@ -48,7 +48,8 @@ class Agent:
         self.memory.update(obs)
         encoded = self.features.encode(obs, self.memory.last_seen)
         x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
-        logits = self.net(x)[0].cpu()
+        out = self.net(x)
+        logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
         legal = self.features.legal_indices(obs)
         best = max(legal, key=lambda i: logits[i].item())
         return legal[best]
