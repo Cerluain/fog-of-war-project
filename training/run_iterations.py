@@ -32,7 +32,8 @@ def main():
     ap.add_argument("--games-per-iter", type=int, default=1500, help="New games added per subsequent iteration")
     ap.add_argument("--workers", type=int, default=4, help="CPU workers for data generation")
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
-    ap.add_argument("--teacher-rate", type=float, default=0.5, help="Fraction of positions labeled by Stockfish")
+    ap.add_argument("--teacher-rate-start", type=float, default=0.9, help="Stockfish labeling rate on Iteration 0")
+    ap.add_argument("--teacher-rate-end", type=float, default=0.01, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
@@ -46,8 +47,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--wd", type=float, default=1e-3)
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
-    ap.add_argument("--lambda-start", type=float, default=1.0, help="Teacher weight lambda on Iteration 0")
-    ap.add_argument("--lambda-end", type=float, default=0.2, help="Teacher weight lambda on final iteration")
+    ap.add_argument("--lambda-start", type=float, default=0.8, help="Teacher weight lambda on Iteration 0")
+    ap.add_argument("--lambda-end", type=float, default=0.05, help="Teacher weight lambda on final iteration")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     args = ap.parse_args()
@@ -59,12 +60,16 @@ def main():
     for it in range(args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
 
-        # Linearly anneal teacher weight lambda from lambda_start -> lambda_end
-        if args.iterations > 1:
+        # Exponentially anneal teacher weight lambda from lambda_start -> lambda_end
+        if args.iterations > 1 and args.lambda_start > 0 and args.lambda_end > 0:
             frac = it / (args.iterations - 1)
-            lam = args.lambda_start + frac * (args.lambda_end - args.lambda_start)
+            lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** frac)
+            
+            # Also decay teacher_rate so CPU generation speeds up and buffer teacher density drops
+            cur_t_rate = args.teacher_rate_start + frac * (args.teacher_rate_end - args.teacher_rate_start)
         else:
             lam = args.lambda_start
+            cur_t_rate = args.teacher_rate_start
 
         # On iteration 0 warmup, reference bots play, so weight teacher higher; outcome kicks in fully on iter >= 1
         outcome_w = 0.5 if it == 0 else 1.0
