@@ -92,11 +92,9 @@ Ratings (95% interval):
   agents/exp_lam_0.0_to_0.0_pureoutcome/        1144   [ 1035,  1274]
   bot:greedy                                    1000   [ 1000,  1000] (reference, fixed)
 
-
+The top models, ignoring my top best model as the top benchmark, were the 0.5 to 0.1 and 1.0 to 0.05, highlighting that teacher decay is very effective
 
 - **Decision:** 
-Teacher Labels: Despite increasing the training data(not my by much though) and shifting to Reinforcement Learning we are still stuck in the 1000s ELO. And I would blame this on the fact I haven't changed how labels are made(we still use the omniscient stockfish). This is also clear because the higher validation acc. of r=2 didn't translate to arena performance.
-Reduction: The r=1 only added about 200k parameters but still had a decent improvement over r=2. I'll no longer consider a reduction of r=4 since exact tweaks over the channels prove beneficial.
-I'll work on changing the teacher labels
+Teacher labels
 
-- **AI help:** Used Gemini to develop the scripts generating the buffer data and training the model the same way as alphazero, while also keeping the simple fights between bots for warmup. And kept the teacher labels for now. Gemini for organizing the result outputs to a nice visual for myself. 
+- **AI help:** 
