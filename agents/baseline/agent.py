@@ -34,7 +34,7 @@ class Agent:
     @torch.no_grad()
     def act(self, obs: dict) -> str:
         self.memory.update(obs)
-        x = torch.from_numpy(encode(obs, self.memory.last_seen)).float().unsqueeze(0).to(self.device)
+        x = torch.from_numpy(encode(obs, self.memory)).float().unsqueeze(0).to(self.device)
         logits = self.net(x)[0].cpu()
         legal = legal_indices(obs)
         best = max(legal, key=lambda i: logits[i].item())

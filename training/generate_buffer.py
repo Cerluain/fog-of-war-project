@@ -217,7 +217,8 @@ def worker(args):
 
         players["white"].reset("white", rng.randrange(1 << 30))
         players["black"].reset("black", rng.randrange(1 << 30))
-        mem = {"white": Memory(), "black": Memory()}
+        mem_cls = getattr(features, "AgentMemory", Memory)
+        mem = {"white": mem_cls(), "black": mem_cls()}
         prev_obs = {"white": None, "black": None}
         pre_prev_obs = {"white": None, "black": None}
         game = Game()
@@ -231,8 +232,6 @@ def worker(args):
             c = obs["color"]
             ply += 1
             mem[c].update(obs)
-            mem_cls = getattr(features, "AgentMemory", Memory)
-            mem = {"white": mem_cls(), "black": mem_cls()}
 
             keep_pos = (rng.random() < keep)
             t_idx = -1

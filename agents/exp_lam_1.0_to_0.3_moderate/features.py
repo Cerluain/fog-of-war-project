@@ -26,9 +26,10 @@ def orient(sq: int, color: str) -> int:
     return sq if color == "white" else sq ^ 56
 
 
-def encode(obs: dict, last_seen: dict) -> np.ndarray:
+def encode(obs: dict, memory) -> np.ndarray:
     c = obs["color"]
     x = np.zeros((N_PLANES, 64), np.uint8)
+    last_seen = memory.last_seen
     for s, t in obs["own"].items():
         x[ORDER.index(t), orient(sq_index(s), c)] = 1
     for s, t in obs["enemy"].items():
