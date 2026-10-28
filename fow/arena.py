@@ -7,7 +7,7 @@ Examples
     # every player against every other player
     python -m fow.arena submission agents/baseline bot:greedy --mode round-robin --games 20
 
-    # every agent under agents/ against every other agent
+    # every agent under agents/ and the greedy bot against every other player
     python -m fow.arena --all-agents --games 20
 
     # on a GPU node, 4 games at a time, with the tournament per-move limits
@@ -43,6 +43,24 @@ def _init(cfg):
 
 
 def _run(job):
+    white, black, seed = job
+    max_cache = _cfg.get("max_cache")  # None unless --all-agents is used
+    for spec in (white, black):
+        if spec not in _players:
+            if max_cache is not None:
+                while len(_players) >= max_cache:
+                    # Evict the oldest cached player (don't evict the opponent we just loaded!)
+                    old_spec = next(k for k in _players if k not in (white, black))
+                    old_player = _players.pop(old_spec)
+                    if hasattr(old_player, "close"):
+                        old_player.close()
+            _players[spec] = make_player(spec, _cfg["device"], _cfg["log_dir"])
+    tc = TimeControl(max_flops=_cfg["max_flops"], move_cap=_cfg["move_cap"],
+                     clock=_cfg["clock"], increment=_cfg["increment"])
+    rec = play_game(_players[white], _players[black], seed, tc)
+    rec.white, rec.black = white, black
+    return asdict(rec)
+
     white, black, seed = job
     for spec in (white, black):
         if spec not in _players:
@@ -135,7 +153,7 @@ def main(argv=None):
         if args.players:
             ap.error("--all-agents cannot be combined with explicit players")
         try:
-            args.players = discover_agents()
+            args.players = discover_agents() + ["bot:greedy"]
         except ValueError as exc:
             ap.error(str(exc))
         args.mode = "round-robin"
@@ -147,8 +165,14 @@ def main(argv=None):
         from .limits import MAX_MOVE_FLOPS, MOVE_WALL_SECONDS
         args.max_flops = args.max_flops or MAX_MOVE_FLOPS
         args.move_cap = args.move_cap or MOVE_WALL_SECONDS
+        # Only cap the per-worker cache when --all-agents is enabled and there are > 7 players.
+    
+    # Capping total processes across all workers to ~16 (min 2 per worker) prevents WinError 1455.
+    max_cache = max(2, 16 // max(1, args.workers)) if (args.all_agents and len(args.players) > 7) else None
+
     cfg = dict(device=args.device, log_dir=args.log_dir, clock=args.clock, increment=args.increment,
-               move_cap=args.move_cap, max_flops=args.max_flops)
+               move_cap=args.move_cap, max_flops=args.max_flops, max_cache=max_cache)
+
     print(f"Playing {len(jobs)} games with {args.workers} worker(s)...", flush=True)
     records = []
     out = open(args.out, "w") if args.out else None
