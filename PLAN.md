@@ -56,3 +56,4 @@ Is the amount of training saved worth using the Maia 2 weights and possibly have
 [] Figure out how to get more varied data (Similar to Idea 2)
 [] Add MCTS for search
 [] Add a hidden board belief component (ensemble: takes embeding or best guess, or multi-headed network: policy head, hidden head, maybe even other head)
+[] Figure out a good training benchmark, because baseline is deterministic and going in arena against it gives either 0%, 50% or 100% win rate giving very weird elo metrics. And even the greedy and sf-guess are likely not the best benchmarks, especially once we scale.
