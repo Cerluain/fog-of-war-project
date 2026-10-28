@@ -241,6 +241,18 @@ def worker(args):
 
             if keep_pos and engine is not None and rng.random() < teacher_rate:
                 t_uci = teacher_move(engine, game, nodes)
+                if t_uci is None:
+                    # If Stockfish crashed on a FOW board state, respawn it
+                    try:
+                        engine.ping()
+                    except Exception:
+                        try:
+                            engine.quit()
+                        except Exception:
+                            pass
+                        engine = chess.engine.SimpleEngine.popen_uci(stockfish_path())
+                        engine.configure({"Threads": 1, "Hash": 16})
+                        t_uci = teacher_move(engine, game, nodes)
                 if t_uci is not None:
                     t_idx = move_index(normalize_uci(t_uci), c)
                     has_t = 1
@@ -289,10 +301,16 @@ def worker(args):
             )
 
     if engine is not None:
-        engine.quit()
+        try:
+            engine.quit()
+        except Exception:
+            pass
     for bot in bots.values():
         if hasattr(bot, "close"):
-            bot.close()
+            try:
+                bot.close()
+            except Exception:
+                pass
 
     path = os.path.join(out, f"iter_{iteration:03d}_shard_{seed}_{wid}.npz")
     np.savez_compressed(
