@@ -1,0 +1,39 @@
+Buffer: 62,040 pos (4 shards, min_iter=0) | W/D/L: 50.6%/0.0%/49.4% | Teacher labeled: 49.9%
+Model: 2,103,616 params | mode=advantage, outcome_w=0.50, teacher_lambda=1.00
+step  100/600: tot=2.602 (out=2.766, teach=1.232) | val_teacher=0.290, val_win_move=0.240 (20s) *saved*
+step  200/600: tot=1.784 (out=1.940, teach=0.824) | val_teacher=0.280, val_win_move=0.259 (36s) *saved*
+step  300/600: tot=1.302 (out=1.440, teach=0.589) | val_teacher=0.316, val_win_move=0.276 (53s) *saved*
+step  400/600: tot=0.939 (out=1.057, teach=0.416) | val_teacher=0.342, val_win_move=0.263 (70s) *saved*
+step  500/600: tot=0.693 (out=0.791, teach=0.302) | val_teacher=0.347, val_win_move=0.283 (87s) *saved*
+step  600/600: tot=0.585 (out=0.673, teach=0.252) | val_teacher=0.350, val_win_move=0.283 (104s) *saved*
+Finished training -> weights saved to agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+=== Generating Iteration 1: 1200 games [DAgger/League Self-Play (agents/exp_B_lam_1.0_to_0.1)] (keep=1.0, teacher_rate=0.201) ===
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 48, in mapstar
+    return list(map(*args))
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 235, in worker
+    enc_x = encode(obs, mem[c]) if keep_pos else None
+                                   ^^^^^^^^
+UnboundLocalError: cannot access local variable 'keep_pos' where it is not associated with a value
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 367, in <module>
+    main()
+  File "C:\Users\leona\DEV\PROJECTS\Deep Learning - Fog of War\fog-of-war-project\training\generate_buffer.py", line 347, in main
+    res = pool.map(worker, jobs)
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 367, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 774, in get
+    raise self._value
+UnboundLocalError: cannot access local variable 'keep_pos' where it is not associated with a value
