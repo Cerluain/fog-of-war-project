@@ -7,6 +7,9 @@ Examples
     # every player against every other player
     python -m fow.arena submission agents/baseline bot:greedy --mode round-robin --games 20
 
+    # every agent under agents/ against every other agent
+    python -m fow.arena --all-agents --games 20
+
     # on a GPU node, 4 games at a time, with the tournament per-move limits
     python -m fow.arena submission bot:guess-sf-4x500 --device cuda --workers 4 --official
 
@@ -68,6 +71,20 @@ def schedule(players, mode, games, seed):
     return jobs
 
 
+def discover_agents(agent_root="agents"):
+    """Return all immediate agent directories beneath *agent_root*."""
+    if not os.path.isdir(agent_root):
+        raise ValueError(f"agent directory not found: {agent_root}")
+    agents = [
+        os.path.join(agent_root, name)
+        for name in sorted(os.listdir(agent_root))
+        if os.path.isfile(os.path.join(agent_root, name, "agent.py"))
+    ]
+    if not agents:
+        raise ValueError(f"no agents found in: {agent_root}")
+    return agents
+
+
 def report(records, pinned):
     score = defaultdict(lambda: [0.0, 0])
     for r in records:
@@ -95,7 +112,9 @@ def report(records, pinned):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("players", nargs="+", help="agent directories or bot names (bot:random, bot:greedy, bot:naive-sf, bot:guess-sf-KxN)")
+    ap.add_argument("players", nargs="*", help="agent directories or bot names (bot:random, bot:greedy, bot:naive-sf, bot:guess-sf-KxN)")
+    ap.add_argument("--all-agents", action="store_true",
+                    help="battle every agent directory under agents/ in round-robin mode")
     ap.add_argument("--mode", choices=["vs", "round-robin"], default="vs",
                     help="vs: the first player against each of the others (default)")
     ap.add_argument("--games", type=int, default=20, help="games per pairing, colors alternate")
@@ -111,6 +130,17 @@ def main(argv=None):
     ap.add_argument("--out", default=None, help="write one JSON line per game here")
     ap.add_argument("--log-dir", default="arena_logs", help="agents' stderr goes here")
     args = ap.parse_args(argv)
+
+    if args.all_agents:
+        if args.players:
+            ap.error("--all-agents cannot be combined with explicit players")
+        try:
+            args.players = discover_agents()
+        except ValueError as exc:
+            ap.error(str(exc))
+        args.mode = "round-robin"
+    elif not args.players:
+        ap.error("provide at least one player or use --all-agents")
 
     jobs = schedule(args.players, args.mode, args.games, args.seed)
     if args.official:
