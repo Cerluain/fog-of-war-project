@@ -37,3 +37,166 @@ Traceback (most recent call last):
   File "C:\Users\leona\AppData\Local\Programs\Python\Python311\Lib\multiprocessing\pool.py", line 774, in get
     raise self._value
 UnboundLocalError: cannot access local variable 'keep_pos' where it is not associated with a value
+Buffer: 51,404 pos (3 shards, min_iter=0) | W/D/L: 50.6%/0.0%/49.4% | Teacher labeled: 89.9%
+Model: 2,103,616 params | mode=advantage, outcome_w=0.50, teacher_lambda=1.00
+step  100/600: tot=3.631 (out=2.974, teach=2.157) | val_teacher=0.336, val_win_move=0.197 (15s) *saved*
+step  200/600: tot=2.341 (out=2.143, teach=1.279) | val_teacher=0.352, val_win_move=0.200 (29s) *saved*
+step  300/600: tot=1.671 (out=1.591, teach=0.882) | val_teacher=0.363, val_win_move=0.196 (44s) *saved*
+step  400/600: tot=1.255 (out=1.237, teach=0.641) | val_teacher=0.396, val_win_move=0.200 (58s) *saved*
+step  500/600: tot=0.986 (out=0.990, teach=0.494) | val_teacher=0.385, val_win_move=0.209 (72s)
+step  600/600: tot=0.863 (out=0.882, teach=0.425) | val_teacher=0.399, val_win_move=0.205 (87s) *saved*
+Finished training -> weights saved to agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+=== Generating Iteration 1: 1200 games [DAgger/League Self-Play (agents/exp_B_lam_1.0_to_0.1)] (keep=1.0, teacher_rate=0.201) ===
+[iter 1] worker 3: 50/150 games (17746 games/hr, decisive=100.0%), 1,714 pos
+[iter 1] worker 6: 50/150 games (17797 games/hr, decisive=100.0%), 1,540 pos
+[iter 1] worker 0: 50/150 games (15649 games/hr, decisive=98.0%), 1,688 pos
+[iter 1] worker 2: 50/150 games (15490 games/hr, decisive=100.0%), 1,743 pos
+[iter 1] worker 4: 50/150 games (15489 games/hr, decisive=100.0%), 1,628 pos
+[iter 1] worker 1: 50/150 games (15188 games/hr, decisive=100.0%), 1,822 pos
+[iter 1] worker 5: 50/150 games (13934 games/hr, decisive=100.0%), 1,911 pos
+[iter 1] worker 7: 50/150 games (11342 games/hr, decisive=100.0%), 1,860 pos
+[iter 1] worker 0: 100/150 games (19244 games/hr, decisive=99.0%), 3,103 pos
+[iter 1] worker 6: 100/150 games (18457 games/hr, decisive=100.0%), 3,336 pos
+[iter 1] worker 4: 100/150 games (18311 games/hr, decisive=100.0%), 3,082 pos
+[iter 1] worker 2: 100/150 games (17104 games/hr, decisive=100.0%), 3,443 pos
+[iter 1] worker 3: 100/150 games (16850 games/hr, decisive=100.0%), 3,568 pos
+[iter 1] worker 1: 100/150 games (16134 games/hr, decisive=100.0%), 3,589 pos
+[iter 1] worker 5: 100/150 games (15732 games/hr, decisive=100.0%), 3,656 pos
+[iter 1] worker 7: 100/150 games (14024 games/hr, decisive=100.0%), 3,442 pos
+[iter 1] worker 0: 150/150 games (18951 games/hr, decisive=99.3%), 4,943 pos
+[iter 1] worker 4: 150/150 games (18922 games/hr, decisive=100.0%), 4,754 pos
+[iter 1] worker 2: 150/150 games (18748 games/hr, decisive=100.0%), 5,193 pos
+[iter 1] worker 5: 150/150 games (18162 games/hr, decisive=100.0%), 5,124 pos
+[iter 1] worker 6: 150/150 games (17695 games/hr, decisive=100.0%), 5,433 pos
+[iter 1] worker 1: 150/150 games (17061 games/hr, decisive=100.0%), 5,427 pos
+[iter 1] worker 3: 150/150 games (17059 games/hr, decisive=100.0%), 5,308 pos
+[iter 1] worker 7: 150/150 games (15161 games/hr, decisive=100.0%), 5,449 pos
+=== Iteration 1 complete: added 41,631 positions to data/buf_B_lam_1.0_to_0.1 | Decisive rate: 99.9% (1199/1200) ===
+    Self-Play decisive rate: 98.8% (83/84)
+Buffer: 93,035 pos (11 shards, min_iter=0) | W/D/L: 50.5%/0.2%/49.3% | Teacher labeled: 58.6%
+Resumed weights from agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.46
+step  100/600: tot=1.780 (out=1.394, teach=0.848) | val_teacher=0.464, val_win_move=0.373 (15s) *saved*
+step  200/600: tot=1.568 (out=1.099, teach=1.025) | val_teacher=0.452, val_win_move=0.392 (29s) *saved*
+step  300/600: tot=1.232 (out=0.791, teach=0.963) | val_teacher=0.464, val_win_move=0.384 (43s) *saved*
+step  400/600: tot=0.968 (out=0.577, teach=0.853) | val_teacher=0.501, val_win_move=0.397 (58s) *saved*
+step  500/600: tot=0.790 (out=0.460, teach=0.719) | val_teacher=0.511, val_win_move=0.404 (72s) *saved*
+step  600/600: tot=0.718 (out=0.423, teach=0.644) | val_teacher=0.516, val_win_move=0.400 (86s) *saved*
+Finished training -> weights saved to agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+=== Generating Iteration 2: 1200 games [DAgger/League Self-Play (agents/exp_B_lam_1.0_to_0.1)] (keep=1.0, teacher_rate=0.045) ===
+[iter 2] worker 2: 50/150 games (21478 games/hr, decisive=100.0%), 1,637 pos
+[iter 2] worker 4: 50/150 games (20848 games/hr, decisive=100.0%), 1,661 pos
+[iter 2] worker 7: 50/150 games (17693 games/hr, decisive=100.0%), 1,581 pos
+[iter 2] worker 5: 50/150 games (17526 games/hr, decisive=100.0%), 1,753 pos
+[iter 2] worker 6: 50/150 games (16947 games/hr, decisive=100.0%), 1,658 pos
+[iter 2] worker 0: 50/150 games (15371 games/hr, decisive=100.0%), 1,858 pos
+[iter 2] worker 1: 50/150 games (15417 games/hr, decisive=100.0%), 2,112 pos
+[iter 2] worker 3: 50/150 games (15037 games/hr, decisive=100.0%), 1,838 pos
+[iter 2] worker 2: 100/150 games (21046 games/hr, decisive=100.0%), 3,504 pos
+[iter 2] worker 7: 100/150 games (20795 games/hr, decisive=100.0%), 3,290 pos
+[iter 2] worker 4: 100/150 games (20437 games/hr, decisive=100.0%), 3,430 pos
+[iter 2] worker 5: 100/150 games (19397 games/hr, decisive=100.0%), 3,463 pos
+[iter 2] worker 0: 100/150 games (19055 games/hr, decisive=100.0%), 3,250 pos
+[iter 2] worker 6: 100/150 games (17672 games/hr, decisive=100.0%), 3,474 pos
+[iter 2] worker 3: 100/150 games (17544 games/hr, decisive=100.0%), 3,456 pos
+[iter 2] worker 1: 100/150 games (15887 games/hr, decisive=100.0%), 4,024 pos
+[iter 2] worker 4: 150/150 games (21773 games/hr, decisive=100.0%), 5,089 pos
+[iter 2] worker 7: 150/150 games (21174 games/hr, decisive=100.0%), 5,086 pos
+[iter 2] worker 2: 150/150 games (20670 games/hr, decisive=100.0%), 5,320 pos
+[iter 2] worker 6: 150/150 games (19290 games/hr, decisive=100.0%), 5,354 pos
+[iter 2] worker 5: 150/150 games (19272 games/hr, decisive=100.0%), 5,443 pos
+[iter 2] worker 3: 150/150 games (19147 games/hr, decisive=100.0%), 5,253 pos
+[iter 2] worker 0: 150/150 games (18858 games/hr, decisive=100.0%), 5,216 pos
+[iter 2] worker 1: 150/150 games (18019 games/hr, decisive=100.0%), 5,815 pos
+=== Iteration 2 complete: added 42,576 positions to data/buf_B_lam_1.0_to_0.1 | Decisive rate: 100.0% (1200/1200) ===
+    Self-Play decisive rate: 100.0% (84/84)
+Buffer: 84,207 pos (16 shards, min_iter=1) | W/D/L: 50.6%/0.2%/49.2% | Teacher labeled: 12.2%
+Resumed weights from agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.21
+step  100/600: tot=1.159 (out=1.110, teach=0.256) | val_teacher=0.349, val_win_move=0.510 (15s) *saved*
+step  200/600: tot=0.831 (out=0.768, teach=0.318) | val_teacher=0.339, val_win_move=0.480 (29s)
+step  300/600: tot=0.584 (out=0.522, teach=0.312) | val_teacher=0.327, val_win_move=0.508 (43s)
+step  400/600: tot=0.424 (out=0.370, teach=0.270) | val_teacher=0.355, val_win_move=0.521 (57s) *saved*
+step  500/600: tot=0.365 (out=0.321, teach=0.224) | val_teacher=0.341, val_win_move=0.523 (71s)
+step  600/600: tot=0.339 (out=0.298, teach=0.203) | val_teacher=0.337, val_win_move=0.516 (86s)
+Finished training -> weights saved to agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+=== Generating Iteration 3: 1200 games [DAgger/League Self-Play (agents/exp_B_lam_1.0_to_0.1)] (keep=1.0, teacher_rate=0.01) ===
+[iter 3] worker 4: 50/150 games (18057 games/hr, decisive=100.0%), 1,779 pos
+[iter 3] worker 2: 50/150 games (17912 games/hr, decisive=98.0%), 1,822 pos
+[iter 3] worker 3: 50/150 games (17545 games/hr, decisive=100.0%), 1,678 pos
+[iter 3] worker 5: 50/150 games (17053 games/hr, decisive=100.0%), 1,999 pos
+[iter 3] worker 0: 50/150 games (15920 games/hr, decisive=100.0%), 1,944 pos
+[iter 3] worker 7: 50/150 games (15931 games/hr, decisive=100.0%), 1,687 pos
+[iter 3] worker 6: 50/150 games (15360 games/hr, decisive=100.0%), 2,099 pos
+[iter 3] worker 1: 50/150 games (13699 games/hr, decisive=100.0%), 2,071 pos
+[iter 3] worker 3: 100/150 games (18975 games/hr, decisive=100.0%), 3,596 pos
+[iter 3] worker 6: 100/150 games (18327 games/hr, decisive=100.0%), 3,847 pos
+[iter 3] worker 5: 100/150 games (18118 games/hr, decisive=100.0%), 3,878 pos
+[iter 3] worker 0: 100/150 games (17208 games/hr, decisive=99.0%), 4,009 pos
+[iter 3] worker 2: 100/150 games (17106 games/hr, decisive=99.0%), 3,956 pos
+[iter 3] worker 7: 100/150 games (17077 games/hr, decisive=100.0%), 3,843 pos
+[iter 3] worker 4: 100/150 games (16511 games/hr, decisive=100.0%), 3,916 pos
+[iter 3] worker 1: 100/150 games (15804 games/hr, decisive=99.0%), 4,089 pos
+[iter 3] worker 6: 150/150 games (19569 games/hr, decisive=100.0%), 5,652 pos
+[iter 3] worker 3: 150/150 games (18721 games/hr, decisive=99.3%), 5,563 pos
+[iter 3] worker 5: 150/150 games (18506 games/hr, decisive=99.3%), 5,794 pos
+[iter 3] worker 0: 150/150 games (17999 games/hr, decisive=99.3%), 6,259 pos
+[iter 3] worker 7: 150/150 games (17731 games/hr, decisive=99.3%), 5,932 pos
+[iter 3] worker 2: 150/150 games (17210 games/hr, decisive=99.3%), 5,966 pos
+[iter 3] worker 4: 150/150 games (17041 games/hr, decisive=100.0%), 5,903 pos
+[iter 3] worker 1: 150/150 games (16575 games/hr, decisive=99.3%), 6,186 pos
+=== Iteration 3 complete: added 47,255 positions to data/buf_B_lam_1.0_to_0.1 | Decisive rate: 99.5% (1194/1200) ===
+    Self-Play decisive rate: 94.9% (93/98)
+Buffer: 131,462 pos (24 shards, min_iter=1) | W/D/L: 50.3%/0.9%/48.9% | Teacher labeled: 8.2%
+Resumed weights from agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.10
+step  100/600: tot=0.932 (out=0.918, teach=0.192) | val_teacher=0.400, val_win_move=0.588 (15s) *saved*
+step  200/600: tot=0.837 (out=0.819, teach=0.232) | val_teacher=0.366, val_win_move=0.576 (29s)
+step  300/600: tot=0.617 (out=0.597, teach=0.248) | val_teacher=0.364, val_win_move=0.572 (43s)
+step  400/600: tot=0.445 (out=0.423, teach=0.257) | val_teacher=0.367, val_win_move=0.601 (57s)
+step  500/600: tot=0.357 (out=0.335, teach=0.253) | val_teacher=0.383, val_win_move=0.613 (72s) *saved*
+step  600/600: tot=0.326 (out=0.305, teach=0.247) | val_teacher=0.383, val_win_move=0.610 (86s)
+Finished training -> weights saved to agents/exp_B_lam_1.0_to_0.1\weights\model.safetensors
+1. Layout
+  non-weight files: 8 KB (limit 5120 KB)
+2. Size
+       2,106,957  weights\model.safetensors
+       2,106,957  parameters in total (limit 250,000,000)
+3. Play
+  loaded in 1.2 s
+  10 games against bot:random: 10 wins
+4. Replay
+  same moves on replay
+5. Compute
+  FLOPs per move: mean 2.31e+08, max 2.31e+08 (budget 1e+12, max uses 0.0% of it)
+  time on this machine (for information; tournaments limit FLOPs, not time):
+  per move: mean 19.3 ms, 95th percentile 13.9 ms, max 709.6 ms
+
+VALID
+Playing 900 games with 1 worker(s)...
+  90/900 games
+  180/900 games
+  270/900 games
+  360/900 games
+  450/900 games
+  540/900 games
+  630/900 games
+  720/900 games
+  810/900 games
+  900/900 games
+
+Results (score of the first player in each pair):
+  agents/baseline                vs agents/exp_B_lam_1.0_to_0.1     75.0 / 150
+  agents/baseline                vs bot:greedy                      93.0 / 150
+  agents/baseline                vs bot:guess-sf-4x500              98.0 / 150
+  agents/exp_B_lam_1.0_to_0.1    vs bot:greedy                      94.0 / 150
+  agents/exp_B_lam_1.0_to_0.1    vs bot:guess-sf-4x500              97.0 / 150
+  bot:greedy                     vs bot:guess-sf-4x500              52.0 / 150
+
+How games ended: {'king captured': 900}
+
+Ratings (95% interval):
+  agents/exp_B_lam_1.0_to_0.1       1128   [ 1103,  1151]
+  agents/baseline                   1128   [ 1096,  1163]
+  bot:guess-sf-4x500                1060   [ 1060,  1060] (reference, fixed)
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
