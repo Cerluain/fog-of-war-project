@@ -68,6 +68,11 @@ def main():
         outcome_w = 0.5 if it == 0 else 1.0
         min_iter = 1 if (args.evict_warmup_after > 0 and it >= args.evict_warmup_after) else 0
 
+        # Iteration 0 (Warmup): subsample positions (keep=0.5) and label all kept ones (teacher_rate=1.0)
+        # Iterations >= 1 (Self-Play): keep 100% of model moves (keep=1.0), label a subset (teacher_rate=args.teacher_rate)
+        iter_keep = 0.333 if it == 0 else args.keep
+        iter_t_rate = 1.0 if it == 0 else args.teacher_rate
+
         # 1. Generate new shard(s) into the replay buffer
         gen_cmd = [
             py, "training/generate_buffer.py",
@@ -75,8 +80,8 @@ def main():
             "--games", str(n_games),
             "--workers", str(args.workers),
             "--nodes", str(args.nodes),
-            "--teacher-rate", str(args.teacher_rate),
-            "--keep", str(args.keep),
+            "--teacher-rate", str(iter_t_rate),
+            "--keep", str(iter_keep),
             "--agent-dir", args.agent_dir,
             "--out", args.buffer_dir,
             "--seed", str(args.seed),
