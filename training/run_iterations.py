@@ -1,5 +1,7 @@
 """Master iterative training loop with teacher-decay schedule and league opponent pool.
 
+    Note that warmup-games only keep a third of positions: 
+
     python training/run_iterations.py --iterations 5 --warmup-games 2500 --games-per-iter 1500 \
         --workers 4 --agent-dir agents/v1_se_model --lambda-start 1.0 --lambda-end 0.2
 """
