@@ -16,6 +16,7 @@ Schema:
 """
 import argparse
 import importlib.util
+import itertools
 import multiprocessing as mp
 import os
 import random
@@ -37,23 +38,24 @@ from fow.game import Game  # noqa: E402
 from fow.memory import Memory  # noqa: E402
 
 
-WARMUP_MATCHUPS = [
-    ("bot:guess-sf-8x500", "bot:guess-sf-8x500"),
-    ("bot:guess-sf-8x500", "bot:greedy"),
-    ("bot:naive-sf", "bot:guess-sf-8x500"),
-    ("bot:greedy", "bot:greedy"),
-    ("bot:guess-sf-4x500", "bot:random"),
-]
+def all_vs_all(players):
+    return list(itertools.combinations_with_replacement(players, 2))
 
-ITERATIVE_MATCHUPS = [
-    ("self", "self"),
-    ("self", "bot:guess-sf-8x500"),
-    ("self", "bot:naive-sf"),
-    ("self", "bot:greedy"),
-    ("self", "league"),
-    ("bot:guess-sf-8x500", "bot:guess-sf-8x500"),
-    ("bot:greedy", "bot:greedy"),
-]
+
+WARMUP_MATCHUPS = all_vs_all([
+    "bot:guess-sf-8x500",
+    "bot:naive-sf",
+    "bot:greedy",
+    "bot:random",
+])
+
+ITERATIVE_MATCHUPS = all_vs_all([
+    "self",
+    "league",
+    "bot:guess-sf-8x500",
+    "bot:naive-sf",
+    "bot:greedy",
+])
 
 
 def load_local_module(agent_dir: str, name: str):
@@ -231,12 +233,12 @@ def worker(args):
             mem[c].update(obs)
             mem_cls = getattr(features, "AgentMemory", Memory)
             mem = {"white": mem_cls(), "black": mem_cls()}
-            
-            enc_x = encode(obs, mem[c]) if keep_pos else None
 
             keep_pos = (rng.random() < keep)
             t_idx = -1
             has_t = 0
+
+            enc_x = encode(obs, mem[c]) if keep_pos else None
 
             if keep_pos and engine is not None and rng.random() < teacher_rate:
                 t_uci = teacher_move(engine, game, nodes)
