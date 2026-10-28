@@ -1,0 +1,1234 @@
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 0 --games 5000 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0
+=== Generating Iteration 0: 5000 games [Warmup Reference Bots] (keep=1.0, teacher_rate=0.5) ===
+[iter 0] worker 0: 50/1250 games (13653 games/hr, decisive=100.0%), 1,817 pos
+[iter 0] worker 1: 50/1250 games (13411 games/hr, decisive=100.0%), 2,083 pos
+[iter 0] worker 2: 50/1250 games (12323 games/hr, decisive=100.0%), 1,889 pos
+[iter 0] worker 3: 50/1250 games (12107 games/hr, decisive=100.0%), 1,885 pos
+[iter 0] worker 0: 100/1250 games (16423 games/hr, decisive=100.0%), 3,493 pos
+[iter 0] worker 3: 100/1250 games (14663 games/hr, decisive=100.0%), 3,870 pos
+[iter 0] worker 1: 100/1250 games (14545 games/hr, decisive=100.0%), 3,994 pos
+[iter 0] worker 2: 100/1250 games (13504 games/hr, decisive=100.0%), 3,899 pos
+[iter 0] worker 0: 150/1250 games (15805 games/hr, decisive=100.0%), 5,629 pos
+[iter 0] worker 3: 150/1250 games (15500 games/hr, decisive=100.0%), 5,827 pos
+[iter 0] worker 1: 150/1250 games (15262 games/hr, decisive=100.0%), 5,788 pos
+[iter 0] worker 2: 150/1250 games (14005 games/hr, decisive=100.0%), 5,913 pos
+[iter 0] worker 0: 200/1250 games (15897 games/hr, decisive=100.0%), 7,786 pos
+[iter 0] worker 3: 200/1250 games (15085 games/hr, decisive=100.0%), 7,967 pos
+[iter 0] worker 1: 200/1250 games (15029 games/hr, decisive=100.0%), 7,866 pos
+[iter 0] worker 2: 200/1250 games (14516 games/hr, decisive=100.0%), 7,762 pos
+[iter 0] worker 3: 250/1250 games (15352 games/hr, decisive=100.0%), 9,855 pos
+[iter 0] worker 0: 250/1250 games (15300 games/hr, decisive=100.0%), 10,036 pos
+[iter 0] worker 1: 250/1250 games (15260 games/hr, decisive=100.0%), 9,709 pos
+[iter 0] worker 2: 250/1250 games (14577 games/hr, decisive=100.0%), 9,806 pos
+[iter 0] worker 1: 300/1250 games (15579 games/hr, decisive=100.0%), 11,659 pos
+[iter 0] worker 3: 300/1250 games (15323 games/hr, decisive=100.0%), 11,911 pos
+[iter 0] worker 0: 300/1250 games (15150 games/hr, decisive=100.0%), 12,208 pos
+[iter 0] worker 2: 300/1250 games (15137 games/hr, decisive=100.0%), 11,512 pos
+[iter 0] worker 1: 350/1250 games (15048 games/hr, decisive=100.0%), 13,786 pos
+[iter 0] worker 3: 350/1250 games (14976 games/hr, decisive=100.0%), 13,865 pos
+[iter 0] worker 0: 350/1250 games (14765 games/hr, decisive=100.0%), 14,129 pos
+[iter 0] worker 2: 350/1250 games (14711 games/hr, decisive=100.0%), 13,459 pos
+[iter 0] worker 1: 400/1250 games (15246 games/hr, decisive=100.0%), 15,788 pos
+[iter 0] worker 2: 400/1250 games (14988 games/hr, decisive=100.0%), 15,305 pos
+[iter 0] worker 3: 400/1250 games (14913 games/hr, decisive=100.0%), 15,975 pos
+[iter 0] worker 0: 400/1250 games (14594 games/hr, decisive=100.0%), 16,176 pos
+[iter 0] worker 1: 450/1250 games (15451 games/hr, decisive=100.0%), 17,700 pos
+[iter 0] worker 2: 450/1250 games (15128 games/hr, decisive=100.0%), 17,428 pos
+[iter 0] worker 3: 450/1250 games (14930 games/hr, decisive=100.0%), 17,988 pos
+[iter 0] worker 0: 450/1250 games (14604 games/hr, decisive=100.0%), 18,154 pos
+[iter 0] worker 1: 500/1250 games (15632 games/hr, decisive=100.0%), 19,796 pos
+[iter 0] worker 2: 500/1250 games (15340 games/hr, decisive=100.0%), 19,414 pos
+[iter 0] worker 0: 500/1250 games (14922 games/hr, decisive=100.0%), 20,002 pos
+[iter 0] worker 3: 500/1250 games (14794 games/hr, decisive=100.0%), 20,110 pos
+[iter 0] worker 1: 550/1250 games (15735 games/hr, decisive=100.0%), 21,818 pos
+[iter 0] worker 2: 550/1250 games (15474 games/hr, decisive=100.0%), 21,424 pos
+[iter 0] worker 0: 550/1250 games (14908 games/hr, decisive=100.0%), 21,928 pos
+[iter 0] worker 3: 550/1250 games (14808 games/hr, decisive=100.0%), 22,280 pos
+[iter 0] worker 1: 600/1250 games (15756 games/hr, decisive=100.0%), 23,811 pos
+[iter 0] worker 2: 600/1250 games (15560 games/hr, decisive=100.0%), 23,417 pos
+[iter 0] worker 0: 600/1250 games (15099 games/hr, decisive=100.0%), 23,829 pos
+[iter 0] worker 3: 600/1250 games (14962 games/hr, decisive=100.0%), 24,215 pos
+[iter 0] worker 1: 650/1250 games (15812 games/hr, decisive=100.0%), 25,781 pos
+[iter 0] worker 2: 650/1250 games (15678 games/hr, decisive=100.0%), 25,423 pos
+[iter 0] worker 0: 650/1250 games (15189 games/hr, decisive=100.0%), 25,832 pos
+[iter 0] worker 3: 650/1250 games (14983 games/hr, decisive=100.0%), 26,187 pos
+[iter 0] worker 1: 700/1250 games (15872 games/hr, decisive=100.0%), 27,658 pos
+[iter 0] worker 2: 700/1250 games (15588 games/hr, decisive=100.0%), 27,611 pos
+[iter 0] worker 0: 700/1250 games (15072 games/hr, decisive=99.9%), 28,110 pos
+[iter 0] worker 3: 700/1250 games (14967 games/hr, decisive=100.0%), 28,217 pos
+[iter 0] worker 1: 750/1250 games (15818 games/hr, decisive=100.0%), 29,823 pos
+[iter 0] worker 2: 750/1250 games (15694 games/hr, decisive=100.0%), 29,487 pos
+[iter 0] worker 0: 750/1250 games (15084 games/hr, decisive=99.9%), 30,267 pos
+[iter 0] worker 1: 800/1250 games (15954 games/hr, decisive=100.0%), 31,933 pos
+[iter 0] worker 3: 750/1250 games (14902 games/hr, decisive=100.0%), 30,405 pos
+[iter 0] worker 2: 800/1250 games (15613 games/hr, decisive=100.0%), 31,617 pos
+[iter 0] worker 0: 800/1250 games (15156 games/hr, decisive=99.9%), 32,117 pos
+[iter 0] worker 3: 800/1250 games (14965 games/hr, decisive=100.0%), 32,438 pos
+[iter 0] worker 1: 850/1250 games (15838 games/hr, decisive=100.0%), 34,026 pos
+[iter 0] worker 2: 850/1250 games (15458 games/hr, decisive=100.0%), 33,753 pos
+[iter 0] worker 0: 850/1250 games (15151 games/hr, decisive=99.9%), 34,122 pos
+[iter 0] worker 3: 850/1250 games (14981 games/hr, decisive=100.0%), 34,524 pos
+[iter 0] worker 1: 900/1250 games (15788 games/hr, decisive=100.0%), 36,209 pos
+[iter 0] worker 2: 900/1250 games (15420 games/hr, decisive=100.0%), 35,863 pos
+[iter 0] worker 0: 900/1250 games (15227 games/hr, decisive=99.9%), 36,098 pos
+[iter 0] worker 3: 900/1250 games (14911 games/hr, decisive=100.0%), 36,634 pos
+[iter 0] worker 1: 950/1250 games (15716 games/hr, decisive=100.0%), 38,326 pos
+[iter 0] worker 2: 950/1250 games (15275 games/hr, decisive=100.0%), 38,151 pos
+[iter 0] worker 0: 950/1250 games (15207 games/hr, decisive=99.9%), 38,236 pos
+[iter 0] worker 3: 950/1250 games (14878 games/hr, decisive=100.0%), 38,615 pos
+[iter 0] worker 1: 1000/1250 games (15537 games/hr, decisive=100.0%), 40,495 pos
+[iter 0] worker 2: 1000/1250 games (15377 games/hr, decisive=100.0%), 40,067 pos
+[iter 0] worker 0: 1000/1250 games (15119 games/hr, decisive=99.9%), 40,394 pos
+[iter 0] worker 1: 1050/1250 games (15584 games/hr, decisive=100.0%), 42,356 pos
+[iter 0] worker 3: 1000/1250 games (14841 games/hr, decisive=100.0%), 40,603 pos
+[iter 0] worker 2: 1050/1250 games (15432 games/hr, decisive=100.0%), 42,095 pos
+[iter 0] worker 0: 1050/1250 games (15329 games/hr, decisive=99.9%), 42,186 pos
+[iter 0] worker 1: 1100/1250 games (15524 games/hr, decisive=100.0%), 44,596 pos
+[iter 0] worker 3: 1050/1250 games (14703 games/hr, decisive=100.0%), 42,855 pos
+[iter 0] worker 2: 1100/1250 games (15363 games/hr, decisive=100.0%), 44,160 pos
+[iter 0] worker 0: 1100/1250 games (15315 games/hr, decisive=99.9%), 44,184 pos
+[iter 0] worker 1: 1150/1250 games (15550 games/hr, decisive=100.0%), 46,538 pos
+[iter 0] worker 0: 1150/1250 games (15399 games/hr, decisive=99.9%), 45,958 pos
+[iter 0] worker 2: 1150/1250 games (15324 games/hr, decisive=100.0%), 46,180 pos
+[iter 0] worker 3: 1100/1250 games (14629 games/hr, decisive=100.0%), 44,845 pos
+[iter 0] worker 0: 1200/1250 games (15409 games/hr, decisive=99.9%), 47,833 pos
+[iter 0] worker 1: 1200/1250 games (15396 games/hr, decisive=99.9%), 48,718 pos
+[iter 0] worker 2: 1200/1250 games (15249 games/hr, decisive=100.0%), 48,359 pos
+[iter 0] worker 3: 1150/1250 games (14438 games/hr, decisive=100.0%), 47,133 pos
+[iter 0] worker 0: 1250/1250 games (15398 games/hr, decisive=99.9%), 49,664 pos
+[iter 0] worker 2: 1250/1250 games (15241 games/hr, decisive=100.0%), 50,283 pos
+[iter 0] worker 1: 1250/1250 games (15228 games/hr, decisive=99.9%), 51,073 pos
+[iter 0] worker 3: 1200/1250 games (14496 games/hr, decisive=100.0%), 49,091 pos
+[iter 0] worker 3: 1250/1250 games (14570 games/hr, decisive=100.0%), 51,177 pos
+=== Iteration 0 complete: added 202,197 positions to data/replay_buffer_v1 | Decisive rate: 100.0% (4998/5000) ===
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 0 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 0.500 --teacher-weight 1.000 --seed 0 --device cuda
+Buffer: 202,197 pos (4 shards, min_iter=0) | W/D/L: 50.5%/0.2%/49.3% | Teacher labeled: 50.0%
+Model: 2,103,616 params | mode=advantage, outcome_w=0.50, teacher_lambda=1.00
+step  100/1200: tot=4.129 (out=3.009, teach=2.638) | val_teacher=0.315, val_win_move=0.250 (15s) *saved*
+step  200/1200: tot=3.371 (out=2.532, teach=2.117) | val_teacher=0.347, val_win_move=0.293 (29s) *saved*
+step  300/1200: tot=3.121 (out=2.413, teach=1.925) | val_teacher=0.371, val_win_move=0.311 (44s) *saved*
+step  400/1200: tot=2.919 (out=2.331, teach=1.764) | val_teacher=0.370, val_win_move=0.302 (58s)
+step  500/1200: tot=2.727 (out=2.261, teach=1.607) | val_teacher=0.363, val_win_move=0.299 (72s)
+step  600/1200: tot=2.506 (out=2.173, teach=1.428) | val_teacher=0.358, val_win_move=0.299 (87s)
+step  700/1200: tot=2.269 (out=2.073, teach=1.240) | val_teacher=0.359, val_win_move=0.297 (101s)
+step  800/1200: tot=1.989 (out=1.941, teach=1.026) | val_teacher=0.372, val_win_move=0.299 (115s)
+step  900/1200: tot=1.710 (out=1.780, teach=0.826) | val_teacher=0.375, val_win_move=0.301 (129s)
+step 1000/1200: tot=1.475 (out=1.610, teach=0.677) | val_teacher=0.373, val_win_move=0.302 (144s)
+step 1100/1200: tot=1.325 (out=1.491, teach=0.586) | val_teacher=0.372, val_win_move=0.297 (158s)
+step 1200/1200: tot=1.266 (out=1.435, teach=0.554) | val_teacher=0.374, val_win_move=0.297 (172s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 1 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_000
+=== Generating Iteration 1: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 1] worker 2: 50/900 games (12614 games/hr, decisive=98.0%), 2,150 pos
+[iter 1] worker 1: 50/900 games (12276 games/hr, decisive=100.0%), 1,940 pos
+[iter 1] worker 0: 50/900 games (11868 games/hr, decisive=100.0%), 1,928 pos
+[iter 1] worker 3: 50/900 games (10593 games/hr, decisive=100.0%), 2,078 pos
+[iter 1] worker 1: 100/900 games (14759 games/hr, decisive=100.0%), 3,563 pos
+[iter 1] worker 2: 100/900 games (14173 games/hr, decisive=99.0%), 3,896 pos
+[iter 1] worker 3: 100/900 games (13168 games/hr, decisive=100.0%), 3,877 pos
+[iter 1] worker 0: 100/900 games (13009 games/hr, decisive=100.0%), 3,713 pos
+[iter 1] worker 1: 150/900 games (15886 games/hr, decisive=100.0%), 5,238 pos
+[iter 1] worker 2: 150/900 games (14812 games/hr, decisive=99.3%), 5,667 pos
+[iter 1] worker 3: 150/900 games (13977 games/hr, decisive=100.0%), 5,668 pos
+[iter 1] worker 0: 150/900 games (13910 games/hr, decisive=100.0%), 5,493 pos
+[iter 1] worker 1: 200/900 games (15883 games/hr, decisive=100.0%), 7,149 pos
+[iter 1] worker 2: 200/900 games (14938 games/hr, decisive=99.5%), 7,455 pos
+[iter 1] worker 0: 200/900 games (14398 games/hr, decisive=100.0%), 7,235 pos
+[iter 1] worker 3: 200/900 games (14136 games/hr, decisive=100.0%), 7,702 pos
+[iter 1] worker 1: 250/900 games (15823 games/hr, decisive=99.6%), 9,057 pos
+[iter 1] worker 2: 250/900 games (15299 games/hr, decisive=99.6%), 9,293 pos
+[iter 1] worker 0: 250/900 games (14551 games/hr, decisive=100.0%), 9,077 pos
+[iter 1] worker 3: 250/900 games (14377 games/hr, decisive=100.0%), 9,604 pos
+[iter 1] worker 1: 300/900 games (15821 games/hr, decisive=99.7%), 10,789 pos
+[iter 1] worker 2: 300/900 games (15415 games/hr, decisive=99.7%), 11,191 pos
+[iter 1] worker 3: 300/900 games (14708 games/hr, decisive=100.0%), 11,406 pos
+[iter 1] worker 0: 300/900 games (14678 games/hr, decisive=100.0%), 11,176 pos
+[iter 1] worker 1: 350/900 games (15971 games/hr, decisive=99.7%), 12,652 pos
+[iter 1] worker 2: 350/900 games (15159 games/hr, decisive=99.4%), 13,222 pos
+[iter 1] worker 3: 350/900 games (15025 games/hr, decisive=100.0%), 13,289 pos
+[iter 1] worker 0: 350/900 games (14705 games/hr, decisive=100.0%), 13,219 pos
+[iter 1] worker 1: 400/900 games (16006 games/hr, decisive=99.8%), 14,496 pos
+[iter 1] worker 2: 400/900 games (15466 games/hr, decisive=99.5%), 14,862 pos
+[iter 1] worker 0: 400/900 games (14754 games/hr, decisive=99.8%), 15,058 pos
+[iter 1] worker 3: 400/900 games (14641 games/hr, decisive=100.0%), 15,312 pos
+[iter 1] worker 1: 450/900 games (15919 games/hr, decisive=99.8%), 16,228 pos
+[iter 1] worker 2: 450/900 games (15730 games/hr, decisive=99.6%), 16,625 pos
+[iter 1] worker 0: 450/900 games (14530 games/hr, decisive=99.8%), 17,070 pos
+[iter 1] worker 1: 500/900 games (16143 games/hr, decisive=99.8%), 17,944 pos
+[iter 1] worker 3: 450/900 games (14517 games/hr, decisive=100.0%), 17,307 pos
+[iter 1] worker 2: 500/900 games (16012 games/hr, decisive=99.6%), 18,255 pos
+[iter 1] worker 0: 500/900 games (14713 games/hr, decisive=99.8%), 18,869 pos
+[iter 1] worker 3: 500/900 games (14567 games/hr, decisive=100.0%), 19,202 pos
+[iter 1] worker 1: 550/900 games (15979 games/hr, decisive=99.8%), 19,861 pos
+[iter 1] worker 2: 550/900 games (15954 games/hr, decisive=99.6%), 20,068 pos
+[iter 1] worker 0: 550/900 games (14883 games/hr, decisive=99.8%), 20,692 pos
+[iter 1] worker 2: 600/900 games (15912 games/hr, decisive=99.7%), 21,853 pos
+[iter 1] worker 1: 600/900 games (15834 games/hr, decisive=99.8%), 21,885 pos
+[iter 1] worker 3: 550/900 games (14462 games/hr, decisive=100.0%), 21,282 pos
+[iter 1] worker 0: 600/900 games (14923 games/hr, decisive=99.8%), 22,492 pos
+[iter 1] worker 2: 650/900 games (15950 games/hr, decisive=99.7%), 23,616 pos
+[iter 1] worker 1: 650/900 games (15866 games/hr, decisive=99.8%), 23,581 pos
+[iter 1] worker 3: 600/900 games (14528 games/hr, decisive=100.0%), 23,155 pos
+[iter 1] worker 0: 650/900 games (15043 games/hr, decisive=99.8%), 24,330 pos
+[iter 1] worker 1: 700/900 games (15891 games/hr, decisive=99.9%), 25,333 pos
+[iter 1] worker 2: 700/900 games (15890 games/hr, decisive=99.7%), 25,646 pos
+[iter 1] worker 3: 650/900 games (14536 games/hr, decisive=99.8%), 25,115 pos
+[iter 1] worker 0: 700/900 games (15027 games/hr, decisive=99.9%), 26,204 pos
+[iter 1] worker 2: 750/900 games (15979 games/hr, decisive=99.7%), 27,380 pos
+[iter 1] worker 1: 750/900 games (15883 games/hr, decisive=99.9%), 27,241 pos
+[iter 1] worker 3: 700/900 games (14682 games/hr, decisive=99.9%), 26,836 pos
+[iter 1] worker 2: 800/900 games (16056 games/hr, decisive=99.8%), 29,052 pos
+[iter 1] worker 0: 750/900 games (14865 games/hr, decisive=99.9%), 28,200 pos
+[iter 1] worker 1: 800/900 games (15845 games/hr, decisive=99.9%), 29,231 pos
+[iter 1] worker 3: 750/900 games (14802 games/hr, decisive=99.9%), 28,589 pos
+[iter 1] worker 2: 850/900 games (16034 games/hr, decisive=99.8%), 30,808 pos
+[iter 1] worker 1: 850/900 games (15890 games/hr, decisive=99.9%), 31,055 pos
+[iter 1] worker 0: 800/900 games (14936 games/hr, decisive=99.9%), 30,011 pos
+[iter 1] worker 3: 800/900 games (14719 games/hr, decisive=99.8%), 30,655 pos
+[iter 1] worker 2: 900/900 games (16014 games/hr, decisive=99.8%), 32,638 pos
+[iter 1] worker 0: 850/900 games (15038 games/hr, decisive=99.9%), 31,846 pos
+[iter 1] worker 1: 900/900 games (15713 games/hr, decisive=99.8%), 33,075 pos
+[iter 1] worker 3: 850/900 games (14724 games/hr, decisive=99.8%), 32,496 pos
+[iter 1] worker 0: 900/900 games (15043 games/hr, decisive=99.8%), 33,896 pos
+[iter 1] worker 3: 900/900 games (14811 games/hr, decisive=99.7%), 34,377 pos
+=== Iteration 1 complete: added 133,986 positions to data/replay_buffer_v1 | Decisive rate: 99.8% (3591/3600) ===
+    Self-Play decisive rate: 99.2% (502/506)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 0 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.923 --seed 1 --device cuda --resume
+Buffer: 336,183 pos (8 shards, min_iter=0) | W/D/L: 50.4%/0.5%/49.1% | Teacher labeled: 50.0%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.92
+step  100/1200: tot=3.828 (out=2.053, teach=1.934) | val_teacher=0.395, val_win_move=0.408 (15s) *saved*
+step  200/1200: tot=3.839 (out=2.037, teach=1.963) | val_teacher=0.393, val_win_move=0.399 (30s)
+step  300/1200: tot=3.722 (out=1.968, teach=1.911) | val_teacher=0.394, val_win_move=0.397 (44s)
+step  400/1200: tot=3.590 (out=1.899, teach=1.842) | val_teacher=0.397, val_win_move=0.404 (59s)
+step  500/1200: tot=3.470 (out=1.842, teach=1.774) | val_teacher=0.397, val_win_move=0.409 (73s) *saved*
+step  600/1200: tot=3.314 (out=1.761, teach=1.692) | val_teacher=0.405, val_win_move=0.401 (88s) *saved*
+step  700/1200: tot=3.140 (out=1.673, teach=1.599) | val_teacher=0.399, val_win_move=0.408 (103s) *saved*
+step  800/1200: tot=2.916 (out=1.554, teach=1.485) | val_teacher=0.404, val_win_move=0.395 (117s)
+step  900/1200: tot=2.690 (out=1.430, teach=1.374) | val_teacher=0.399, val_win_move=0.398 (132s)
+step 1000/1200: tot=2.477 (out=1.328, teach=1.253) | val_teacher=0.401, val_win_move=0.396 (146s)
+step 1100/1200: tot=2.324 (out=1.246, teach=1.176) | val_teacher=0.402, val_win_move=0.399 (161s)
+step 1200/1200: tot=2.257 (out=1.208, teach=1.144) | val_teacher=0.402, val_win_move=0.397 (175s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 2 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_000 data/league_v1\iter_001
+=== Generating Iteration 2: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 2] worker 2: 50/900 games (15634 games/hr, decisive=100.0%), 1,761 pos
+[iter 2] worker 3: 50/900 games (14167 games/hr, decisive=100.0%), 1,626 pos
+[iter 2] worker 0: 50/900 games (12807 games/hr, decisive=100.0%), 1,970 pos
+[iter 2] worker 1: 50/900 games (12515 games/hr, decisive=98.0%), 2,065 pos
+[iter 2] worker 3: 100/900 games (15638 games/hr, decisive=100.0%), 3,320 pos
+[iter 2] worker 2: 100/900 games (15437 games/hr, decisive=100.0%), 3,577 pos
+[iter 2] worker 0: 100/900 games (14120 games/hr, decisive=100.0%), 3,859 pos
+[iter 2] worker 1: 100/900 games (13163 games/hr, decisive=99.0%), 4,149 pos
+[iter 2] worker 2: 150/900 games (15906 games/hr, decisive=100.0%), 5,294 pos
+[iter 2] worker 3: 150/900 games (15737 games/hr, decisive=100.0%), 5,019 pos
+[iter 2] worker 1: 150/900 games (13966 games/hr, decisive=99.3%), 5,988 pos
+[iter 2] worker 0: 150/900 games (13719 games/hr, decisive=98.7%), 6,176 pos
+[iter 2] worker 2: 200/900 games (16097 games/hr, decisive=99.5%), 7,078 pos
+[iter 2] worker 3: 200/900 games (15644 games/hr, decisive=100.0%), 7,066 pos
+[iter 2] worker 1: 200/900 games (14127 games/hr, decisive=99.5%), 7,970 pos
+[iter 2] worker 0: 200/900 games (13796 games/hr, decisive=99.0%), 8,277 pos
+[iter 2] worker 2: 250/900 games (16223 games/hr, decisive=99.6%), 8,857 pos
+[iter 2] worker 3: 250/900 games (15809 games/hr, decisive=100.0%), 8,807 pos
+[iter 2] worker 1: 250/900 games (14722 games/hr, decisive=99.6%), 9,852 pos
+[iter 2] worker 0: 250/900 games (14344 games/hr, decisive=99.2%), 10,006 pos
+[iter 2] worker 2: 300/900 games (15991 games/hr, decisive=99.7%), 10,730 pos
+[iter 2] worker 3: 300/900 games (15316 games/hr, decisive=100.0%), 10,952 pos
+[iter 2] worker 1: 300/900 games (14671 games/hr, decisive=99.7%), 11,864 pos
+[iter 2] worker 0: 300/900 games (14510 games/hr, decisive=99.0%), 11,886 pos
+[iter 2] worker 2: 350/900 games (16278 games/hr, decisive=99.4%), 12,501 pos
+[iter 2] worker 3: 350/900 games (15349 games/hr, decisive=100.0%), 12,806 pos
+[iter 2] worker 1: 350/900 games (14728 games/hr, decisive=99.7%), 13,804 pos
+[iter 2] worker 0: 350/900 games (14556 games/hr, decisive=99.1%), 13,871 pos
+[iter 2] worker 2: 400/900 games (16156 games/hr, decisive=99.5%), 14,264 pos
+[iter 2] worker 3: 400/900 games (14948 games/hr, decisive=100.0%), 14,731 pos
+[iter 2] worker 1: 400/900 games (14851 games/hr, decisive=99.8%), 15,605 pos
+[iter 2] worker 0: 400/900 games (14821 games/hr, decisive=99.2%), 15,523 pos
+[iter 2] worker 2: 450/900 games (16269 games/hr, decisive=99.6%), 16,099 pos
+[iter 2] worker 3: 450/900 games (14948 games/hr, decisive=100.0%), 16,650 pos
+[iter 2] worker 2: 500/900 games (16390 games/hr, decisive=99.6%), 17,762 pos
+[iter 2] worker 1: 450/900 games (14678 games/hr, decisive=99.6%), 17,762 pos
+[iter 2] worker 0: 450/900 games (14647 games/hr, decisive=99.3%), 17,497 pos
+[iter 2] worker 3: 500/900 games (14806 games/hr, decisive=100.0%), 18,662 pos
+[iter 2] worker 2: 550/900 games (16190 games/hr, decisive=99.6%), 19,539 pos
+[iter 2] worker 0: 500/900 games (14545 games/hr, decisive=99.4%), 19,512 pos
+[iter 2] worker 1: 500/900 games (14546 games/hr, decisive=99.4%), 19,832 pos
+[iter 2] worker 2: 600/900 games (16301 games/hr, decisive=99.7%), 21,217 pos
+[iter 2] worker 3: 550/900 games (14939 games/hr, decisive=100.0%), 20,587 pos
+[iter 2] worker 0: 550/900 games (14732 games/hr, decisive=99.5%), 21,370 pos
+[iter 2] worker 1: 550/900 games (14511 games/hr, decisive=99.5%), 21,936 pos
+[iter 2] worker 3: 600/900 games (15000 games/hr, decisive=100.0%), 22,371 pos
+[iter 2] worker 2: 650/900 games (16053 games/hr, decisive=99.7%), 23,327 pos
+[iter 2] worker 0: 600/900 games (14736 games/hr, decisive=99.5%), 23,171 pos
+[iter 2] worker 1: 600/900 games (14601 games/hr, decisive=99.5%), 23,593 pos
+[iter 2] worker 3: 650/900 games (14933 games/hr, decisive=100.0%), 24,275 pos
+[iter 2] worker 1: 650/900 games (14789 games/hr, decisive=99.5%), 25,257 pos
+[iter 2] worker 0: 650/900 games (14665 games/hr, decisive=99.2%), 25,153 pos
+[iter 2] worker 2: 700/900 games (15696 games/hr, decisive=99.6%), 25,588 pos
+[iter 2] worker 3: 700/900 games (14711 games/hr, decisive=99.9%), 26,487 pos
+[iter 2] worker 0: 700/900 games (14690 games/hr, decisive=99.3%), 27,057 pos
+[iter 2] worker 1: 700/900 games (14551 games/hr, decisive=99.6%), 27,374 pos
+[iter 2] worker 2: 750/900 games (15571 games/hr, decisive=99.6%), 27,524 pos
+[iter 2] worker 3: 750/900 games (14886 games/hr, decisive=99.9%), 28,156 pos
+[iter 2] worker 0: 750/900 games (14624 games/hr, decisive=99.3%), 28,995 pos
+[iter 2] worker 2: 800/900 games (15486 games/hr, decisive=99.6%), 29,341 pos
+[iter 2] worker 1: 750/900 games (14497 games/hr, decisive=99.5%), 29,428 pos
+[iter 2] worker 3: 800/900 games (14797 games/hr, decisive=99.9%), 30,244 pos
+[iter 2] worker 2: 850/900 games (15553 games/hr, decisive=99.5%), 31,195 pos
+[iter 2] worker 1: 800/900 games (14616 games/hr, decisive=99.5%), 31,182 pos
+[iter 2] worker 0: 800/900 games (14602 games/hr, decisive=99.2%), 30,977 pos
+[iter 2] worker 2: 900/900 games (15598 games/hr, decisive=99.6%), 32,869 pos
+[iter 2] worker 3: 850/900 games (14640 games/hr, decisive=99.8%), 32,279 pos
+[iter 2] worker 1: 850/900 games (14613 games/hr, decisive=99.5%), 33,060 pos
+[iter 2] worker 0: 850/900 games (14603 games/hr, decisive=99.3%), 32,875 pos
+[iter 2] worker 0: 900/900 games (14784 games/hr, decisive=99.3%), 34,624 pos
+[iter 2] worker 1: 900/900 games (14777 games/hr, decisive=99.6%), 34,874 pos
+[iter 2] worker 3: 900/900 games (14771 games/hr, decisive=99.8%), 33,900 pos
+=== Iteration 2 complete: added 136,267 positions to data/replay_buffer_v1 | Decisive rate: 99.6% (3584/3600) ===
+    Self-Play decisive rate: 98.6% (499/506)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.845 --seed 2 --device cuda --resume
+Buffer: 270,253 pos (8 shards, min_iter=1) | W/D/L: 49.9%/1.5%/48.6% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.84
+step  100/1200: tot=2.940 (out=1.411, teach=1.818) | val_teacher=0.421, val_win_move=0.527 (15s) *saved*
+step  200/1200: tot=2.868 (out=1.400, teach=1.747) | val_teacher=0.421, val_win_move=0.533 (30s) *saved*
+step  300/1200: tot=2.732 (out=1.340, teach=1.657) | val_teacher=0.412, val_win_move=0.503 (44s)
+step  400/1200: tot=2.596 (out=1.272, teach=1.576) | val_teacher=0.420, val_win_move=0.515 (58s)
+step  500/1200: tot=2.418 (out=1.176, teach=1.478) | val_teacher=0.412, val_win_move=0.507 (73s)
+step  600/1200: tot=2.253 (out=1.098, teach=1.376) | val_teacher=0.426, val_win_move=0.514 (87s)
+step  700/1200: tot=2.054 (out=0.996, teach=1.260) | val_teacher=0.425, val_win_move=0.506 (102s)
+step  800/1200: tot=1.851 (out=0.901, teach=1.130) | val_teacher=0.432, val_win_move=0.507 (116s)
+step  900/1200: tot=1.659 (out=0.806, teach=1.015) | val_teacher=0.431, val_win_move=0.512 (131s)
+step 1000/1200: tot=1.488 (out=0.724, teach=0.910) | val_teacher=0.429, val_win_move=0.519 (145s)
+step 1100/1200: tot=1.385 (out=0.680, teach=0.840) | val_teacher=0.429, val_win_move=0.521 (159s)
+step 1200/1200: tot=1.343 (out=0.660, teach=0.814) | val_teacher=0.429, val_win_move=0.520 (174s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 3 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_000 data/league_v1\iter_001 data/league_v1\iter_002
+=== Generating Iteration 3: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 3] worker 1: 50/900 games (13813 games/hr, decisive=100.0%), 1,814 pos
+[iter 3] worker 2: 50/900 games (13448 games/hr, decisive=100.0%), 1,747 pos
+[iter 3] worker 0: 50/900 games (13047 games/hr, decisive=100.0%), 1,812 pos
+[iter 3] worker 3: 50/900 games (12259 games/hr, decisive=100.0%), 2,006 pos
+[iter 3] worker 1: 100/900 games (14988 games/hr, decisive=100.0%), 3,520 pos
+[iter 3] worker 0: 100/900 games (14815 games/hr, decisive=100.0%), 3,491 pos
+[iter 3] worker 2: 100/900 games (14632 games/hr, decisive=100.0%), 3,483 pos
+[iter 3] worker 3: 100/900 games (13434 games/hr, decisive=99.0%), 3,994 pos
+[iter 3] worker 2: 150/900 games (15067 games/hr, decisive=100.0%), 5,425 pos
+[iter 3] worker 0: 150/900 games (14808 games/hr, decisive=100.0%), 5,221 pos
+[iter 3] worker 1: 150/900 games (14580 games/hr, decisive=100.0%), 5,417 pos
+[iter 3] worker 3: 150/900 games (13930 games/hr, decisive=99.3%), 5,730 pos
+[iter 3] worker 0: 200/900 games (15498 games/hr, decisive=100.0%), 6,821 pos
+[iter 3] worker 1: 200/900 games (15040 games/hr, decisive=100.0%), 7,174 pos
+[iter 3] worker 2: 200/900 games (14626 games/hr, decisive=99.0%), 7,691 pos
+[iter 3] worker 3: 200/900 games (14477 games/hr, decisive=99.0%), 7,538 pos
+[iter 3] worker 0: 250/900 games (15435 games/hr, decisive=99.6%), 8,756 pos
+[iter 3] worker 1: 250/900 games (15429 games/hr, decisive=100.0%), 8,874 pos
+[iter 3] worker 2: 250/900 games (15051 games/hr, decisive=99.2%), 9,505 pos
+[iter 3] worker 3: 250/900 games (14725 games/hr, decisive=99.2%), 9,341 pos
+[iter 3] worker 0: 300/900 games (15917 games/hr, decisive=99.7%), 10,407 pos
+[iter 3] worker 1: 300/900 games (15238 games/hr, decisive=99.7%), 10,804 pos
+[iter 3] worker 2: 300/900 games (15063 games/hr, decisive=99.0%), 11,382 pos
+[iter 3] worker 3: 300/900 games (14825 games/hr, decisive=99.3%), 11,062 pos
+[iter 3] worker 0: 350/900 games (16048 games/hr, decisive=99.7%), 12,172 pos
+[iter 3] worker 2: 350/900 games (15162 games/hr, decisive=99.1%), 13,289 pos
+[iter 3] worker 3: 350/900 games (14916 games/hr, decisive=99.4%), 12,909 pos
+[iter 3] worker 1: 350/900 games (14666 games/hr, decisive=99.7%), 12,928 pos
+[iter 3] worker 0: 400/900 games (15986 games/hr, decisive=99.8%), 13,891 pos
+[iter 3] worker 2: 400/900 games (15081 games/hr, decisive=99.2%), 15,377 pos
+[iter 3] worker 3: 400/900 games (14892 games/hr, decisive=99.5%), 14,701 pos
+[iter 3] worker 1: 400/900 games (14379 games/hr, decisive=99.5%), 14,911 pos
+[iter 3] worker 0: 450/900 games (15414 games/hr, decisive=99.8%), 16,135 pos
+[iter 3] worker 2: 450/900 games (14817 games/hr, decisive=99.3%), 17,362 pos
+[iter 3] worker 3: 450/900 games (14689 games/hr, decisive=99.6%), 16,699 pos
+[iter 3] worker 1: 450/900 games (14498 games/hr, decisive=99.6%), 16,598 pos
+[iter 3] worker 0: 500/900 games (15437 games/hr, decisive=99.8%), 17,935 pos
+[iter 3] worker 2: 500/900 games (14912 games/hr, decisive=99.4%), 19,302 pos
+[iter 3] worker 1: 500/900 games (14596 games/hr, decisive=99.6%), 18,355 pos
+[iter 3] worker 3: 500/900 games (14496 games/hr, decisive=99.6%), 18,706 pos
+[iter 3] worker 0: 550/900 games (15214 games/hr, decisive=99.6%), 19,875 pos
+[iter 3] worker 2: 550/900 games (15197 games/hr, decisive=99.5%), 20,951 pos
+[iter 3] worker 3: 550/900 games (14657 games/hr, decisive=99.6%), 20,605 pos
+[iter 3] worker 1: 550/900 games (14502 games/hr, decisive=99.6%), 20,350 pos
+[iter 3] worker 2: 600/900 games (15177 games/hr, decisive=99.3%), 22,893 pos
+[iter 3] worker 0: 600/900 games (15121 games/hr, decisive=99.7%), 21,838 pos
+[iter 3] worker 3: 600/900 games (14828 games/hr, decisive=99.7%), 22,518 pos
+[iter 3] worker 1: 600/900 games (14584 games/hr, decisive=99.7%), 22,148 pos
+[iter 3] worker 0: 650/900 games (15304 games/hr, decisive=99.7%), 23,624 pos
+[iter 3] worker 2: 650/900 games (15163 games/hr, decisive=99.4%), 24,775 pos
+[iter 3] worker 3: 650/900 games (14943 games/hr, decisive=99.5%), 24,419 pos
+[iter 3] worker 1: 650/900 games (14790 games/hr, decisive=99.7%), 23,790 pos
+[iter 3] worker 0: 700/900 games (15243 games/hr, decisive=99.7%), 25,579 pos
+[iter 3] worker 2: 700/900 games (15246 games/hr, decisive=99.4%), 26,574 pos
+[iter 3] worker 3: 700/900 games (15023 games/hr, decisive=99.6%), 26,193 pos
+[iter 3] worker 1: 700/900 games (14559 games/hr, decisive=99.7%), 25,893 pos
+[iter 3] worker 0: 750/900 games (15354 games/hr, decisive=99.7%), 27,273 pos
+[iter 3] worker 2: 750/900 games (15260 games/hr, decisive=99.3%), 28,427 pos
+[iter 3] worker 3: 750/900 games (15064 games/hr, decisive=99.6%), 28,029 pos
+[iter 3] worker 1: 750/900 games (14714 games/hr, decisive=99.7%), 27,626 pos
+[iter 3] worker 0: 800/900 games (15465 games/hr, decisive=99.8%), 29,083 pos
+[iter 3] worker 2: 800/900 games (15445 games/hr, decisive=99.4%), 30,127 pos
+[iter 3] worker 3: 800/900 games (15086 games/hr, decisive=99.6%), 29,811 pos
+[iter 3] worker 0: 850/900 games (15594 games/hr, decisive=99.8%), 30,766 pos
+[iter 3] worker 1: 800/900 games (14656 games/hr, decisive=99.8%), 29,721 pos
+[iter 3] worker 2: 850/900 games (15532 games/hr, decisive=99.4%), 31,806 pos
+[iter 3] worker 3: 850/900 games (15204 games/hr, decisive=99.6%), 31,646 pos
+[iter 3] worker 2: 900/900 games (15678 games/hr, decisive=99.4%), 33,508 pos
+[iter 3] worker 0: 900/900 games (15594 games/hr, decisive=99.8%), 32,695 pos
+[iter 3] worker 1: 850/900 games (14616 games/hr, decisive=99.8%), 31,719 pos
+[iter 3] worker 3: 900/900 games (15220 games/hr, decisive=99.6%), 33,576 pos
+[iter 3] worker 1: 900/900 games (14710 games/hr, decisive=99.8%), 33,497 pos
+=== Iteration 3 complete: added 133,276 positions to data/replay_buffer_v1 | Decisive rate: 99.6% (3587/3600) ===
+    Self-Play decisive rate: 98.9% (469/474)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.768 --seed 3 --device cuda --resume
+Buffer: 403,529 pos (12 shards, min_iter=1) | W/D/L: 49.9%/1.5%/48.6% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.77
+step  100/1200: tot=2.772 (out=1.404, teach=1.792) | val_teacher=0.434, val_win_move=0.556 (15s) *saved*
+step  200/1200: tot=2.794 (out=1.416, teach=1.805) | val_teacher=0.433, val_win_move=0.551 (30s)
+step  300/1200: tot=2.699 (out=1.374, teach=1.736) | val_teacher=0.426, val_win_move=0.541 (45s)
+step  400/1200: tot=2.610 (out=1.315, teach=1.695) | val_teacher=0.429, val_win_move=0.532 (59s)
+step  500/1200: tot=2.508 (out=1.259, teach=1.636) | val_teacher=0.428, val_win_move=0.551 (74s)
+step  600/1200: tot=2.396 (out=1.198, teach=1.570) | val_teacher=0.433, val_win_move=0.546 (89s)
+step  700/1200: tot=2.259 (out=1.128, teach=1.482) | val_teacher=0.429, val_win_move=0.541 (103s)
+step  800/1200: tot=2.114 (out=1.045, teach=1.400) | val_teacher=0.430, val_win_move=0.540 (118s)
+step  900/1200: tot=1.950 (out=0.962, teach=1.295) | val_teacher=0.434, val_win_move=0.544 (133s)
+step 1000/1200: tot=1.806 (out=0.887, teach=1.205) | val_teacher=0.435, val_win_move=0.547 (147s)
+step 1100/1200: tot=1.716 (out=0.838, teach=1.151) | val_teacher=0.435, val_win_move=0.548 (162s)
+step 1200/1200: tot=1.680 (out=0.818, teach=1.130) | val_teacher=0.434, val_win_move=0.551 (177s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 4 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_000 data/league_v1\iter_001 data/league_v1\iter_002 data/league_v1\iter_003
+=== Generating Iteration 4: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 4] worker 2: 50/900 games (15055 games/hr, decisive=100.0%), 1,530 pos
+[iter 4] worker 1: 50/900 games (12995 games/hr, decisive=98.0%), 1,803 pos
+[iter 4] worker 3: 50/900 games (12851 games/hr, decisive=100.0%), 1,924 pos
+[iter 4] worker 0: 50/900 games (12697 games/hr, decisive=100.0%), 1,721 pos
+[iter 4] worker 2: 100/900 games (15730 games/hr, decisive=100.0%), 3,266 pos
+[iter 4] worker 1: 100/900 games (14925 games/hr, decisive=99.0%), 3,492 pos
+[iter 4] worker 3: 100/900 games (14447 games/hr, decisive=100.0%), 3,667 pos
+[iter 4] worker 0: 100/900 games (14420 games/hr, decisive=100.0%), 3,398 pos
+[iter 4] worker 2: 150/900 games (16150 games/hr, decisive=100.0%), 5,074 pos
+[iter 4] worker 1: 150/900 games (14996 games/hr, decisive=99.3%), 5,375 pos
+[iter 4] worker 3: 150/900 games (14592 games/hr, decisive=100.0%), 5,708 pos
+[iter 4] worker 0: 150/900 games (14485 games/hr, decisive=100.0%), 5,286 pos
+[iter 4] worker 2: 200/900 games (16490 games/hr, decisive=100.0%), 6,777 pos
+[iter 4] worker 1: 200/900 games (14748 games/hr, decisive=99.5%), 7,357 pos
+[iter 4] worker 0: 200/900 games (14463 games/hr, decisive=100.0%), 7,149 pos
+[iter 4] worker 3: 200/900 games (14261 games/hr, decisive=100.0%), 7,730 pos
+[iter 4] worker 2: 250/900 games (15905 games/hr, decisive=100.0%), 8,937 pos
+[iter 4] worker 1: 250/900 games (14980 games/hr, decisive=99.6%), 9,033 pos
+[iter 4] worker 0: 250/900 games (14878 games/hr, decisive=100.0%), 9,059 pos
+[iter 4] worker 3: 250/900 games (13990 games/hr, decisive=100.0%), 9,722 pos
+[iter 4] worker 2: 300/900 games (15717 games/hr, decisive=100.0%), 11,031 pos
+[iter 4] worker 0: 300/900 games (14923 games/hr, decisive=100.0%), 10,839 pos
+[iter 4] worker 1: 300/900 games (14336 games/hr, decisive=99.7%), 11,354 pos
+[iter 4] worker 3: 300/900 games (13899 games/hr, decisive=100.0%), 11,813 pos
+[iter 4] worker 2: 350/900 games (15175 games/hr, decisive=99.7%), 13,095 pos
+[iter 4] worker 0: 350/900 games (14817 games/hr, decisive=100.0%), 12,668 pos
+[iter 4] worker 1: 350/900 games (14530 games/hr, decisive=99.4%), 13,248 pos
+[iter 4] worker 3: 350/900 games (14171 games/hr, decisive=100.0%), 13,663 pos
+[iter 4] worker 2: 400/900 games (15192 games/hr, decisive=99.8%), 15,037 pos
+[iter 4] worker 0: 400/900 games (14708 games/hr, decisive=100.0%), 14,451 pos
+[iter 4] worker 3: 400/900 games (14507 games/hr, decisive=100.0%), 15,322 pos
+[iter 4] worker 1: 400/900 games (14340 games/hr, decisive=99.5%), 15,307 pos
+[iter 4] worker 2: 450/900 games (15127 games/hr, decisive=99.8%), 17,002 pos
+[iter 4] worker 0: 450/900 games (14881 games/hr, decisive=100.0%), 16,179 pos
+[iter 4] worker 3: 450/900 games (14679 games/hr, decisive=100.0%), 17,126 pos
+[iter 4] worker 1: 450/900 games (14653 games/hr, decisive=99.6%), 17,024 pos
+[iter 4] worker 2: 500/900 games (15117 games/hr, decisive=99.8%), 18,790 pos
+[iter 4] worker 0: 500/900 games (14884 games/hr, decisive=100.0%), 18,017 pos
+[iter 4] worker 1: 500/900 games (14763 games/hr, decisive=99.6%), 18,733 pos
+[iter 4] worker 3: 500/900 games (14303 games/hr, decisive=99.8%), 19,246 pos
+[iter 4] worker 2: 550/900 games (15102 games/hr, decisive=99.8%), 20,839 pos
+[iter 4] worker 1: 550/900 games (14871 games/hr, decisive=99.6%), 20,490 pos
+[iter 4] worker 0: 550/900 games (14846 games/hr, decisive=100.0%), 20,068 pos
+[iter 4] worker 3: 550/900 games (14407 games/hr, decisive=99.6%), 21,211 pos
+[iter 4] worker 2: 600/900 games (15035 games/hr, decisive=99.8%), 22,764 pos
+[iter 4] worker 1: 600/900 games (14928 games/hr, decisive=99.7%), 22,289 pos
+[iter 4] worker 0: 600/900 games (14725 games/hr, decisive=100.0%), 22,092 pos
+[iter 4] worker 3: 600/900 games (14485 games/hr, decisive=99.7%), 23,154 pos
+[iter 4] worker 2: 650/900 games (15090 games/hr, decisive=99.7%), 24,733 pos
+[iter 4] worker 1: 650/900 games (14892 games/hr, decisive=99.7%), 24,245 pos
+[iter 4] worker 0: 650/900 games (14617 games/hr, decisive=100.0%), 24,050 pos
+[iter 4] worker 3: 650/900 games (14307 games/hr, decisive=99.7%), 25,108 pos
+[iter 4] worker 2: 700/900 games (14946 games/hr, decisive=99.7%), 26,582 pos
+[iter 4] worker 1: 700/900 games (14820 games/hr, decisive=99.7%), 26,129 pos
+[iter 4] worker 0: 700/900 games (14632 games/hr, decisive=99.9%), 25,960 pos
+[iter 4] worker 3: 700/900 games (14258 games/hr, decisive=99.7%), 27,083 pos
+[iter 4] worker 2: 750/900 games (14967 games/hr, decisive=99.7%), 28,453 pos
+[iter 4] worker 1: 750/900 games (14668 games/hr, decisive=99.7%), 28,098 pos
+[iter 4] worker 0: 750/900 games (14466 games/hr, decisive=99.9%), 28,076 pos
+[iter 4] worker 3: 750/900 games (14445 games/hr, decisive=99.7%), 28,900 pos
+[iter 4] worker 2: 800/900 games (14953 games/hr, decisive=99.8%), 30,545 pos
+[iter 4] worker 1: 800/900 games (14543 games/hr, decisive=99.6%), 30,289 pos
+[iter 4] worker 0: 800/900 games (14376 games/hr, decisive=99.9%), 29,947 pos
+[iter 4] worker 3: 800/900 games (14345 games/hr, decisive=99.8%), 30,993 pos
+[iter 4] worker 2: 850/900 games (14792 games/hr, decisive=99.6%), 32,564 pos
+[iter 4] worker 1: 850/900 games (14510 games/hr, decisive=99.6%), 32,218 pos
+[iter 4] worker 3: 850/900 games (14343 games/hr, decisive=99.8%), 32,905 pos
+[iter 4] worker 0: 850/900 games (14263 games/hr, decisive=99.8%), 32,095 pos
+[iter 4] worker 2: 900/900 games (14879 games/hr, decisive=99.7%), 34,695 pos
+[iter 4] worker 1: 900/900 games (14656 games/hr, decisive=99.7%), 34,055 pos
+[iter 4] worker 3: 900/900 games (14491 games/hr, decisive=99.8%), 34,659 pos
+[iter 4] worker 0: 900/900 games (14317 games/hr, decisive=99.8%), 34,104 pos
+=== Iteration 4 complete: added 137,513 positions to data/replay_buffer_v1 | Decisive rate: 99.7% (3590/3600) ===
+    Self-Play decisive rate: 99.2% (479/483)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.691 --seed 4 --device cuda --resume
+Buffer: 500,000 pos (16 shards, min_iter=1) | W/D/L: 49.9%/1.5%/48.6% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.69
+step  100/1200: tot=2.686 (out=1.406, teach=1.865) | val_teacher=0.432, val_win_move=0.566 (16s) *saved*
+step  200/1200: tot=2.725 (out=1.442, teach=1.869) | val_teacher=0.419, val_win_move=0.558 (30s)
+step  300/1200: tot=2.649 (out=1.397, teach=1.824) | val_teacher=0.416, val_win_move=0.562 (45s)
+step  400/1200: tot=2.580 (out=1.345, teach=1.798) | val_teacher=0.418, val_win_move=0.557 (60s)
+step  500/1200: tot=2.504 (out=1.302, teach=1.751) | val_teacher=0.430, val_win_move=0.555 (75s)
+step  600/1200: tot=2.402 (out=1.240, teach=1.692) | val_teacher=0.422, val_win_move=0.561 (90s)
+step  700/1200: tot=2.311 (out=1.193, teach=1.628) | val_teacher=0.426, val_win_move=0.553 (105s)
+step  800/1200: tot=2.191 (out=1.116, teach=1.566) | val_teacher=0.432, val_win_move=0.557 (120s)
+step  900/1200: tot=2.054 (out=1.041, teach=1.476) | val_teacher=0.434, val_win_move=0.562 (135s)
+step 1000/1200: tot=1.957 (out=0.985, teach=1.417) | val_teacher=0.433, val_win_move=0.561 (149s)
+step 1100/1200: tot=1.882 (out=0.940, teach=1.374) | val_teacher=0.433, val_win_move=0.561 (164s)
+step 1200/1200: tot=1.846 (out=0.918, teach=1.352) | val_teacher=0.436, val_win_move=0.559 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 5 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_001 data/league_v1\iter_002 data/league_v1\iter_003 data/league_v1\iter_004
+=== Generating Iteration 5: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 5] worker 2: 50/900 games (15365 games/hr, decisive=100.0%), 1,723 pos
+[iter 5] worker 1: 50/900 games (12486 games/hr, decisive=100.0%), 2,131 pos
+[iter 5] worker 0: 50/900 games (11777 games/hr, decisive=100.0%), 2,057 pos
+[iter 5] worker 3: 50/900 games (11280 games/hr, decisive=98.0%), 2,014 pos
+[iter 5] worker 2: 100/900 games (15755 games/hr, decisive=100.0%), 3,622 pos
+[iter 5] worker 0: 100/900 games (13726 games/hr, decisive=100.0%), 3,772 pos
+[iter 5] worker 1: 100/900 games (13354 games/hr, decisive=100.0%), 4,169 pos
+[iter 5] worker 3: 100/900 games (13290 games/hr, decisive=99.0%), 3,964 pos
+[iter 5] worker 2: 150/900 games (14984 games/hr, decisive=99.3%), 5,573 pos
+[iter 5] worker 0: 150/900 games (14165 games/hr, decisive=100.0%), 5,695 pos
+[iter 5] worker 1: 150/900 games (13625 games/hr, decisive=99.3%), 6,204 pos
+[iter 5] worker 3: 150/900 games (12924 games/hr, decisive=99.3%), 6,111 pos
+[iter 5] worker 2: 200/900 games (14719 games/hr, decisive=99.5%), 7,529 pos
+[iter 5] worker 0: 200/900 games (14230 games/hr, decisive=100.0%), 7,568 pos
+[iter 5] worker 1: 200/900 games (13727 games/hr, decisive=99.0%), 8,074 pos
+[iter 5] worker 3: 200/900 games (13186 games/hr, decisive=99.5%), 8,102 pos
+[iter 5] worker 0: 250/900 games (14514 games/hr, decisive=100.0%), 9,427 pos
+[iter 5] worker 2: 250/900 games (14390 games/hr, decisive=99.2%), 9,494 pos
+[iter 5] worker 3: 250/900 games (13940 games/hr, decisive=99.6%), 9,809 pos
+[iter 5] worker 1: 250/900 games (13210 games/hr, decisive=98.8%), 10,216 pos
+[iter 5] worker 0: 300/900 games (14719 games/hr, decisive=100.0%), 11,101 pos
+[iter 5] worker 2: 300/900 games (13907 games/hr, decisive=99.3%), 11,679 pos
+[iter 5] worker 3: 300/900 games (13737 games/hr, decisive=99.7%), 11,676 pos
+[iter 5] worker 1: 300/900 games (13459 games/hr, decisive=98.7%), 12,072 pos
+[iter 5] worker 0: 350/900 games (14392 games/hr, decisive=99.7%), 13,017 pos
+[iter 5] worker 2: 350/900 games (13956 games/hr, decisive=99.1%), 13,693 pos
+[iter 5] worker 3: 350/900 games (13841 games/hr, decisive=99.7%), 13,567 pos
+[iter 5] worker 1: 350/900 games (13379 games/hr, decisive=98.9%), 14,045 pos
+[iter 5] worker 0: 400/900 games (14796 games/hr, decisive=99.8%), 14,620 pos
+[iter 5] worker 2: 400/900 games (13908 games/hr, decisive=99.0%), 15,808 pos
+[iter 5] worker 3: 400/900 games (13855 games/hr, decisive=99.8%), 15,483 pos
+[iter 5] worker 1: 400/900 games (13352 games/hr, decisive=98.8%), 16,276 pos
+[iter 5] worker 0: 450/900 games (14715 games/hr, decisive=99.6%), 16,516 pos
+[iter 5] worker 2: 450/900 games (14049 games/hr, decisive=99.1%), 17,552 pos
+[iter 5] worker 3: 450/900 games (13686 games/hr, decisive=99.8%), 17,426 pos
+[iter 5] worker 1: 450/900 games (13543 games/hr, decisive=98.9%), 18,039 pos
+[iter 5] worker 0: 500/900 games (14776 games/hr, decisive=99.4%), 18,526 pos
+[iter 5] worker 2: 500/900 games (14002 games/hr, decisive=99.2%), 19,746 pos
+[iter 5] worker 3: 500/900 games (13801 games/hr, decisive=99.8%), 19,372 pos
+[iter 5] worker 0: 550/900 games (14989 games/hr, decisive=99.5%), 20,199 pos
+[iter 5] worker 1: 500/900 games (13544 games/hr, decisive=99.0%), 20,029 pos
+[iter 5] worker 3: 550/900 games (13995 games/hr, decisive=99.8%), 21,337 pos
+[iter 5] worker 2: 550/900 games (13976 games/hr, decisive=99.3%), 21,724 pos
+[iter 5] worker 1: 550/900 games (13706 games/hr, decisive=99.1%), 21,712 pos
+[iter 5] worker 0: 600/900 games (14804 games/hr, decisive=99.5%), 22,320 pos
+[iter 5] worker 3: 600/900 games (13908 games/hr, decisive=99.8%), 23,463 pos
+[iter 5] worker 2: 600/900 games (13895 games/hr, decisive=99.2%), 23,757 pos
+[iter 5] worker 1: 600/900 games (13781 games/hr, decisive=99.0%), 23,657 pos
+[iter 5] worker 0: 650/900 games (14703 games/hr, decisive=99.5%), 24,035 pos
+[iter 5] worker 3: 650/900 games (13934 games/hr, decisive=99.8%), 25,428 pos
+[iter 5] worker 1: 650/900 games (13819 games/hr, decisive=99.1%), 25,687 pos
+[iter 5] worker 0: 700/900 games (14855 games/hr, decisive=99.6%), 25,878 pos
+[iter 5] worker 2: 650/900 games (13694 games/hr, decisive=99.2%), 25,865 pos
+[iter 5] worker 3: 700/900 games (14112 games/hr, decisive=99.7%), 27,225 pos
+[iter 5] worker 1: 700/900 games (14015 games/hr, decisive=99.1%), 27,383 pos
+[iter 5] worker 2: 700/900 games (13771 games/hr, decisive=99.3%), 27,707 pos
+[iter 5] worker 0: 750/900 games (14714 games/hr, decisive=99.3%), 28,061 pos
+[iter 5] worker 3: 750/900 games (14207 games/hr, decisive=99.7%), 29,052 pos
+[iter 5] worker 2: 750/900 games (13926 games/hr, decisive=99.2%), 29,688 pos
+[iter 5] worker 1: 750/900 games (13886 games/hr, decisive=99.2%), 29,564 pos
+[iter 5] worker 0: 800/900 games (14580 games/hr, decisive=99.4%), 30,148 pos
+[iter 5] worker 3: 800/900 games (14080 games/hr, decisive=99.8%), 31,087 pos
+[iter 5] worker 2: 800/900 games (14072 games/hr, decisive=99.2%), 31,450 pos
+[iter 5] worker 1: 800/900 games (14042 games/hr, decisive=99.1%), 31,381 pos
+[iter 5] worker 0: 850/900 games (14627 games/hr, decisive=99.4%), 31,971 pos
+[iter 5] worker 2: 850/900 games (14162 games/hr, decisive=99.3%), 33,364 pos
+[iter 5] worker 3: 850/900 games (14054 games/hr, decisive=99.8%), 33,116 pos
+[iter 5] worker 1: 850/900 games (13968 games/hr, decisive=99.2%), 33,311 pos
+[iter 5] worker 0: 900/900 games (14585 games/hr, decisive=99.4%), 33,987 pos
+[iter 5] worker 2: 900/900 games (14247 games/hr, decisive=99.3%), 35,378 pos
+[iter 5] worker 3: 900/900 games (14153 games/hr, decisive=99.8%), 34,938 pos
+[iter 5] worker 1: 900/900 games (14122 games/hr, decisive=99.2%), 35,213 pos
+=== Iteration 5 complete: added 139,516 positions to data/replay_buffer_v1 | Decisive rate: 99.4% (3580/3600) ===
+    Self-Play decisive rate: 99.0% (494/499)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.614 --seed 5 --device cuda --resume
+Buffer: 500,000 pos (20 shards, min_iter=1) | W/D/L: 49.8%/1.7%/48.5% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.61
+step  100/1200: tot=2.589 (out=1.415, teach=1.925) | val_teacher=0.429, val_win_move=0.575 (16s) *saved*
+step  200/1200: tot=2.604 (out=1.431, teach=1.925) | val_teacher=0.416, val_win_move=0.575 (30s)
+step  300/1200: tot=2.521 (out=1.374, teach=1.882) | val_teacher=0.419, val_win_move=0.575 (45s)
+step  400/1200: tot=2.454 (out=1.331, teach=1.842) | val_teacher=0.419, val_win_move=0.569 (60s)
+step  500/1200: tot=2.385 (out=1.286, teach=1.804) | val_teacher=0.428, val_win_move=0.571 (75s)
+step  600/1200: tot=2.304 (out=1.233, teach=1.757) | val_teacher=0.431, val_win_move=0.567 (90s)
+step  700/1200: tot=2.191 (out=1.160, teach=1.692) | val_teacher=0.421, val_win_move=0.574 (105s)
+step  800/1200: tot=2.091 (out=1.091, teach=1.640) | val_teacher=0.434, val_win_move=0.565 (120s)
+step  900/1200: tot=1.967 (out=1.016, teach=1.561) | val_teacher=0.434, val_win_move=0.569 (135s)
+step 1000/1200: tot=1.868 (out=0.949, teach=1.508) | val_teacher=0.435, val_win_move=0.568 (149s)
+step 1100/1200: tot=1.806 (out=0.914, teach=1.463) | val_teacher=0.427, val_win_move=0.575 (164s)
+step 1200/1200: tot=1.765 (out=0.885, teach=1.445) | val_teacher=0.428, val_win_move=0.574 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 6 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_002 data/league_v1\iter_003 data/league_v1\iter_004 data/league_v1\iter_005
+=== Generating Iteration 6: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 6] worker 2: 50/900 games (15339 games/hr, decisive=100.0%), 1,651 pos
+[iter 6] worker 1: 50/900 games (13805 games/hr, decisive=100.0%), 1,699 pos
+[iter 6] worker 0: 50/900 games (12653 games/hr, decisive=100.0%), 1,740 pos
+[iter 6] worker 3: 50/900 games (12299 games/hr, decisive=98.0%), 1,899 pos
+[iter 6] worker 3: 100/900 games (14377 games/hr, decisive=98.0%), 3,663 pos
+[iter 6] worker 1: 100/900 games (14232 games/hr, decisive=98.0%), 3,610 pos
+[iter 6] worker 2: 100/900 games (14125 games/hr, decisive=100.0%), 3,664 pos
+[iter 6] worker 0: 100/900 games (13872 games/hr, decisive=100.0%), 3,753 pos
+[iter 6] worker 0: 150/900 games (14998 games/hr, decisive=100.0%), 5,334 pos
+[iter 6] worker 2: 150/900 games (14281 games/hr, decisive=100.0%), 5,505 pos
+[iter 6] worker 1: 150/900 games (13839 games/hr, decisive=98.7%), 5,641 pos
+[iter 6] worker 3: 150/900 games (13819 games/hr, decisive=98.0%), 5,780 pos
+[iter 6] worker 0: 200/900 games (15468 games/hr, decisive=100.0%), 7,155 pos
+[iter 6] worker 2: 200/900 games (15283 games/hr, decisive=100.0%), 7,098 pos
+[iter 6] worker 1: 200/900 games (14552 games/hr, decisive=99.0%), 7,394 pos
+[iter 6] worker 3: 200/900 games (14077 games/hr, decisive=98.5%), 7,646 pos
+[iter 6] worker 0: 250/900 games (15528 games/hr, decisive=100.0%), 8,918 pos
+[iter 6] worker 1: 250/900 games (14899 games/hr, decisive=99.2%), 9,234 pos
+[iter 6] worker 2: 250/900 games (14548 games/hr, decisive=100.0%), 9,161 pos
+[iter 6] worker 3: 250/900 games (13980 games/hr, decisive=98.4%), 9,754 pos
+[iter 6] worker 0: 300/900 games (15556 games/hr, decisive=100.0%), 10,811 pos
+[iter 6] worker 1: 300/900 games (15211 games/hr, decisive=99.3%), 11,055 pos
+[iter 6] worker 2: 300/900 games (14912 games/hr, decisive=99.7%), 11,013 pos
+[iter 6] worker 3: 300/900 games (14067 games/hr, decisive=98.7%), 11,727 pos
+[iter 6] worker 1: 350/900 games (15581 games/hr, decisive=99.4%), 12,670 pos
+[iter 6] worker 0: 350/900 games (15422 games/hr, decisive=100.0%), 12,767 pos
+[iter 6] worker 2: 350/900 games (14719 games/hr, decisive=99.4%), 13,132 pos
+[iter 6] worker 3: 350/900 games (14539 games/hr, decisive=98.9%), 13,396 pos
+[iter 6] worker 1: 400/900 games (15796 games/hr, decisive=99.5%), 14,400 pos
+[iter 6] worker 0: 400/900 games (15485 games/hr, decisive=100.0%), 14,617 pos
+[iter 6] worker 2: 400/900 games (14865 games/hr, decisive=99.5%), 14,973 pos
+[iter 6] worker 3: 400/900 games (14725 games/hr, decisive=99.0%), 15,229 pos
+[iter 6] worker 0: 450/900 games (15683 games/hr, decisive=100.0%), 16,421 pos
+[iter 6] worker 1: 450/900 games (15620 games/hr, decisive=99.6%), 16,353 pos
+[iter 6] worker 2: 450/900 games (15145 games/hr, decisive=99.6%), 16,712 pos
+[iter 6] worker 3: 450/900 games (14919 games/hr, decisive=99.1%), 16,889 pos
+[iter 6] worker 0: 500/900 games (15756 games/hr, decisive=100.0%), 18,239 pos
+[iter 6] worker 1: 500/900 games (15442 games/hr, decisive=99.4%), 18,479 pos
+[iter 6] worker 2: 500/900 games (15070 games/hr, decisive=99.6%), 18,502 pos
+[iter 6] worker 3: 500/900 games (14896 games/hr, decisive=99.0%), 18,683 pos
+[iter 6] worker 0: 550/900 games (15787 games/hr, decisive=100.0%), 20,000 pos
+[iter 6] worker 1: 550/900 games (15172 games/hr, decisive=99.5%), 20,637 pos
+[iter 6] worker 2: 550/900 games (14921 games/hr, decisive=99.6%), 20,612 pos
+[iter 6] worker 3: 550/900 games (14693 games/hr, decisive=98.7%), 20,796 pos
+[iter 6] worker 0: 600/900 games (15744 games/hr, decisive=100.0%), 21,922 pos
+[iter 6] worker 1: 600/900 games (15007 games/hr, decisive=99.5%), 22,826 pos
+[iter 6] worker 2: 600/900 games (14986 games/hr, decisive=99.7%), 22,517 pos
+[iter 6] worker 3: 600/900 games (14672 games/hr, decisive=98.8%), 22,776 pos
+[iter 6] worker 0: 650/900 games (15648 games/hr, decisive=100.0%), 23,891 pos
+[iter 6] worker 1: 650/900 games (14944 games/hr, decisive=99.5%), 24,741 pos
+[iter 6] worker 2: 650/900 games (14937 games/hr, decisive=99.7%), 24,453 pos
+[iter 6] worker 3: 650/900 games (14631 games/hr, decisive=98.9%), 24,752 pos
+[iter 6] worker 0: 700/900 games (15646 games/hr, decisive=100.0%), 25,751 pos
+[iter 6] worker 1: 700/900 games (15192 games/hr, decisive=99.6%), 26,570 pos
+[iter 6] worker 2: 700/900 games (14776 games/hr, decisive=99.7%), 26,716 pos
+[iter 6] worker 3: 700/900 games (14727 games/hr, decisive=98.9%), 26,640 pos
+[iter 6] worker 0: 750/900 games (15529 games/hr, decisive=100.0%), 27,823 pos
+[iter 6] worker 1: 750/900 games (15385 games/hr, decisive=99.6%), 28,330 pos
+[iter 6] worker 3: 750/900 games (14686 games/hr, decisive=98.9%), 28,905 pos
+[iter 6] worker 2: 750/900 games (14617 games/hr, decisive=99.7%), 29,100 pos
+[iter 6] worker 0: 800/900 games (15571 games/hr, decisive=100.0%), 29,685 pos
+[iter 6] worker 1: 800/900 games (15411 games/hr, decisive=99.6%), 30,176 pos
+[iter 6] worker 3: 800/900 games (14665 games/hr, decisive=98.9%), 30,901 pos
+[iter 6] worker 0: 850/900 games (15530 games/hr, decisive=100.0%), 31,811 pos
+[iter 6] worker 2: 800/900 games (14529 games/hr, decisive=99.8%), 31,287 pos
+[iter 6] worker 1: 850/900 games (15416 games/hr, decisive=99.6%), 32,125 pos
+[iter 6] worker 1: 900/900 games (15527 games/hr, decisive=99.7%), 33,845 pos
+[iter 6] worker 0: 900/900 games (15476 games/hr, decisive=100.0%), 33,757 pos
+[iter 6] worker 3: 850/900 games (14583 games/hr, decisive=98.9%), 32,832 pos
+[iter 6] worker 2: 850/900 games (14467 games/hr, decisive=99.8%), 33,278 pos
+[iter 6] worker 3: 900/900 games (14652 games/hr, decisive=99.0%), 34,839 pos
+[iter 6] worker 2: 900/900 games (14577 games/hr, decisive=99.8%), 35,210 pos
+=== Iteration 6 complete: added 137,651 positions to data/replay_buffer_v1 | Decisive rate: 99.6% (3586/3600) ===
+    Self-Play decisive rate: 98.3% (509/518)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.536 --seed 6 --device cuda --resume
+Buffer: 500,000 pos (24 shards, min_iter=1) | W/D/L: 49.8%/1.7%/48.5% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.54
+step  100/1200: tot=2.436 (out=1.379, teach=1.988) | val_teacher=0.417, val_win_move=0.577 (15s) *saved*
+step  200/1200: tot=2.443 (out=1.390, teach=1.981) | val_teacher=0.421, val_win_move=0.573 (30s) *saved*
+step  300/1200: tot=2.362 (out=1.337, teach=1.927) | val_teacher=0.421, val_win_move=0.580 (45s) *saved*
+step  400/1200: tot=2.297 (out=1.290, teach=1.893) | val_teacher=0.428, val_win_move=0.573 (60s) *saved*
+step  500/1200: tot=2.224 (out=1.240, teach=1.851) | val_teacher=0.420, val_win_move=0.586 (75s) *saved*
+step  600/1200: tot=2.144 (out=1.183, teach=1.806) | val_teacher=0.428, val_win_move=0.579 (90s) *saved*
+step  700/1200: tot=2.059 (out=1.124, teach=1.759) | val_teacher=0.432, val_win_move=0.585 (105s) *saved*
+step  800/1200: tot=1.950 (out=1.045, teach=1.702) | val_teacher=0.440, val_win_move=0.582 (120s) *saved*
+step  900/1200: tot=1.851 (out=0.978, teach=1.641) | val_teacher=0.430, val_win_move=0.583 (135s)
+step 1000/1200: tot=1.753 (out=0.915, teach=1.577) | val_teacher=0.430, val_win_move=0.583 (149s)
+step 1100/1200: tot=1.693 (out=0.870, teach=1.548) | val_teacher=0.434, val_win_move=0.583 (164s)
+step 1200/1200: tot=1.662 (out=0.852, teach=1.523) | val_teacher=0.435, val_win_move=0.583 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 7 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_003 data/league_v1\iter_004 data/league_v1\iter_005 data/league_v1\iter_006
+=== Generating Iteration 7: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 7] worker 3: 50/900 games (14514 games/hr, decisive=100.0%), 1,863 pos
+[iter 7] worker 1: 50/900 games (13338 games/hr, decisive=96.0%), 1,815 pos
+[iter 7] worker 2: 50/900 games (11964 games/hr, decisive=100.0%), 1,938 pos
+[iter 7] worker 0: 50/900 games (11130 games/hr, decisive=96.0%), 2,238 pos
+[iter 7] worker 3: 100/900 games (14478 games/hr, decisive=100.0%), 3,834 pos
+[iter 7] worker 1: 100/900 games (13867 games/hr, decisive=97.0%), 3,664 pos
+[iter 7] worker 0: 100/900 games (12902 games/hr, decisive=98.0%), 4,048 pos
+[iter 7] worker 2: 100/900 games (12762 games/hr, decisive=100.0%), 3,935 pos
+[iter 7] worker 3: 150/900 games (14761 games/hr, decisive=100.0%), 5,629 pos
+[iter 7] worker 1: 150/900 games (13686 games/hr, decisive=98.0%), 5,670 pos
+[iter 7] worker 0: 150/900 games (13594 games/hr, decisive=98.0%), 5,878 pos
+[iter 7] worker 2: 150/900 games (13521 games/hr, decisive=100.0%), 5,841 pos
+[iter 7] worker 3: 200/900 games (15204 games/hr, decisive=99.5%), 7,319 pos
+[iter 7] worker 0: 200/900 games (13802 games/hr, decisive=98.5%), 7,927 pos
+[iter 7] worker 1: 200/900 games (13673 games/hr, decisive=98.5%), 7,697 pos
+[iter 7] worker 2: 200/900 games (12937 games/hr, decisive=99.5%), 8,043 pos
+[iter 7] worker 3: 250/900 games (14853 games/hr, decisive=99.6%), 9,221 pos
+[iter 7] worker 0: 250/900 games (14089 games/hr, decisive=98.4%), 9,850 pos
+[iter 7] worker 1: 250/900 games (13826 games/hr, decisive=98.8%), 9,605 pos
+[iter 7] worker 2: 250/900 games (13466 games/hr, decisive=99.6%), 10,114 pos
+[iter 7] worker 3: 300/900 games (15041 games/hr, decisive=99.7%), 11,081 pos
+[iter 7] worker 0: 300/900 games (14327 games/hr, decisive=98.7%), 11,770 pos
+[iter 7] worker 1: 300/900 games (13841 games/hr, decisive=98.7%), 11,780 pos
+[iter 7] worker 2: 300/900 games (13456 games/hr, decisive=99.7%), 12,079 pos
+[iter 7] worker 3: 350/900 games (15382 games/hr, decisive=99.7%), 12,757 pos
+[iter 7] worker 0: 350/900 games (14375 games/hr, decisive=98.6%), 13,700 pos
+[iter 7] worker 2: 350/900 games (13759 games/hr, decisive=99.7%), 13,861 pos
+[iter 7] worker 1: 350/900 games (13753 games/hr, decisive=98.9%), 13,857 pos
+[iter 7] worker 3: 400/900 games (15288 games/hr, decisive=99.8%), 14,644 pos
+[iter 7] worker 0: 400/900 games (14534 games/hr, decisive=98.5%), 15,506 pos
+[iter 7] worker 2: 400/900 games (13845 games/hr, decisive=99.8%), 15,757 pos
+[iter 7] worker 1: 400/900 games (13594 games/hr, decisive=98.8%), 15,972 pos
+[iter 7] worker 3: 450/900 games (15195 games/hr, decisive=99.8%), 16,397 pos
+[iter 7] worker 0: 450/900 games (14229 games/hr, decisive=98.7%), 17,699 pos
+[iter 7] worker 2: 450/900 games (13692 games/hr, decisive=99.6%), 17,945 pos
+[iter 7] worker 3: 500/900 games (15120 games/hr, decisive=99.8%), 18,294 pos
+[iter 7] worker 1: 450/900 games (13494 games/hr, decisive=98.7%), 18,075 pos
+[iter 7] worker 0: 500/900 games (14358 games/hr, decisive=98.8%), 19,529 pos
+[iter 7] worker 3: 550/900 games (15026 games/hr, decisive=99.8%), 20,259 pos
+[iter 7] worker 1: 500/900 games (13455 games/hr, decisive=98.8%), 20,098 pos
+[iter 7] worker 2: 500/900 games (13417 games/hr, decisive=99.4%), 20,108 pos
+[iter 7] worker 0: 550/900 games (14206 games/hr, decisive=98.9%), 21,570 pos
+[iter 7] worker 2: 550/900 games (13694 games/hr, decisive=99.5%), 21,881 pos
+[iter 7] worker 3: 600/900 games (14820 games/hr, decisive=99.8%), 22,305 pos
+[iter 7] worker 1: 550/900 games (13510 games/hr, decisive=98.7%), 22,195 pos
+[iter 7] worker 0: 600/900 games (14159 games/hr, decisive=98.8%), 23,688 pos
+[iter 7] worker 2: 600/900 games (13547 games/hr, decisive=99.3%), 24,246 pos
+[iter 7] worker 1: 600/900 games (13433 games/hr, decisive=98.8%), 24,327 pos
+[iter 7] worker 3: 650/900 games (14532 games/hr, decisive=99.7%), 24,674 pos
+[iter 7] worker 0: 650/900 games (14408 games/hr, decisive=98.9%), 25,584 pos
+[iter 7] worker 2: 650/900 games (13657 games/hr, decisive=99.2%), 26,071 pos
+[iter 7] worker 1: 650/900 games (13585 games/hr, decisive=98.9%), 26,188 pos
+[iter 7] worker 3: 700/900 games (14516 games/hr, decisive=99.7%), 26,543 pos
+[iter 7] worker 0: 700/900 games (14361 games/hr, decisive=99.0%), 27,624 pos
+[iter 7] worker 1: 700/900 games (13641 games/hr, decisive=99.0%), 28,119 pos
+[iter 7] worker 3: 750/900 games (14555 games/hr, decisive=99.7%), 28,566 pos
+[iter 7] worker 2: 700/900 games (13543 games/hr, decisive=99.3%), 28,181 pos
+[iter 7] worker 0: 750/900 games (14496 games/hr, decisive=99.1%), 29,623 pos
+[iter 7] worker 0: 800/900 games (14632 games/hr, decisive=99.1%), 31,416 pos
+[iter 7] worker 1: 750/900 games (13704 games/hr, decisive=98.9%), 30,089 pos
+[iter 7] worker 3: 800/900 games (14498 games/hr, decisive=99.8%), 30,655 pos
+[iter 7] worker 2: 750/900 games (13524 games/hr, decisive=99.2%), 30,520 pos
+[iter 7] worker 1: 800/900 games (13908 games/hr, decisive=99.0%), 31,867 pos
+[iter 7] worker 0: 850/900 games (14573 games/hr, decisive=99.1%), 33,290 pos
+[iter 7] worker 3: 850/900 games (14441 games/hr, decisive=99.8%), 32,739 pos
+[iter 7] worker 2: 800/900 games (13585 games/hr, decisive=99.2%), 32,344 pos
+[iter 7] worker 0: 900/900 games (14711 games/hr, decisive=99.1%), 35,212 pos
+[iter 7] worker 2: 850/900 games (13795 games/hr, decisive=99.3%), 34,134 pos
+[iter 7] worker 1: 850/900 games (13750 games/hr, decisive=99.1%), 34,053 pos
+[iter 7] worker 3: 900/900 games (14465 games/hr, decisive=99.8%), 34,855 pos
+[iter 7] worker 1: 900/900 games (13895 games/hr, decisive=99.1%), 36,025 pos
+[iter 7] worker 2: 900/900 games (13807 games/hr, decisive=99.3%), 36,178 pos
+=== Iteration 7 complete: added 142,270 positions to data/replay_buffer_v1 | Decisive rate: 99.3% (3576/3600) ===
+    Self-Play decisive rate: 97.2% (525/540)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.459 --seed 7 --device cuda --resume
+Buffer: 500,000 pos (28 shards, min_iter=1) | W/D/L: 49.6%/2.1%/48.3% | Teacher labeled: 50.0%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.46
+step  100/1200: tot=1.938 (out=1.106, teach=1.828) | val_teacher=0.441, val_win_move=0.641 (16s) *saved*
+step  200/1200: tot=2.015 (out=1.164, teach=1.871) | val_teacher=0.421, val_win_move=0.622 (30s)
+step  300/1200: tot=1.982 (out=1.138, teach=1.855) | val_teacher=0.430, val_win_move=0.615 (45s)
+step  400/1200: tot=1.931 (out=1.095, teach=1.837) | val_teacher=0.430, val_win_move=0.607 (60s)
+step  500/1200: tot=1.852 (out=1.037, teach=1.790) | val_teacher=0.424, val_win_move=0.616 (75s)
+step  600/1200: tot=1.785 (out=0.986, teach=1.756) | val_teacher=0.433, val_win_move=0.613 (90s)
+step  700/1200: tot=1.686 (out=0.917, teach=1.692) | val_teacher=0.431, val_win_move=0.605 (105s)
+step  800/1200: tot=1.585 (out=0.840, teach=1.636) | val_teacher=0.436, val_win_move=0.612 (120s)
+step  900/1200: tot=1.495 (out=0.777, teach=1.576) | val_teacher=0.440, val_win_move=0.621 (134s)
+step 1000/1200: tot=1.400 (out=0.712, teach=1.511) | val_teacher=0.440, val_win_move=0.619 (149s)
+step 1100/1200: tot=1.349 (out=0.674, teach=1.483) | val_teacher=0.441, val_win_move=0.618 (164s)
+step 1200/1200: tot=1.326 (out=0.663, teach=1.456) | val_teacher=0.442, val_win_move=0.620 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 8 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_004 data/league_v1\iter_005 data/league_v1\iter_006 data/league_v1\iter_007
+=== Generating Iteration 8: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 8] worker 3: 50/900 games (12433 games/hr, decisive=100.0%), 1,954 pos
+[iter 8] worker 2: 50/900 games (11902 games/hr, decisive=100.0%), 1,945 pos
+[iter 8] worker 1: 50/900 games (11086 games/hr, decisive=98.0%), 2,097 pos
+[iter 8] worker 0: 50/900 games (11071 games/hr, decisive=100.0%), 1,996 pos
+[iter 8] worker 3: 100/900 games (14604 games/hr, decisive=100.0%), 3,787 pos
+[iter 8] worker 2: 100/900 games (13699 games/hr, decisive=100.0%), 3,525 pos
+[iter 8] worker 1: 100/900 games (12214 games/hr, decisive=99.0%), 3,995 pos
+[iter 8] worker 0: 100/900 games (11472 games/hr, decisive=99.0%), 4,188 pos
+[iter 8] worker 3: 150/900 games (15201 games/hr, decisive=100.0%), 5,522 pos
+[iter 8] worker 2: 150/900 games (13411 games/hr, decisive=99.3%), 5,641 pos
+[iter 8] worker 1: 150/900 games (13091 games/hr, decisive=99.3%), 5,832 pos
+[iter 8] worker 0: 150/900 games (12195 games/hr, decisive=99.3%), 6,247 pos
+[iter 8] worker 3: 200/900 games (14964 games/hr, decisive=100.0%), 7,460 pos
+[iter 8] worker 2: 200/900 games (14144 games/hr, decisive=99.5%), 7,301 pos
+[iter 8] worker 1: 200/900 games (13190 games/hr, decisive=99.5%), 7,815 pos
+[iter 8] worker 0: 200/900 games (12795 games/hr, decisive=99.5%), 8,023 pos
+[iter 8] worker 3: 250/900 games (14860 games/hr, decisive=100.0%), 9,303 pos
+[iter 8] worker 2: 250/900 games (13917 games/hr, decisive=99.6%), 9,319 pos
+[iter 8] worker 1: 250/900 games (13078 games/hr, decisive=98.8%), 9,991 pos
+[iter 8] worker 0: 250/900 games (13018 games/hr, decisive=99.6%), 9,998 pos
+[iter 8] worker 3: 300/900 games (14543 games/hr, decisive=100.0%), 11,412 pos
+[iter 8] worker 2: 300/900 games (13827 games/hr, decisive=99.7%), 11,279 pos
+[iter 8] worker 1: 300/900 games (13280 games/hr, decisive=99.0%), 11,990 pos
+[iter 8] worker 0: 300/900 games (13201 games/hr, decisive=99.3%), 12,075 pos
+[iter 8] worker 3: 350/900 games (14558 games/hr, decisive=100.0%), 13,437 pos
+[iter 8] worker 2: 350/900 games (13934 games/hr, decisive=99.7%), 13,174 pos
+[iter 8] worker 0: 350/900 games (13537 games/hr, decisive=99.4%), 13,913 pos
+[iter 8] worker 1: 350/900 games (13140 games/hr, decisive=99.1%), 14,149 pos
+[iter 8] worker 3: 400/900 games (14422 games/hr, decisive=100.0%), 15,414 pos
+[iter 8] worker 2: 400/900 games (13804 games/hr, decisive=99.8%), 15,158 pos
+[iter 8] worker 0: 400/900 games (13639 games/hr, decisive=99.2%), 15,826 pos
+[iter 8] worker 1: 400/900 games (13379 games/hr, decisive=99.2%), 16,084 pos
+[iter 8] worker 3: 450/900 games (14471 games/hr, decisive=100.0%), 17,413 pos
+[iter 8] worker 0: 450/900 games (13798 games/hr, decisive=99.3%), 17,739 pos
+[iter 8] worker 2: 450/900 games (13624 games/hr, decisive=99.8%), 17,340 pos
+[iter 8] worker 1: 450/900 games (13510 games/hr, decisive=99.3%), 18,329 pos
+[iter 8] worker 3: 500/900 games (14595 games/hr, decisive=100.0%), 19,217 pos
+[iter 8] worker 0: 500/900 games (13966 games/hr, decisive=99.4%), 19,653 pos
+[iter 8] worker 1: 500/900 games (13696 games/hr, decisive=99.2%), 20,517 pos
+[iter 8] worker 2: 500/900 games (13662 games/hr, decisive=99.8%), 19,326 pos
+[iter 8] worker 3: 550/900 games (14502 games/hr, decisive=100.0%), 21,112 pos
+[iter 8] worker 0: 550/900 games (14111 games/hr, decisive=99.3%), 21,522 pos
+[iter 8] worker 1: 550/900 games (13604 games/hr, decisive=99.1%), 22,701 pos
+[iter 8] worker 2: 550/900 games (13602 games/hr, decisive=99.8%), 21,332 pos
+[iter 8] worker 3: 600/900 games (14508 games/hr, decisive=99.8%), 23,139 pos
+[iter 8] worker 0: 600/900 games (13966 games/hr, decisive=99.3%), 23,665 pos
+[iter 8] worker 1: 600/900 games (13758 games/hr, decisive=99.2%), 24,559 pos
+[iter 8] worker 2: 600/900 games (13728 games/hr, decisive=99.8%), 23,289 pos
+[iter 8] worker 3: 650/900 games (14332 games/hr, decisive=99.8%), 25,348 pos
+[iter 8] worker 0: 650/900 games (14121 games/hr, decisive=99.4%), 25,550 pos
+[iter 8] worker 1: 650/900 games (13854 games/hr, decisive=99.1%), 26,534 pos
+[iter 8] worker 2: 650/900 games (13700 games/hr, decisive=99.8%), 25,329 pos
+[iter 8] worker 3: 700/900 games (14357 games/hr, decisive=99.7%), 27,468 pos
+[iter 8] worker 0: 700/900 games (14156 games/hr, decisive=99.4%), 27,564 pos
+[iter 8] worker 1: 700/900 games (13991 games/hr, decisive=99.1%), 28,437 pos
+[iter 8] worker 2: 700/900 games (13673 games/hr, decisive=99.7%), 27,598 pos
+[iter 8] worker 0: 750/900 games (14397 games/hr, decisive=99.5%), 29,152 pos
+[iter 8] worker 3: 750/900 games (14266 games/hr, decisive=99.7%), 29,557 pos
+[iter 8] worker 1: 750/900 games (14015 games/hr, decisive=99.1%), 30,273 pos
+[iter 8] worker 2: 750/900 games (13639 games/hr, decisive=99.6%), 29,739 pos
+[iter 8] worker 0: 800/900 games (14238 games/hr, decisive=99.5%), 31,260 pos
+[iter 8] worker 3: 800/900 games (13965 games/hr, decisive=99.6%), 31,917 pos
+[iter 8] worker 1: 800/900 games (13927 games/hr, decisive=99.1%), 32,370 pos
+[iter 8] worker 2: 800/900 games (13584 games/hr, decisive=99.5%), 31,825 pos
+[iter 8] worker 0: 850/900 games (14272 games/hr, decisive=99.5%), 33,446 pos
+[iter 8] worker 3: 850/900 games (13967 games/hr, decisive=99.6%), 33,801 pos
+[iter 8] worker 1: 850/900 games (13913 games/hr, decisive=99.2%), 34,277 pos
+[iter 8] worker 2: 850/900 games (13565 games/hr, decisive=99.5%), 33,870 pos
+[iter 8] worker 0: 900/900 games (14155 games/hr, decisive=99.4%), 35,523 pos
+[iter 8] worker 3: 900/900 games (13970 games/hr, decisive=99.7%), 35,906 pos
+[iter 8] worker 1: 900/900 games (13891 games/hr, decisive=99.2%), 36,240 pos
+[iter 8] worker 2: 900/900 games (13606 games/hr, decisive=99.6%), 35,882 pos
+=== Iteration 8 complete: added 143,551 positions to data/replay_buffer_v1 | Decisive rate: 99.5% (3581/3600) ===
+    Self-Play decisive rate: 98.0% (481/491)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.382 --seed 8 --device cuda --resume
+Buffer: 500,000 pos (32 shards, min_iter=1) | W/D/L: 49.5%/2.2%/48.3% | Teacher labeled: 50.0%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.38
+step  100/1200: tot=1.900 (out=1.160, teach=1.958) | val_teacher=0.436, val_win_move=0.645 (15s) *saved*
+step  200/1200: tot=1.912 (out=1.174, teach=1.951) | val_teacher=0.432, val_win_move=0.627 (30s)
+step  300/1200: tot=1.860 (out=1.129, teach=1.932) | val_teacher=0.431, val_win_move=0.620 (45s)
+step  400/1200: tot=1.799 (out=1.081, teach=1.898) | val_teacher=0.427, val_win_move=0.619 (60s)
+step  500/1200: tot=1.744 (out=1.033, teach=1.879) | val_teacher=0.431, val_win_move=0.623 (75s)
+step  600/1200: tot=1.655 (out=0.962, teach=1.832) | val_teacher=0.428, val_win_move=0.624 (90s)
+step  700/1200: tot=1.577 (out=0.895, teach=1.800) | val_teacher=0.435, val_win_move=0.623 (105s)
+step  800/1200: tot=1.482 (out=0.825, teach=1.737) | val_teacher=0.429, val_win_move=0.628 (120s)
+step  900/1200: tot=1.393 (out=0.755, teach=1.687) | val_teacher=0.438, val_win_move=0.628 (134s)
+step 1000/1200: tot=1.308 (out=0.690, teach=1.633) | val_teacher=0.438, val_win_move=0.632 (149s)
+step 1100/1200: tot=1.269 (out=0.660, teach=1.608) | val_teacher=0.438, val_win_move=0.629 (164s)
+step 1200/1200: tot=1.247 (out=0.642, teach=1.599) | val_teacher=0.437, val_win_move=0.630 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 9 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_005 data/league_v1\iter_006 data/league_v1\iter_007 data/league_v1\iter_008
+=== Generating Iteration 9: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 9] worker 2: 50/900 games (13968 games/hr, decisive=100.0%), 1,788 pos
+[iter 9] worker 0: 50/900 games (13237 games/hr, decisive=100.0%), 1,917 pos
+[iter 9] worker 3: 50/900 games (12777 games/hr, decisive=100.0%), 2,073 pos
+[iter 9] worker 1: 50/900 games (11700 games/hr, decisive=98.0%), 2,148 pos
+[iter 9] worker 0: 100/900 games (13867 games/hr, decisive=99.0%), 3,886 pos
+[iter 9] worker 2: 100/900 games (13546 games/hr, decisive=99.0%), 3,880 pos
+[iter 9] worker 3: 100/900 games (13463 games/hr, decisive=100.0%), 4,069 pos
+[iter 9] worker 1: 100/900 games (12841 games/hr, decisive=99.0%), 4,071 pos
+[iter 9] worker 3: 150/900 games (13499 games/hr, decisive=100.0%), 6,018 pos
+[iter 9] worker 2: 150/900 games (13471 games/hr, decisive=99.3%), 5,980 pos
+[iter 9] worker 1: 150/900 games (13340 games/hr, decisive=98.7%), 6,088 pos
+[iter 9] worker 0: 150/900 games (13114 games/hr, decisive=98.7%), 6,196 pos
+[iter 9] worker 3: 200/900 games (13828 games/hr, decisive=100.0%), 8,080 pos
+[iter 9] worker 1: 200/900 games (13701 games/hr, decisive=99.0%), 7,960 pos
+[iter 9] worker 2: 200/900 games (13408 games/hr, decisive=99.5%), 8,254 pos
+[iter 9] worker 0: 200/900 games (12966 games/hr, decisive=99.0%), 8,221 pos
+[iter 9] worker 3: 250/900 games (13650 games/hr, decisive=100.0%), 10,386 pos
+[iter 9] worker 1: 250/900 games (13459 games/hr, decisive=99.2%), 10,031 pos
+[iter 9] worker 2: 250/900 games (13428 games/hr, decisive=99.6%), 10,465 pos
+[iter 9] worker 0: 250/900 games (13032 games/hr, decisive=99.2%), 10,190 pos
+[iter 9] worker 3: 300/900 games (13827 games/hr, decisive=100.0%), 12,233 pos
+[iter 9] worker 2: 300/900 games (13792 games/hr, decisive=99.7%), 12,508 pos
+[iter 9] worker 1: 300/900 games (13641 games/hr, decisive=99.0%), 11,931 pos
+[iter 9] worker 0: 300/900 games (12804 games/hr, decisive=99.0%), 12,669 pos
+[iter 9] worker 3: 350/900 games (13934 games/hr, decisive=99.7%), 14,254 pos
+[iter 9] worker 2: 350/900 games (13807 games/hr, decisive=99.7%), 14,526 pos
+[iter 9] worker 1: 350/900 games (13591 games/hr, decisive=99.1%), 14,000 pos
+[iter 9] worker 0: 350/900 games (12882 games/hr, decisive=98.9%), 14,622 pos
+[iter 9] worker 2: 400/900 games (13734 games/hr, decisive=99.8%), 16,606 pos
+[iter 9] worker 3: 400/900 games (13667 games/hr, decisive=99.5%), 16,660 pos
+[iter 9] worker 1: 400/900 games (13464 games/hr, decisive=99.0%), 16,240 pos
+[iter 9] worker 0: 400/900 games (12773 games/hr, decisive=98.8%), 16,867 pos
+[iter 9] worker 3: 450/900 games (13672 games/hr, decisive=99.6%), 18,744 pos
+[iter 9] worker 1: 450/900 games (13564 games/hr, decisive=98.9%), 18,173 pos
+[iter 9] worker 2: 450/900 games (13431 games/hr, decisive=99.6%), 18,970 pos
+[iter 9] worker 0: 450/900 games (13037 games/hr, decisive=98.9%), 18,751 pos
+[iter 9] worker 3: 500/900 games (13877 games/hr, decisive=99.6%), 20,892 pos
+[iter 9] worker 1: 500/900 games (13535 games/hr, decisive=99.0%), 20,176 pos
+[iter 9] worker 2: 500/900 games (13486 games/hr, decisive=99.6%), 20,839 pos
+[iter 9] worker 0: 500/900 games (13232 games/hr, decisive=99.0%), 20,663 pos
+[iter 9] worker 3: 550/900 games (13793 games/hr, decisive=99.3%), 23,191 pos
+[iter 9] worker 1: 550/900 games (13555 games/hr, decisive=99.1%), 22,254 pos
+[iter 9] worker 2: 550/900 games (13352 games/hr, decisive=99.6%), 22,922 pos
+[iter 9] worker 0: 550/900 games (13250 games/hr, decisive=98.9%), 22,734 pos
+[iter 9] worker 1: 600/900 games (13780 games/hr, decisive=99.2%), 24,161 pos
+[iter 9] worker 3: 600/900 games (13605 games/hr, decisive=99.3%), 25,339 pos
+[iter 9] worker 2: 600/900 games (13332 games/hr, decisive=99.5%), 25,101 pos
+[iter 9] worker 0: 600/900 games (13206 games/hr, decisive=99.0%), 24,900 pos
+[iter 9] worker 1: 650/900 games (13955 games/hr, decisive=99.2%), 26,068 pos
+[iter 9] worker 3: 650/900 games (13628 games/hr, decisive=99.4%), 27,375 pos
+[iter 9] worker 2: 650/900 games (13398 games/hr, decisive=99.5%), 26,911 pos
+[iter 9] worker 0: 650/900 games (13349 games/hr, decisive=99.1%), 26,795 pos
+[iter 9] worker 1: 700/900 games (13920 games/hr, decisive=99.3%), 28,156 pos
+[iter 9] worker 3: 700/900 games (13579 games/hr, decisive=99.4%), 29,377 pos
+[iter 9] worker 0: 700/900 games (13415 games/hr, decisive=99.0%), 28,829 pos
+[iter 9] worker 2: 700/900 games (13411 games/hr, decisive=99.6%), 28,796 pos
+[iter 9] worker 1: 750/900 games (13730 games/hr, decisive=99.3%), 30,416 pos
+[iter 9] worker 2: 750/900 games (13526 games/hr, decisive=99.6%), 30,791 pos
+[iter 9] worker 3: 750/900 games (13523 games/hr, decisive=99.5%), 31,514 pos
+[iter 9] worker 0: 750/900 games (13414 games/hr, decisive=99.1%), 30,813 pos
+[iter 9] worker 1: 800/900 games (13763 games/hr, decisive=99.2%), 32,496 pos
+[iter 9] worker 3: 800/900 games (13528 games/hr, decisive=99.5%), 33,692 pos
+[iter 9] worker 2: 800/900 games (13392 games/hr, decisive=99.6%), 32,982 pos
+[iter 9] worker 0: 800/900 games (13322 games/hr, decisive=99.1%), 32,935 pos
+[iter 9] worker 1: 850/900 games (13715 games/hr, decisive=99.3%), 34,619 pos
+[iter 9] worker 3: 850/900 games (13649 games/hr, decisive=99.5%), 35,569 pos
+[iter 9] worker 2: 850/900 games (13420 games/hr, decisive=99.5%), 35,126 pos
+[iter 9] worker 0: 850/900 games (13382 games/hr, decisive=99.1%), 35,096 pos
+[iter 9] worker 3: 900/900 games (13624 games/hr, decisive=99.6%), 37,618 pos
+[iter 9] worker 1: 900/900 games (13569 games/hr, decisive=99.2%), 36,931 pos
+[iter 9] worker 0: 900/900 games (13448 games/hr, decisive=99.1%), 37,189 pos
+[iter 9] worker 2: 900/900 games (13445 games/hr, decisive=99.6%), 37,129 pos
+=== Iteration 9 complete: added 148,867 positions to data/replay_buffer_v1 | Decisive rate: 99.4% (3577/3600) ===
+    Self-Play decisive rate: 98.5% (525/533)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.305 --seed 9 --device cuda --resume
+Buffer: 500,000 pos (36 shards, min_iter=1) | W/D/L: 49.4%/2.5%/48.2% | Teacher labeled: 49.9%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.30
+step  100/1200: tot=1.789 (out=1.175, teach=2.037) | val_teacher=0.426, val_win_move=0.647 (15s) *saved*
+step  200/1200: tot=1.788 (out=1.174, teach=2.038) | val_teacher=0.419, val_win_move=0.639 (30s)
+step  300/1200: tot=1.731 (out=1.125, teach=2.008) | val_teacher=0.423, val_win_move=0.634 (45s)
+step  400/1200: tot=1.677 (out=1.075, teach=1.997) | val_teacher=0.419, val_win_move=0.633 (60s)
+step  500/1200: tot=1.610 (out=1.020, teach=1.959) | val_teacher=0.422, val_win_move=0.631 (75s)
+step  600/1200: tot=1.545 (out=0.961, teach=1.939) | val_teacher=0.425, val_win_move=0.634 (90s)
+step  700/1200: tot=1.463 (out=0.889, teach=1.904) | val_teacher=0.425, val_win_move=0.638 (105s)
+step  800/1200: tot=1.379 (out=0.816, teach=1.867) | val_teacher=0.426, val_win_move=0.640 (120s)
+step  900/1200: tot=1.292 (out=0.742, teach=1.826) | val_teacher=0.431, val_win_move=0.638 (134s)
+step 1000/1200: tot=1.219 (out=0.682, teach=1.779) | val_teacher=0.431, val_win_move=0.641 (149s)
+step 1100/1200: tot=1.178 (out=0.649, teach=1.753) | val_teacher=0.429, val_win_move=0.641 (164s)
+step 1200/1200: tot=1.160 (out=0.633, teach=1.747) | val_teacher=0.430, val_win_move=0.640 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 10 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_006 data/league_v1\iter_007 data/league_v1\iter_008 data/league_v1\iter_009
+=== Generating Iteration 10: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 10] worker 1: 50/900 games (13373 games/hr, decisive=100.0%), 1,938 pos
+[iter 10] worker 2: 50/900 games (11848 games/hr, decisive=100.0%), 2,007 pos
+[iter 10] worker 0: 50/900 games (11562 games/hr, decisive=98.0%), 2,392 pos
+[iter 10] worker 3: 50/900 games (11317 games/hr, decisive=100.0%), 2,285 pos
+[iter 10] worker 1: 100/900 games (13485 games/hr, decisive=100.0%), 4,023 pos
+[iter 10] worker 0: 100/900 games (12825 games/hr, decisive=99.0%), 4,524 pos
+[iter 10] worker 3: 100/900 games (12598 games/hr, decisive=100.0%), 4,299 pos
+[iter 10] worker 2: 100/900 games (12124 games/hr, decisive=100.0%), 4,154 pos
+[iter 10] worker 2: 150/900 games (13214 games/hr, decisive=100.0%), 6,214 pos
+[iter 10] worker 0: 150/900 games (13005 games/hr, decisive=99.3%), 6,694 pos
+[iter 10] worker 3: 150/900 games (12864 games/hr, decisive=100.0%), 6,483 pos
+[iter 10] worker 1: 150/900 games (12330 games/hr, decisive=99.3%), 6,574 pos
+[iter 10] worker 3: 200/900 games (13598 games/hr, decisive=100.0%), 8,267 pos
+[iter 10] worker 2: 200/900 games (13150 games/hr, decisive=99.5%), 8,383 pos
+[iter 10] worker 0: 200/900 games (12817 games/hr, decisive=99.5%), 8,750 pos
+[iter 10] worker 1: 200/900 games (12601 games/hr, decisive=99.5%), 8,719 pos
+[iter 10] worker 3: 250/900 games (13653 games/hr, decisive=100.0%), 10,313 pos
+[iter 10] worker 2: 250/900 games (13469 games/hr, decisive=99.6%), 10,174 pos
+[iter 10] worker 1: 250/900 games (13036 games/hr, decisive=99.6%), 10,630 pos
+[iter 10] worker 0: 250/900 games (12814 games/hr, decisive=99.6%), 10,950 pos
+[iter 10] worker 2: 300/900 games (13451 games/hr, decisive=99.7%), 12,237 pos
+[iter 10] worker 3: 300/900 games (13236 games/hr, decisive=100.0%), 12,748 pos
+[iter 10] worker 0: 300/900 games (12978 games/hr, decisive=99.3%), 13,068 pos
+[iter 10] worker 1: 300/900 games (12682 games/hr, decisive=99.7%), 12,864 pos
+[iter 10] worker 2: 350/900 games (13482 games/hr, decisive=99.7%), 14,219 pos
+[iter 10] worker 3: 350/900 games (13320 games/hr, decisive=99.7%), 14,697 pos
+[iter 10] worker 1: 350/900 games (12732 games/hr, decisive=99.7%), 15,150 pos
+[iter 10] worker 0: 350/900 games (12665 games/hr, decisive=99.4%), 15,660 pos
+[iter 10] worker 2: 400/900 games (13426 games/hr, decisive=99.8%), 16,278 pos
+[iter 10] worker 3: 400/900 games (13150 games/hr, decisive=99.8%), 17,123 pos
+[iter 10] worker 0: 400/900 games (12851 games/hr, decisive=99.5%), 17,797 pos
+[iter 10] worker 1: 400/900 games (12640 games/hr, decisive=99.8%), 17,441 pos
+[iter 10] worker 2: 450/900 games (13403 games/hr, decisive=99.8%), 18,367 pos
+[iter 10] worker 0: 450/900 games (13181 games/hr, decisive=99.6%), 19,627 pos
+[iter 10] worker 3: 450/900 games (13081 games/hr, decisive=99.6%), 19,193 pos
+[iter 10] worker 1: 450/900 games (12733 games/hr, decisive=99.8%), 19,569 pos
+[iter 10] worker 2: 500/900 games (13296 games/hr, decisive=99.6%), 20,646 pos
+[iter 10] worker 3: 500/900 games (13097 games/hr, decisive=99.6%), 21,277 pos
+[iter 10] worker 0: 500/900 games (13023 games/hr, decisive=99.6%), 21,805 pos
+[iter 10] worker 1: 500/900 games (12878 games/hr, decisive=99.8%), 21,438 pos
+[iter 10] worker 2: 550/900 games (13272 games/hr, decisive=99.6%), 22,810 pos
+[iter 10] worker 3: 550/900 games (13100 games/hr, decisive=99.6%), 23,128 pos
+[iter 10] worker 0: 550/900 games (12843 games/hr, decisive=99.5%), 24,020 pos
+[iter 10] worker 1: 550/900 games (12722 games/hr, decisive=99.8%), 23,815 pos
+[iter 10] worker 2: 600/900 games (13280 games/hr, decisive=99.7%), 24,956 pos
+[iter 10] worker 3: 600/900 games (13276 games/hr, decisive=99.7%), 25,156 pos
+[iter 10] worker 0: 600/900 games (13010 games/hr, decisive=99.5%), 26,189 pos
+[iter 10] worker 1: 600/900 games (12855 games/hr, decisive=99.8%), 25,897 pos
+[iter 10] worker 3: 650/900 games (13445 games/hr, decisive=99.7%), 27,158 pos
+[iter 10] worker 2: 650/900 games (13296 games/hr, decisive=99.5%), 27,014 pos
+[iter 10] worker 0: 650/900 games (12956 games/hr, decisive=99.4%), 28,578 pos
+[iter 10] worker 1: 650/900 games (12722 games/hr, decisive=99.8%), 28,333 pos
+[iter 10] worker 3: 700/900 games (13454 games/hr, decisive=99.6%), 29,394 pos
+[iter 10] worker 2: 700/900 games (13347 games/hr, decisive=99.6%), 29,102 pos
+[iter 10] worker 0: 700/900 games (13128 games/hr, decisive=99.4%), 30,563 pos
+[iter 10] worker 1: 700/900 games (12854 games/hr, decisive=99.9%), 30,339 pos
+[iter 10] worker 3: 750/900 games (13495 games/hr, decisive=99.6%), 31,468 pos
+[iter 10] worker 2: 750/900 games (13171 games/hr, decisive=99.6%), 31,440 pos
+[iter 10] worker 0: 750/900 games (13068 games/hr, decisive=99.5%), 32,759 pos
+[iter 10] worker 1: 750/900 games (12986 games/hr, decisive=99.9%), 32,198 pos
+[iter 10] worker 3: 800/900 games (13573 games/hr, decisive=99.6%), 33,503 pos
+[iter 10] worker 2: 800/900 games (13206 games/hr, decisive=99.6%), 33,460 pos
+[iter 10] worker 0: 800/900 games (13076 games/hr, decisive=99.5%), 34,924 pos
+[iter 10] worker 1: 800/900 games (13066 games/hr, decisive=99.9%), 34,235 pos
+[iter 10] worker 3: 850/900 games (13632 games/hr, decisive=99.5%), 35,512 pos
+[iter 10] worker 2: 850/900 games (13198 games/hr, decisive=99.6%), 35,502 pos
+[iter 10] worker 0: 850/900 games (13189 games/hr, decisive=99.5%), 36,974 pos
+[iter 10] worker 1: 850/900 games (13044 games/hr, decisive=99.9%), 36,428 pos
+[iter 10] worker 3: 900/900 games (13630 games/hr, decisive=99.6%), 37,743 pos
+[iter 10] worker 2: 900/900 games (13271 games/hr, decisive=99.7%), 37,507 pos
+[iter 10] worker 0: 900/900 games (13236 games/hr, decisive=99.6%), 38,975 pos
+[iter 10] worker 1: 900/900 games (13090 games/hr, decisive=99.8%), 38,715 pos
+=== Iteration 10 complete: added 152,940 positions to data/replay_buffer_v1 | Decisive rate: 99.6% (3587/3600) ===
+    Self-Play decisive rate: 98.9% (520/526)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.227 --seed 10 --device cuda --resume
+Buffer: 500,000 pos (40 shards, min_iter=1) | W/D/L: 49.5%/2.1%/48.4% | Teacher labeled: 50.0%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.23
+step  100/1200: tot=1.601 (out=1.132, teach=2.101) | val_teacher=0.428, val_win_move=0.658 (15s) *saved*
+step  200/1200: tot=1.592 (out=1.123, teach=2.097) | val_teacher=0.422, val_win_move=0.654 (30s)
+step  300/1200: tot=1.542 (out=1.077, teach=2.082) | val_teacher=0.427, val_win_move=0.652 (45s)
+step  400/1200: tot=1.481 (out=1.018, teach=2.069) | val_teacher=0.430, val_win_move=0.657 (60s) *saved*
+step  500/1200: tot=1.430 (out=0.971, teach=2.052) | val_teacher=0.421, val_win_move=0.655 (75s)
+step  600/1200: tot=1.363 (out=0.907, teach=2.038) | val_teacher=0.424, val_win_move=0.659 (90s)
+step  700/1200: tot=1.293 (out=0.839, teach=2.029) | val_teacher=0.428, val_win_move=0.659 (105s)
+step  800/1200: tot=1.213 (out=0.767, teach=1.992) | val_teacher=0.430, val_win_move=0.658 (120s) *saved*
+step  900/1200: tot=1.134 (out=0.695, teach=1.963) | val_teacher=0.430, val_win_move=0.657 (135s)
+step 1000/1200: tot=1.060 (out=0.625, teach=1.940) | val_teacher=0.430, val_win_move=0.658 (149s)
+step 1100/1200: tot=1.019 (out=0.589, teach=1.921) | val_teacher=0.430, val_win_move=0.658 (164s)
+step 1200/1200: tot=1.001 (out=0.575, teach=1.900) | val_teacher=0.432, val_win_move=0.657 (179s) *saved*
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/generate_buffer.py --iter 11 --games 3600 --workers 4 --nodes 5000 --teacher-rate 0.5 --keep 1.0 --agent-dir agents/v1_se_model --out data/replay_buffer_v1 --seed 0 --pool-dirs data/league_v1\iter_007 data/league_v1\iter_008 data/league_v1\iter_009 data/league_v1\iter_010
+=== Generating Iteration 11: 3600 games [DAgger/League Self-Play (agents/v1_se_model)] (keep=1.0, teacher_rate=0.5) ===
+[iter 11] worker 2: 50/900 games (13149 games/hr, decisive=100.0%), 2,026 pos
+[iter 11] worker 0: 50/900 games (12950 games/hr, decisive=100.0%), 1,994 pos
+[iter 11] worker 1: 50/900 games (12102 games/hr, decisive=100.0%), 2,040 pos
+[iter 11] worker 3: 50/900 games (11954 games/hr, decisive=100.0%), 2,126 pos
+[iter 11] worker 2: 100/900 games (14389 games/hr, decisive=100.0%), 3,890 pos
+[iter 11] worker 3: 100/900 games (14223 games/hr, decisive=100.0%), 3,902 pos
+[iter 11] worker 0: 100/900 games (13699 games/hr, decisive=100.0%), 4,014 pos
+[iter 11] worker 1: 100/900 games (12769 games/hr, decisive=100.0%), 4,198 pos
+[iter 11] worker 2: 150/900 games (14789 games/hr, decisive=100.0%), 5,776 pos
+[iter 11] worker 3: 150/900 games (13855 games/hr, decisive=100.0%), 5,914 pos
+[iter 11] worker 0: 150/900 games (13624 games/hr, decisive=99.3%), 6,191 pos
+[iter 11] worker 1: 150/900 games (13118 games/hr, decisive=100.0%), 6,262 pos
+[iter 11] worker 3: 200/900 games (14175 games/hr, decisive=100.0%), 7,893 pos
+[iter 11] worker 2: 200/900 games (13840 games/hr, decisive=100.0%), 8,040 pos
+[iter 11] worker 0: 200/900 games (13546 games/hr, decisive=99.5%), 8,473 pos
+[iter 11] worker 1: 200/900 games (13236 games/hr, decisive=100.0%), 8,298 pos
+[iter 11] worker 2: 250/900 games (13996 games/hr, decisive=100.0%), 9,930 pos
+[iter 11] worker 0: 250/900 games (13974 games/hr, decisive=99.6%), 10,477 pos
+[iter 11] worker 3: 250/900 games (13974 games/hr, decisive=100.0%), 9,970 pos
+[iter 11] worker 1: 250/900 games (13196 games/hr, decisive=100.0%), 10,544 pos
+[iter 11] worker 0: 300/900 games (13880 games/hr, decisive=99.7%), 12,536 pos
+[iter 11] worker 3: 300/900 games (13860 games/hr, decisive=100.0%), 12,012 pos
+[iter 11] worker 2: 300/900 games (13767 games/hr, decisive=100.0%), 12,095 pos
+[iter 11] worker 1: 300/900 games (13019 games/hr, decisive=100.0%), 12,577 pos
+[iter 11] worker 3: 350/900 games (14051 games/hr, decisive=100.0%), 14,006 pos
+[iter 11] worker 2: 350/900 games (14014 games/hr, decisive=100.0%), 13,917 pos
+[iter 11] worker 0: 350/900 games (13712 games/hr, decisive=99.7%), 14,551 pos
+[iter 11] worker 1: 350/900 games (12860 games/hr, decisive=100.0%), 14,634 pos
+[iter 11] worker 3: 400/900 games (14055 games/hr, decisive=99.8%), 16,153 pos
+[iter 11] worker 2: 400/900 games (13877 games/hr, decisive=100.0%), 16,021 pos
+[iter 11] worker 0: 400/900 games (13452 games/hr, decisive=99.8%), 16,659 pos
+[iter 11] worker 1: 400/900 games (13006 games/hr, decisive=100.0%), 16,659 pos
+[iter 11] worker 3: 450/900 games (13831 games/hr, decisive=99.8%), 18,330 pos
+[iter 11] worker 2: 450/900 games (13782 games/hr, decisive=100.0%), 18,153 pos
+[iter 11] worker 0: 450/900 games (13682 games/hr, decisive=99.8%), 18,658 pos
+[iter 11] worker 1: 450/900 games (12985 games/hr, decisive=99.8%), 18,901 pos
+[iter 11] worker 2: 500/900 games (13810 games/hr, decisive=100.0%), 20,252 pos
+[iter 11] worker 3: 500/900 games (13673 games/hr, decisive=99.8%), 20,568 pos
+[iter 11] worker 0: 500/900 games (13515 games/hr, decisive=99.8%), 20,904 pos
+[iter 11] worker 1: 500/900 games (13157 games/hr, decisive=99.8%), 20,993 pos
+[iter 11] worker 3: 550/900 games (13790 games/hr, decisive=99.8%), 22,566 pos
+[iter 11] worker 2: 550/900 games (13745 games/hr, decisive=100.0%), 22,450 pos
+[iter 11] worker 0: 550/900 games (13426 games/hr, decisive=99.8%), 23,174 pos
+[iter 11] worker 1: 550/900 games (13175 games/hr, decisive=99.8%), 23,197 pos
+[iter 11] worker 3: 600/900 games (13780 games/hr, decisive=99.8%), 24,799 pos
+[iter 11] worker 2: 600/900 games (13474 games/hr, decisive=100.0%), 24,855 pos
+[iter 11] worker 0: 600/900 games (13384 games/hr, decisive=99.8%), 25,325 pos
+[iter 11] worker 1: 600/900 games (13009 games/hr, decisive=99.8%), 25,496 pos
+[iter 11] worker 3: 650/900 games (13841 games/hr, decisive=99.8%), 26,738 pos
+[iter 11] worker 2: 650/900 games (13570 games/hr, decisive=100.0%), 26,912 pos
+[iter 11] worker 0: 650/900 games (13250 games/hr, decisive=99.7%), 27,750 pos
+[iter 11] worker 1: 650/900 games (12989 games/hr, decisive=99.8%), 27,707 pos
+[iter 11] worker 3: 700/900 games (13745 games/hr, decisive=99.9%), 28,996 pos
+[iter 11] worker 2: 700/900 games (13506 games/hr, decisive=100.0%), 29,044 pos
+[iter 11] worker 0: 700/900 games (13139 games/hr, decisive=99.7%), 30,008 pos
+[iter 11] worker 1: 700/900 games (13058 games/hr, decisive=99.9%), 29,744 pos
+[iter 11] worker 3: 750/900 games (13856 games/hr, decisive=99.9%), 30,927 pos
+[iter 11] worker 2: 750/900 games (13490 games/hr, decisive=100.0%), 31,165 pos
+[iter 11] worker 0: 750/900 games (13104 games/hr, decisive=99.7%), 32,338 pos
+[iter 11] worker 1: 750/900 games (13008 games/hr, decisive=99.9%), 32,095 pos
+[iter 11] worker 3: 800/900 games (13870 games/hr, decisive=99.9%), 33,053 pos
+[iter 11] worker 2: 800/900 games (13399 games/hr, decisive=100.0%), 33,364 pos
+[iter 11] worker 1: 800/900 games (13064 games/hr, decisive=99.8%), 34,187 pos
+[iter 11] worker 0: 800/900 games (13009 games/hr, decisive=99.6%), 34,602 pos
+[iter 11] worker 3: 850/900 games (13796 games/hr, decisive=99.9%), 35,155 pos
+[iter 11] worker 2: 850/900 games (13392 games/hr, decisive=100.0%), 35,543 pos
+[iter 11] worker 1: 850/900 games (13221 games/hr, decisive=99.8%), 36,050 pos
+[iter 11] worker 0: 850/900 games (13046 games/hr, decisive=99.6%), 36,707 pos
+[iter 11] worker 3: 900/900 games (13766 games/hr, decisive=99.9%), 37,269 pos
+[iter 11] worker 2: 900/900 games (13465 games/hr, decisive=100.0%), 37,448 pos
+[iter 11] worker 1: 900/900 games (13338 games/hr, decisive=99.8%), 38,108 pos
+[iter 11] worker 0: 900/900 games (13203 games/hr, decisive=99.7%), 38,611 pos
+=== Iteration 11 complete: added 151,436 positions to data/replay_buffer_v1 | Decisive rate: 99.8% (3594/3600) ===
+    Self-Play decisive rate: 100.0% (529/529)
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe training/train_buffer.py --buffer-dir data/replay_buffer_v1 --agent-dir agents/v1_se_model --max-buffer 500000 --min-iter 1 --channels 128 --blocks 6 --steps 1200 --batch 2048 --lr 0.001 --wd 0.001 --outcome-mode advantage --outcome-weight 1.000 --teacher-weight 0.150 --seed 11 --device cuda --resume
+Buffer: 500,000 pos (44 shards, min_iter=1) | W/D/L: 49.8%/1.5%/48.6% | Teacher labeled: 50.0%
+Resumed weights from agents/v1_se_model\weights\model.safetensors
+Model: 2,103,616 params | mode=advantage, outcome_w=1.00, teacher_lambda=0.15
+step  100/1200: tot=1.073 (out=0.770, teach=2.058) | val_teacher=0.434, val_win_move=0.734 (15s) *saved*
+step  200/1200: tot=1.180 (out=0.867, teach=2.128) | val_teacher=0.433, val_win_move=0.699 (30s)
+step  300/1200: tot=1.160 (out=0.845, teach=2.137) | val_teacher=0.433, val_win_move=0.699 (45s)
+step  400/1200: tot=1.120 (out=0.801, teach=2.161) | val_teacher=0.431, val_win_move=0.695 (60s)
+step  500/1200: tot=1.066 (out=0.749, teach=2.155) | val_teacher=0.434, val_win_move=0.697 (75s)
+step  600/1200: tot=1.005 (out=0.686, teach=2.163) | val_teacher=0.431, val_win_move=0.697 (90s)
+step  700/1200: tot=0.937 (out=0.623, teach=2.133) | val_teacher=0.432, val_win_move=0.700 (105s)
+step  800/1200: tot=0.865 (out=0.552, teach=2.123) | val_teacher=0.432, val_win_move=0.702 (120s)
+step  900/1200: tot=0.797 (out=0.487, teach=2.097) | val_teacher=0.431, val_win_move=0.701 (135s)
+step 1000/1200: tot=0.758 (out=0.450, teach=2.085) | val_teacher=0.433, val_win_move=0.705 (149s)
+step 1100/1200: tot=0.721 (out=0.416, teach=2.067) | val_teacher=0.432, val_win_move=0.705 (164s)
+step 1200/1200: tot=0.713 (out=0.408, teach=2.063) | val_teacher=0.433, val_win_move=0.705 (179s)
+Finished training -> weights saved to agents/v1_se_model\weights\model.safetensors
+
+=== Completed all 12 iterations! Validating agents/v1_se_model... ===
+
+>>> Running: C:\Dev\Projects\Machine Learning - Fog of War\fog-of-war-project\.venv\Scripts\python.exe -m fow.validate agents/v1_se_model
+1. Layout
+  non-weight files: 8 KB (limit 5120 KB)
+2. Size
+       2,106,957  weights\model.safetensors
+       2,106,957  parameters in total (limit 250,000,000)
+3. Play
+  loaded in 1.2 s
+  10 games against bot:random: 10 wins
+4. Replay
+  same moves on replay
+5. Compute
+  FLOPs per move: mean 2.31e+08, max 2.31e+08 (budget 1e+12, max uses 0.0% of it)
+  time on this machine (for information; tournaments limit FLOPs, not time):
+  per move: mean 18.4 ms, 95th percentile 14.1 ms, max 723.8 ms
+
+VALID
+1. Layout
+  non-weight files: 8 KB (limit 5120 KB)
+2. Size
+       2,106,957  weights\model.safetensors
+       2,106,957  parameters in total (limit 250,000,000)
+3. Play
+  loaded in 1.4 s
+  10 games against bot:random: 10 wins
+4. Replay
+  same moves on replay
+5. Compute
+  FLOPs per move: mean 2.31e+08, max 2.31e+08 (budget 1e+12, max uses 0.0% of it)
+  time on this machine (for information; tournaments limit FLOPs, not time):
+  per move: mean 19.9 ms, 95th percentile 13.4 ms, max 874.0 ms
+
+VALID
+Playing 2000 games with 1 worker(s)...
+  200/2000 games
+  400/2000 games
+  600/2000 games
+  800/2000 games
+  1000/2000 games
+  1200/2000 games
+  1400/2000 games
+  1600/2000 games
+  1800/2000 games
+  2000/2000 games
+
+Results (score of the first player in each pair):
+  agents/baseline                vs agents/v1_se_model               0.0 / 200
+  agents/baseline                vs bot:greedy                     145.0 / 200
+  agents/baseline                vs bot:guess-sf-4x500             120.0 / 200
+  agents/baseline                vs submission                     100.0 / 200
+  agents/v1_se_model             vs bot:greedy                     169.0 / 200
+  agents/v1_se_model             vs bot:guess-sf-4x500             162.0 / 200
+  agents/v1_se_model             vs submission                     200.0 / 200
+  bot:greedy                     vs bot:guess-sf-4x500              80.0 / 200
+  bot:greedy                     vs submission                      42.0 / 200
+  bot:guess-sf-4x500             vs submission                      62.0 / 200
+
+How games ended: {'king captured': 2000}
+
+Ratings (95% interval):
+  agents/v1_se_model                1501   [ 1457,  1551]
+  submission                        1149   [ 1122,  1174]
+  agents/baseline                   1123   [ 1101,  1154]
+  bot:guess-sf-4x500                1060   [ 1060,  1060] (reference, fixed)
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
