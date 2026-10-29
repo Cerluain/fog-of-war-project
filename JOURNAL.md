@@ -44,7 +44,7 @@ This is where the evidence for your grade lives (see docs/GRADING.md).
 Update: Added/used a reinforecement training pipeline starting with the "warmup bots" to try to escape the 1000s Elo trap.
 
 
-### 2026-10-27: SE Reduction and Reinforcement Learning  
+### 2026-10-27: SE Reduction and Reinforcement Learning No. 3
 - **Question / hypothesis:** Testing various reduction ratios (r=4,2,1 or none) and evaluating performance difference. I expect r=2 to be the "best", because I expect marginal improvement in the r=1 model and being smaller in parameters.
 - **Commit:** a1547bae56cf31039887b45501d02f0e158a6669
 - **Setup:** 
@@ -133,3 +133,46 @@ The keep=0.333 model outperformed the keep=1 model by nearly 100 elo points. Som
 
 - **AI help:** 
 
+### 2026-10-27: 
+- **Question / hypothesis:** 
+- **Commit:** a1547bae56cf31039887b45501d02f0e158a6669
+- **Setup:** 
+    Comparing against 
+    Parameters: 128 channels, 8 res blocks, 22 in features. 
+    Training: 2 iterations, 1k warmup games + 1.5k dataset aggregation of self-play/iter, 500 sgd steps/iteration, 2048 batch size
+
+### 2026-10-27: Ran the decay experiment but with exponential decay
+- **Question / hypothesis:** If I change to exponential decay, would the bots perform better or worse?
+- **Commit:** 
+- **Setup:** 
+    Parameters: 128 channels, 6 res blocks, 22 in features. 
+    Training: 12 iterations, (5k vs 15k) warmup games + 3.6k dataset aggregation of self-play/iter, 1200 sgd steps/iteration, 2048 batch size, evicts warmup after 2 iterations
+- **Result:** 
+
+And these were the round robin results of configuration bots that fought each other:
+Ratings (95% interval):
+  agents\exp_lam_0.5_to_0.1_lowteacher      1273   [ 1073,  1433]
+  agents\exp_B_lam_1.2_to_0.05              1263   [ 1114,  1464]
+  agents\exp_B_lam_1.0_to_0.1               1241   [ 1090,  1439]
+  agents\v1_se_model                        1231   [ 1039,  1396]
+  agents\exp_lam_1.0_to_0.3_moderate        1231   [ 1028,  1417]
+  agents\exp_lam_1.5_to_0.1_annealed        1221   [ 1027,  1396]
+  agents\exp_lam_1.0_to_1.0_fixed           1221   [ 1056,  1376]
+  agents\exp_lam_2.0_to_0.5_heavyanchor     1200   [ 1026,  1350]
+  agents\exp_B_lam_1.6_to_0.05              1200   [ 1024,  1371]
+  agents\exp_B_lam_1.0_to_0.05              1200   [  974,  1383]
+  agents\v2_se_model                        1180   [ 1007,  1363]
+  agents\exp_lam_1.0_to_0.05_winonly        1150   [  967,  1353]
+  agents\exp_lam_1.0_to_0.05_steep          1150   [  963,  1285]
+  agents\exp_B_lam_0.5_to_0.05              1119   [  952,  1295]
+  agents\baseline                           1087   [  898,  1247]
+  agents\exp_lam_0.0_to_0.0_pureoutcome     1044   [  862,  1203]
+  agents\exp_B_lam_1.0_to_0.01              1032   [  796,  1172]
+  bot:greedy                                1000   [ 1000,  1000] (reference, fixed)
+
+Very significant difference in performance, even considering the evict warmup after 2 iterations which in hindsight was aggressive.
+
+- **Decision:** 
+The keep=0.333 model outperformed the keep=1 model by nearly 100 elo points. Some of that could be noise
+
+- **AI help:** 
