@@ -46,6 +46,11 @@ class Agent:
 
     @torch.no_grad()
     def act(self, obs: dict) -> str:
+        
+        for uci in obs["legal_moves"]: # I assume this should be legal? Double check perhaps
+            if obs["enemy"].get(uci[2:4]) == "K":
+                return uci
+            
         self.memory.update(obs)
         encoded = self.features.encode(obs, self.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
@@ -54,3 +59,5 @@ class Agent:
         legal = self.features.legal_indices(obs)
         best = max(legal, key=lambda i: logits[i].item())
         return legal[best]
+
+    
