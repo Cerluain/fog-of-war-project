@@ -50,13 +50,11 @@ WARMUP_MATCHUPS = all_vs_all([
     "bot:random",
 ])
 
-ITERATIVE_MATCHUPS = all_vs_all([
-    "self",
-    "league",
-    "bot:guess-sf-8x500",
-    "bot:naive-sf",
-    "bot:greedy",
-])
+ITERATIVE_MATCHUPS = (  # Trying to be more like alphago
+    [("self", "self")] * 6 +
+    [("league", "self")] * 3 +
+    [("self", "bot:greedy")]
+)
 
 
 def load_local_module(agent_dir: str, name: str):
@@ -67,53 +65,65 @@ def load_local_module(agent_dir: str, name: str):
     spec.loader.exec_module(mod)
     return mod
 
+def build_bot(spec: str, agent_dir: str):
+    if spec == "self":
+        return ExploratoryAgentWrapper(agent_dir, scale=1.0)
+    if spec == "self_hot":
+        return ExploratoryAgentWrapper(agent_dir, scale=1.5)
+    if spec.startswith("agent:"):
+        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=1.0)
+    return make_bot(spec)
 
 class ExploratoryAgentWrapper:
-    """Loads a trained agent on CPU with single-thread execution and opening exploration."""
-    def __init__(self, agent_dir: str, opening_plies: int = 8, temp: float = 0.7, eps: float = 0.05):
+    """CPU self-play wrapper with smooth temperature/window decay."""
+    def __init__(self, agent_dir: str, scale: float = 1.0):
         agent_mod = load_local_module(agent_dir, "agent")
         self.agent = agent_mod.Agent(agent_dir, device="cpu")
-        self.features = load_local_module(agent_dir, "features")
-        self.opening_plies = opening_plies
-        self.temp = temp
-        self.eps = eps
+        self.scale = scale
         self.ply = 0
+        self.jit = 1.0
         self.rng = random.Random(0)
 
     def reset(self, color: str, seed: int) -> None:
         self.agent.reset(color, seed)
         self.rng = random.Random(seed)
         self.ply = 0
+        self.jit = self.rng.uniform(0.85, 1.15)
 
     @torch.no_grad()
     def act(self, obs: dict) -> str:
         self.ply += 1
+        # Always update memory first so prev / pre_prev history stays strictly in sync
+        self.agent.memory.update(obs)
+
         for uci in obs["legal_moves"]:
             if obs["enemy"].get(uci[2:4]) == "K":
                 return uci
 
-        # Small epsilon-greedy exploration across the game to prevent deterministic self-play loops
-        if self.ply > self.opening_plies and self.rng.random() >= self.eps:
-            return self.agent.act(obs)
+        legal = self.agent.features.legal_indices(obs)
+        keys = list(legal.keys())
+        if len(keys) == 1:
+            return legal[keys[0]]
 
-        self.agent.memory.update(obs)
-        legal = self.features.legal_indices(obs)
-        encoded = self.features.encode(obs, self.agent.memory)
+        encoded = self.agent.features.encode(obs, self.agent.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0)
         out = self.agent.net(x)
         logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
+        l = logits[keys]
 
-        legal_keys = list(legal.keys())
-        legal_logits = torch.tensor([logits[i].item() for i in legal_keys])
-        max_l = legal_logits.max()
-        mask = legal_logits >= (max_l - 0.85)
-        cand_idx = torch.where(mask)[0]
-        if len(cand_idx) > 4:
-            _, cand_idx = torch.topk(legal_logits, k=4)
+        # Smooth decay from 1.0 (opening) toward floors (endgame), half-life = 12 moves
+        decay = 0.5 ** (self.ply / 12.0)
+        temp = (0.35 + 0.65 * decay) * self.scale * self.jit
+        win = (0.40 + 0.60 * decay) * self.scale
 
-        probs = F.softmax(legal_logits[cand_idx] / max(self.temp, 1e-3), dim=-1).tolist()
-        chosen = self.rng.choices(cand_idx.tolist(), weights=probs, k=1)[0]
-        return legal[legal_keys[chosen]]
+        # Keep moves within `win` logits of the best move (capped at top 5)
+        cand = torch.where(l >= l.max() - win)[0]
+        if len(cand) > 5:
+            cand = torch.topk(l, k=5).indices
+
+        probs = F.softmax(l[cand] / max(temp, 1e-3), dim=-1).tolist()
+        chosen = self.rng.choices(cand.tolist(), weights=probs, k=1)[0]
+        return legal[keys[chosen]]
 
     def close(self):
         pass
@@ -199,22 +209,12 @@ def worker(args):
 
         for spec in (a_spec, b_spec):
             if spec not in bots:
-                if spec == "self":
-                    bots[spec] = ExploratoryAgentWrapper(agent_dir)
-                elif spec.startswith("agent:"):
-                    bots[spec] = ExploratoryAgentWrapper(spec.split("agent:", 1)[1])
-                else:
-                    bots[spec] = make_bot(spec)
+                bots[spec] = build_bot(spec, agent_dir)
 
         if a_spec == b_spec:
             dup_key = f"{a_spec}_black"
             if dup_key not in bots:
-                if a_spec == "self":
-                    bots[dup_key] = ExploratoryAgentWrapper(agent_dir)
-                elif a_spec.startswith("agent:"):
-                    bots[dup_key] = ExploratoryAgentWrapper(a_spec.split("agent:", 1)[1])
-                else:
-                    bots[dup_key] = make_bot(a_spec)
+                bots[dup_key] = build_bot(a_spec, agent_dir)
             players = {"white": bots[a_spec], "black": bots[dup_key]}
         else:
             players = {"white": bots[a_spec], "black": bots[b_spec]}
