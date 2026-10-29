@@ -103,8 +103,8 @@ def main():
     ap.add_argument("--outcome-weight", type=float, default=1.0, help="Weight for outcome-weighted policy loss")
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
     ap.add_argument("--baseline", type=float, default=0.0, help="Advantage baseline b in (z - b)")
-    ap.add_argument("--entropy-bonus", type=float, default=0.005, help="Entropy regularization coefficient")
-    ap.add_argument("--value-weight", type=float, default=0.5, help="Weight for value head MSE if model returns (logits, v)")
+    ap.add_argument("--entropy-bonus", type=float, default=0.005, help="Entropy regularization coefficient") # Not sure what this one does, not using it
+    ap.add_argument("--value-weight", type=float, default=0.3, help="Weight for value head MSE if model returns (logits, v)")
     ap.add_argument("--val", type=float, default=0.05)
     ap.add_argument("--resume", action="store_true", help="Resume weights from agent-dir if they exist")
     ap.add_argument("--seed", type=int, default=0)
