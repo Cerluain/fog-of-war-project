@@ -6,6 +6,7 @@ Writes one .npz shard per worker named:
     iter_{iter:03d}_shard_{seed}_{wid}.npz
 Schema:
     x           : uint8 [N, C, 8, 8]  encoded observation
+    belief      : uint8 [N, 48]       packed ground-truth enemy-piece locations
     y_played    : int16 [N]           move index actually played by behavior policy
     y_teacher   : int16 [N]           teacher move index (-1 if unlabeled)
     has_teacher : uint8 [N]           1 if teacher label present, 0 otherwise
@@ -165,6 +166,9 @@ def worker(args):
     encode = features.encode
     legal_indices = features.legal_indices
     move_index = features.move_index
+    encode_belief_target = getattr(features, "encode_belief_target", None)
+
+    
 
     engine = chess.engine.SimpleEngine.popen_uci(stockfish_path()) if teacher_rate > 0 else None
     if engine is not None:
@@ -176,7 +180,7 @@ def worker(args):
         matchups = [m for m in matchups if "league" not in m]
 
     bots = {}
-    xs, y_playeds, y_teachers, has_teachers, zs, plies, game_ids, legals = [], [], [], [], [], [], [], []
+    xs, beliefs, y_playeds, y_teachers, has_teachers, zs, plies, game_ids, legals = [], [], [], [], [], [], [], [], []
     decisive_games = 0
     self_play_games, self_play_decisive = 0, 0
 
@@ -264,7 +268,9 @@ def worker(args):
                 p_idx = move_index(normalize_uci(played_uci), c)
                 mask = np.zeros(N_MOVES, np.uint8)
                 mask[list(leg_map)] = 1
-                game_traj.append((c, enc_x, p_idx, t_idx, has_t, ply, np.packbits(mask)))
+                b_target = encode_belief_target(game.board, c)
+                packed_belief = np.packbits(b_target.reshape(-1))  # 384 bits -> 48 uint8 bytes
+                game_traj.append((c, enc_x, p_idx, t_idx, has_t, ply, np.packbits(mask), packed_belief))
 
             game.play(played_uci)
 
@@ -276,12 +282,13 @@ def worker(args):
             if winner is not None:
                 self_play_decisive += 1
 
-        for c, enc_x, p_idx, t_idx, has_t, p_ply, packed_mask in game_traj:
+        for c, enc_x, p_idx, t_idx, has_t, p_ply, packed_mask, packed_belief in game_traj:
             if winner is None:
                 z_val = 0
             else:
                 z_val = 1 if winner == c else -1
             xs.append(enc_x)
+            beliefs.append(packed_belief)
             y_playeds.append(p_idx)
             y_teachers.append(t_idx)
             has_teachers.append(has_t)
@@ -316,6 +323,7 @@ def worker(args):
     np.savez_compressed(
         path,
         x=np.stack(xs),
+        belief=np.stack(beliefs),
         y=np.array(y_teachers, np.int16),          # backward-compatible alias
         y_teacher=np.array(y_teachers, np.int16),
         y_played=np.array(y_playeds, np.int16),

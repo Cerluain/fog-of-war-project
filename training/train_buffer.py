@@ -38,7 +38,7 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
     if not shards:
         raise FileNotFoundError(f"No .npz shards found in {buffer_dir}")
 
-    xs, y_playeds, y_teachers, has_teachers, zs, plies, legals = [], [], [], [], [], [], []
+    xs, beliefs, y_playeds, y_teachers, has_teachers, zs, plies, legals = [], [], [], [], [], [], [], []
     total = 0
 
     for s in reversed(shards):
@@ -46,6 +46,12 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
         n_s = len(d["x"])
         xs.append(d["x"])
         legals.append(d["legal"])
+        if "belief" in d:
+            b_arr = d["belief"]
+        else:
+            # Fallback for older shards without belief labels
+            b_arr = np.zeros((n_s, 48), dtype=np.uint8)
+        beliefs.append(b_arr)
 
         if "y_teacher" in d:
             y_t = d["y_teacher"].astype(np.int64)
@@ -76,6 +82,7 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
 
     return (
         cat_tail(xs),
+        cat_tail(beliefs),
         cat_tail(y_playeds),
         cat_tail(y_teachers),
         cat_tail(has_teachers),
@@ -105,6 +112,7 @@ def main():
     ap.add_argument("--baseline", type=float, default=0.0, help="Advantage baseline b in (z - b)")
     ap.add_argument("--entropy-bonus", type=float, default=0.005, help="Entropy regularization coefficient") # Not sure what this one does, not using it
     ap.add_argument("--value-weight", type=float, default=0.3, help="Weight for value head MSE if model returns (logits, v)")
+    ap.add_argument("--belief-weight", type=float, default=0.5, help="Weight for the auxiliary spatial belief loss")
     ap.add_argument("--val", type=float, default=0.05)
     ap.add_argument("--resume", action="store_true", help="Resume weights from agent-dir if they exist")
     ap.add_argument("--seed", type=int, default=0)
@@ -114,7 +122,7 @@ def main():
     torch.manual_seed(args.seed)
     rng = np.random.default_rng(args.seed)
 
-    x, y_played, y_teacher, has_teacher, z, ply, legal, n_shards = load_fifo_buffer(
+    x, belief, y_played, y_teacher, has_teacher, z, ply, legal, n_shards = load_fifo_buffer(
         args.buffer_dir, args.max_buffer, args.min_iter
     )
     n = len(x)
@@ -158,16 +166,22 @@ def main():
         htb = torch.from_numpy(has_teacher[idx]).to(dev, non_blocking=True)
         zb = torch.from_numpy(z[idx]).to(dev, non_blocking=True)
         mb = torch.from_numpy(np.unpackbits(legal[idx], axis=1)).bool().to(dev, non_blocking=True)
-        return xb, ypb, ytb, htb, zb, mb
+        # Unpack [B, 48] -> [B, 384] -> [B, 6, 8, 8]
+        bb = torch.from_numpy(np.unpackbits(belief[idx], axis=1).reshape(-1, 6, 8, 8)).float().to(
+            dev, non_blocking=True
+        )
+        return xb, ypb, ytb, htb, zb, mb, bb
 
     def forward_net(xb, mb):
         out = net(xb)
         if isinstance(out, tuple):
-            logits, v_pred = out[0], out[1].squeeze(-1)
+            logits = out[0]
+            v_pred = out[1].squeeze(-1) if len(out) > 1 and out[1] is not None else None
+            b_logits = out[2] if len(out) > 2 else None
         else:
-            logits, v_pred = out, None
+            logits, v_pred, b_logits = out, None, None
         masked = logits.masked_fill(~mb, -1e4 if use_amp else -1e9)
-        return masked, v_pred
+        return masked, v_pred, b_logits
 
     os.makedirs(os.path.join(args.agent_dir, "weights"), exist_ok=True)
     json.dump(
@@ -183,10 +197,10 @@ def main():
     net.train()
     for step in range(1, args.steps + 1):
         batch_indices = rng.choice(tr_idx, size=min(args.batch, len(tr_idx)), replace=False)
-        xb, ypb, ytb, htb, zb, mb = get_batch(batch_indices)
+        xb, ypb, ytb, htb, zb, mb, bb = get_batch(batch_indices)
 
         with torch.amp.autocast("cuda", enabled=use_amp):
-            masked_logits, v_pred = forward_net(xb, mb)
+            masked_logits, v_pred, b_logits = forward_net(xb, mb)
 
             # 1. Teacher Cross-Entropy Loss (scaled by teacher_rate density in the batch)
             if args.teacher_weight > 0 and htb.any():
@@ -216,10 +230,32 @@ def main():
             log_probs = F.log_softmax(masked_logits, dim=-1).masked_fill(~mb, 0.0)
             entropy = -(probs * log_probs).sum(dim=-1).mean()
 
+            # 4. Auxiliary Belief Head Loss (exact square, fog-weighted, and spatial proximity)
+            if b_logits is not None and args.belief_weight > 0:
+                pos_w = torch.tensor(10.0, device=dev)
+                loss_b_exact = F.binary_cross_entropy_with_logits(b_logits, bb, pos_weight=pos_w)
+
+                b_probs = torch.sigmoid(b_logits)
+                pool_pred = F.avg_pool2d(b_probs, kernel_size=3, stride=1, padding=1)
+                pool_true = F.avg_pool2d(bb, kernel_size=3, stride=1, padding=1)
+                loss_b_prox = F.mse_loss(pool_pred, pool_true)
+
+                fog_mask = (xb[:, 12:13, :, :] == 0).float()
+                loss_b_fog = (
+                    F.binary_cross_entropy_with_logits(
+                        b_logits, bb, pos_weight=pos_w, reduction="none"
+                    )
+                    * fog_mask
+                ).mean()
+                loss_belief = 0.5 * loss_b_exact + 0.5 * loss_b_fog + 2.0 * loss_b_prox
+            else:
+                loss_belief = torch.tensor(0.0, device=dev)
+
             loss = (
                 args.outcome_weight * loss_out
                 + args.teacher_weight * ce_t
                 + args.value_weight * loss_val
+                + args.belief_weight * loss_belief
                 - args.entropy_bonus * entropy
             )
 
@@ -239,8 +275,8 @@ def main():
             w_correct, w_total = 0, 0
             with torch.no_grad():
                 for i in range(0, n_val, 1024):
-                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb = get_batch(val_idx[i : i + 1024])
-                    v_logits, _ = forward_net(v_xb, v_mb)
+                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb, _ = get_batch(val_idx[i : i + 1024])
+                    v_logits, _, _ = forward_net(v_xb, v_mb)
                     preds = v_logits.argmax(1)
 
                     if v_htb.any():

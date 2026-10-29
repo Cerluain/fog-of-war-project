@@ -44,6 +44,23 @@ def sq_index(name: str) -> int:
 def orient(sq: int, color: str) -> int:
     return sq if color == "white" else sq ^ 56
 
+def encode_belief_target(board, color: str) -> np.ndarray:
+    """Extracts true enemy piece locations as a (6, 8, 8) uint8 binary array
+    oriented from the active player's perspective.
+    """
+    import chess
+    enemy_color = chess.BLACK if color == "white" else chess.WHITE
+    target = np.zeros((6, 64), dtype=np.uint8)
+    
+    # Map python-chess piece types (1=PAWN ... 6=KING) to plane indices 0..5
+    for sq in chess.SQUARES:
+        piece = board.piece_at(sq)
+        if piece is not None and piece.color == enemy_color:
+            plane_idx = piece.piece_type - 1  # PAWN=1 -> 0, ..., KING=6 -> 5
+            oriented_sq = orient(sq, color)
+            target[plane_idx, oriented_sq] = 1
+            
+    return target.reshape(6, 8, 8)
 
 # In features.py
 def encode(obs: dict, memory) -> np.ndarray:

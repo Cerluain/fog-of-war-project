@@ -66,7 +66,11 @@ class PolicyNet(nn.Module):
             nn.ReLU()
         )
         self.blocks = nn.Sequential(*[SE_Block(channels, se_reduction) for _ in range(blocks)])
-        self.head = nn.Conv2d(channels, 64, 1)  # channel = destination square
+        
+        # 1. Policy Head: [B, 64, 8, 8] -> [B, 4096]
+        self.head = nn.Conv2d(channels, 64, 1)
+        
+        # 2. Value Head: [B, 1]
         self.v_conv = nn.Sequential(
             nn.Conv2d(channels, 8, 1, bias=False),
             nn.BatchNorm2d(8),
@@ -79,10 +83,17 @@ class PolicyNet(nn.Module):
             nn.Linear(value_hidden, 1),
             nn.Tanh()
         )
+        
+        # 3. Belief Head: [B, 6, 8, 8] (raw logits for enemy P, N, B, R, Q, K)
+        self.b_head = nn.Conv2d(channels, 6, 1)
 
     def forward(self, x):                        # x: [B, in_planes, 8, 8]
         trunk = self.blocks(self.stem(x))
-        h = self.head(trunk)  # [B, to=64, 8, 8 (from)]
-        logits = h.flatten(2).transpose(1,2).reshape(x.shape[0], 64 * 64)
+        
+        h = self.head(trunk)
+        logits = h.flatten(2).transpose(1, 2).reshape(x.shape[0], 64 * 64)
+        
         v = self.v_fc(self.v_conv(trunk))
-        return logits, v
+        b_logits = self.b_head(trunk)            # [B, 6, 8, 8]
+        
+        return logits, v, b_logits
