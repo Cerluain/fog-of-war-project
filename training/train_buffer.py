@@ -144,9 +144,14 @@ def main():
     net = load_model_class(args.agent_dir)(in_planes, args.channels, args.blocks).to(dev)
 
     weights_path = os.path.join(args.agent_dir, "weights", "model.safetensors")
-    if args.resume and os.path.exists(weights_path):
-        net.load_state_dict(load_file(weights_path), strict=False)
-        print(f"Resumed weights from {weights_path}")
+    if args.resume:
+        if not os.path.exists(weights_path):
+            raise FileNotFoundError(f"--resume requested, but weights were not found at {weights_path}")
+        load_result = net.load_state_dict(load_file(weights_path), strict=False)
+        print(
+            f"Resumed weights from {weights_path} "
+            f"(missing={load_result.missing_keys}, unexpected={load_result.unexpected_keys})"
+        )
 
     n_params = sum(p.numel() for p in net.parameters())
     print(
@@ -193,6 +198,7 @@ def main():
     best_score = -1e9
     t0 = time.time()
     run_tot, run_out, run_teach = 0.0, 0.0, 0.0
+    run_value, run_belief = 0.0, 0.0
 
     net.train()
     for step in range(1, args.steps + 1):
@@ -212,17 +218,28 @@ def main():
             # 2. Outcome-Weighted Cloning Loss on Actually Played Moves
             if args.outcome_mode == "none" or args.outcome_weight <= 0:
                 loss_out = torch.tensor(0.0, device=dev)
-            else:
+            elif args.outcome_mode == "win_only":
                 ce_per_sample = F.cross_entropy(masked_logits, ypb, reduction="none")
-                if args.outcome_mode == "win_only":
-                    weights = (zb > 0.5).float()
-                else:
-                    # Advantage = z - V(s) if value head exists, else z - baseline
-                    baseline_val = v_pred.detach() if v_pred is not None else args.baseline
-                    # Clamp to non-negative weights so we don't do unbounded gradient ascent on losses
-                    weights = torch.clamp(zb - baseline_val, min=0.0)
+                weights = (zb > 0.5).float()
                 w_sum = weights.sum()
                 loss_out = (ce_per_sample * weights).sum() / w_sum if w_sum > 0 else torch.tensor(0.0, device=dev)
+            else:
+                # Advantage mode: adv = z - V(s) or z - baseline
+                baseline_val = v_pred.detach() if v_pred is not None else args.baseline
+                adv = zb - baseline_val
+
+                # Compute log p(y_played) under legal move mask
+                log_p = F.log_softmax(masked_logits, dim=-1)
+                picked_log_p = log_p.gather(1, ypb.unsqueeze(1)).squeeze(1)
+                picked_p = picked_log_p.exp().detach()
+
+                # Positive advantages (wins): standard cross-entropy ascent
+                # Negative advantages (draws = -0.5, losses = -1.0): scaled by picked_p so gradients vanish as p -> 0!
+                pos_adv = adv.clamp(min=0.0)
+                neg_adv = adv.clamp(max=0.0)
+
+                pos_count = (pos_adv > 0).sum().clamp_min(1.0)
+                loss_out = -(pos_adv * picked_log_p + 0.5 * neg_adv * picked_p * picked_log_p).sum() / pos_count
 
             # 3. Optional Value Head Loss & Policy Entropy Bonus
             loss_val = F.mse_loss(v_pred, zb) if v_pred is not None else torch.tensor(0.0, device=dev)
@@ -268,6 +285,8 @@ def main():
         run_tot += loss.item()
         run_out += loss_out.item()
         run_teach += ce_t.item()
+        run_value += loss_val.item()
+        run_belief += loss_belief.item()
 
         if step % args.eval_every == 0 or step == args.steps:
             net.eval()
@@ -301,11 +320,12 @@ def main():
 
             print(
                 f"step {step:4d}/{args.steps}: tot={run_tot / args.eval_every:.3f} "
-                f"(out={run_out / args.eval_every:.3f}, teach={run_teach / args.eval_every:.3f}) | "
+                f"(out={run_out / args.eval_every:.3f}, teach={run_teach / args.eval_every:.3f}, "
+                f"value={run_value / args.eval_every:.3f}, belief={run_belief / args.eval_every:.3f}) | "
                 f"val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f} ({time.time() - t0:.0f}s){marker}",
                 flush=True,
             )
-            run_tot = run_out = run_teach = 0.0
+            run_tot = run_out = run_teach = run_value = run_belief = 0.0
             net.train()
 
     print(f"Finished training -> weights saved to {weights_path}")

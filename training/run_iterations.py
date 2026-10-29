@@ -4,6 +4,12 @@
 
     python training/run_iterations.py --iterations 5 --warmup-games 2500 --games-per-iter 1500 \
         --workers 4 --agent-dir agents/v1_se_model --lambda-start 1.0 --lambda-end 0.2
+
+    LARGE SCALE
+    python training/run_iterations.py --iterations 15 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v2_se_model/ --blocks 8 --buffer-dir data/v2_megamodel --evict-warmup-after 3
+
+    Resume an existing agent:
+    python training/run_iterations.py --resume --iterations 5
 """
 import argparse
 import os
@@ -48,9 +54,14 @@ def main():
     ap.add_argument("--wd", type=float, default=1e-3)
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
     ap.add_argument("--lambda-start", type=float, default=1.3, help="Teacher weight lambda on Iteration 0")
-    ap.add_argument("--lambda-end", type=float, default=0.03, help="Teacher weight lambda on final iteration")
+    ap.add_argument("--lambda-end", type=float, default=0.15, help="Teacher weight lambda on final iteration")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
+    ap.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume training from existing agent weights if they exist",
+    )
     args = ap.parse_args()
 
     py = sys.executable
@@ -106,6 +117,8 @@ def main():
         ]
         if league_snapshots:
             gen_cmd.extend(["--pool-dirs"] + league_snapshots[-4:])
+        if args.resume:
+            gen_cmd.append("--resume")
         run_cmd(gen_cmd)
 
         # 2. Train model on 2,048-position random batches sampled from the FIFO buffer
@@ -127,7 +140,7 @@ def main():
             "--seed", str(args.seed + it),
             "--device", args.device,
         ]
-        if it > 0:
+        if args.resume or it > 0:
             train_cmd.append("--resume")
         run_cmd(train_cmd)
 

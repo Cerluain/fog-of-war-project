@@ -50,12 +50,12 @@ WARMUP_MATCHUPS = all_vs_all([
     "bot:random",
 ])
 
-ITERATIVE_MATCHUPS = (  # Trying to be more like alphago
-    [("self", "self")] * 6 +
-    [("league", "self")] * 3 +
-    [("self", "bot:greedy")]
+ITERATIVE_MATCHUPS = (
+    [("self", "self")]  +
+    [("self", "self_hot")] * 3 +
+    [("self", "league")] * 2 +
+    [("self", "bot:greedy")] * 4
 )
-
 
 def load_local_module(agent_dir: str, name: str):
     path = os.path.join(agent_dir, f"{name}.py")
@@ -112,7 +112,7 @@ class ExploratoryAgentWrapper:
         l = logits[keys]
 
         # Smooth decay from 1.0 (opening) toward floors (endgame), half-life = 12 moves
-        decay = 0.5 ** (self.ply / 12.0)
+        decay = 0.5 ** (self.ply / 7.0)
         temp = (0.35 + 0.65 * decay) * self.scale * self.jit
         win = (0.40 + 0.60 * decay) * self.scale
 
@@ -328,7 +328,7 @@ def worker(args):
         y_teacher=np.array(y_teachers, np.int16),
         y_played=np.array(y_playeds, np.int16),
         has_teacher=np.array(has_teachers, np.uint8),
-        z=np.array(zs, np.int8),
+        z=np.array(zs, np.float32),
         ply=np.array(plies, np.int16),
         game_id=np.array(game_ids, np.int32),
         legal=np.stack(legals),
@@ -347,12 +347,13 @@ def main():
     ap.add_argument("--agent-dir", default="submission", help="Agent directory for features and self-play")
     ap.add_argument("--pool-dirs", nargs="*", default=[], help="Additional agent directories for league opponents")
     ap.add_argument("--out", default="data/replay_buffer", help="Replay buffer directory")
+    ap.add_argument("--resume", action="store_true", help="Use existing agent weights for self-play")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
     weights_file = os.path.join(args.agent_dir, "weights", "model.safetensors")
-    has_trained_agent = os.path.exists(weights_file) and args.iter > 0
+    has_trained_agent = os.path.exists(weights_file) and (args.iter > 0 or args.resume)
 
     mode_str = f"DAgger/League Self-Play ({args.agent_dir})" if has_trained_agent else "Warmup Reference Bots"
     print(
