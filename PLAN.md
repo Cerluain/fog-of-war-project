@@ -53,10 +53,12 @@ Is the amount of training saved worth using the Maia 2 weights and possibly have
 
 
 # 5. TODO: 
-[] Add more input channels for the past enemy positions so the model has a better memory than the one provided by default. Consider if it's worth keeping the 6x in layers that are per piece, which is for each past position(would be sparse)...
-[] Add a hidden board belief component (ensemble: takes embeding or best guess, or multi-headed network: policy head, hidden head, maybe even other head)
-[] Figure out how to get more varied data (Similar to Idea 2)
+[X] Add more input channels for the past enemy positions so the model has a better memory than the one provided by default. Consider if it's worth keeping the 6x in layers that are per piece, which is for each past position(would be sparse)...
+[X] Add a hidden board belief component (ensemble: takes embeding or best guess, or multi-headed network: policy head, hidden head, maybe even other head)
+[X] Figure out how to get more varied data (Similar to Idea 2)
     []Randomly choose valid openings? Sometimes random? Could also help add variation while doing benchmarks
+[] Consider having an oponent that's "self", but uses omniscient stockfish ONLY ON THE TOP_K MOVES to decide which one it's actually going with. So we have some higher quality samples.
+[] AgentWrapper that Prunes Blunders, then wrap the "self" while training to have more winning game examples without blunders
 [] Add MCTS for search
 
 Later on():
