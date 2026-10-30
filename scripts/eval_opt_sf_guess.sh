@@ -8,12 +8,10 @@ WORKERS=${2:-8}
 
 CANDIDATES=(
     "bot:greedy"
-    "bot:guess-sf-20x500"   # Baseline reference (1242 Elo)
-    "bot:guess-sf-15x500"   # 7.5k nodes
-    "bot:guess-sf-25x500"   # 12.5k nodes
-    "bot:guess-sf-15x1000"  # 15.0k nodes (depth emphasis)
+    "bot:guess-sf-45x500"   # Baseline reference (1242 Elo)
+    "bot:guess-sf-40x500"   
+    "bot:guess-sf-35x500"   
     "bot:guess-sf-30x500"   # 15.0k nodes (consensus emphasis)
-    "bot:guess-sf-30x800"   # 24.0k nodes
 )
 
 mkdir -p experiments/arena_evals
