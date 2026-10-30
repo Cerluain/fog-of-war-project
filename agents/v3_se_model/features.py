@@ -12,6 +12,7 @@ Input planes (34 x 8 x 8):
    32    your queenside castling right
    33    the square where you lost a piece on the opponent's last move
 Moves: index = from_square * 64 + to_square (oriented). Promotions always use the queen.
+
 """
 import numpy as np
 from fow.memory import Memory as BaseMemory

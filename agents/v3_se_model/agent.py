@@ -5,6 +5,7 @@ Move choice: take the policy's top-K legal moves, step each one ply forward usin
 network's belief head, let the network evaluate the opponent's resulting position
 (value head), and combine:
     score = log pi(move) + value_weight * (-v_opp)
+    
 """
 import importlib.util
 import json
