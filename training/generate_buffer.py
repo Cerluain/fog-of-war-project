@@ -52,9 +52,9 @@ WARMUP_MATCHUPS = (
 
 ITERATIVE_MATCHUPS = (
     [("self", "self")] * 3 +             
-    [("self", "self_hot")] * 3 +     
+    [("self", "self_guarded")] * 3 +    
     [("self", "league")] * 2 +           
-    [("self", "bot:greedy")] * 2         
+    [("self", "bot:greedy")] * 2        
 )
 
 
