@@ -248,6 +248,22 @@ def extract_winner(game: Game):
     return None
 
 
+def record_matchup(stats, left, right, winner):
+    """Record the result from self's perspective for a matchup involving self."""
+    if "self" not in (left, right):
+        return
+
+    opponent = right if left == "self" else left
+    result = stats.setdefault(opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0})
+    result["games"] += 1
+    if winner is None:
+        result["draws"] += 1
+    elif left == "self" and winner == "white" or right == "self" and winner == "black":
+        result["wins"] += 1
+    else:
+        result["losses"] += 1
+
+
 def worker(args):
     wid, n_games, nodes, teacher_rate, keep, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent = args
     # Prevent multi-worker CPU thread oversubscription
@@ -277,6 +293,7 @@ def worker(args):
     xs, beliefs, y_playeds, y_teachers, has_teachers, zs, plies, game_ids, legals = [], [], [], [], [], [], [], [], []
     decisive_games = 0
     self_play_games, self_play_decisive = 0, 0
+    matchup_stats = {}
 
     for g in range(n_games):
         a, b = rng.choice(matchups)
@@ -361,6 +378,7 @@ def worker(args):
         winner = extract_winner(game)
         if winner is not None:
             decisive_games += 1
+        record_matchup(matchup_stats, a, b, winner)
         if a_spec == "self" and b_spec == "self":
             self_play_games += 1
             if winner is not None:
@@ -417,7 +435,7 @@ def worker(args):
         game_id=np.array(game_ids, np.int32),
         legal=np.stack(legals),
     )
-    return len(xs), decisive_games, n_games, self_play_decisive, self_play_games
+    return len(xs), decisive_games, n_games, self_play_decisive, self_play_games, matchup_stats
 
 
 def main():
@@ -462,6 +480,14 @@ def main():
     tot_all = sum(r[2] for r in res)
     dec_sp = sum(r[3] for r in res)
     tot_sp = sum(r[4] for r in res)
+    matchup_stats = {}
+    for result in res:
+        for opponent, stats in result[5].items():
+            total = matchup_stats.setdefault(
+                opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0}
+            )
+            for key in total:
+                total[key] += stats[key]
 
     print(
         f"=== Iteration {args.iter} complete: added {n_pos:,} positions to {args.out} | "
@@ -472,6 +498,16 @@ def main():
         sp_rate = dec_sp / tot_sp
         warn = " [WARNING: <50% decisive, outcome signal may be weak!]" if sp_rate < 0.5 else ""
         print(f"    Self-Play decisive rate: {sp_rate:.1%} ({dec_sp}/{tot_sp}){warn}", flush=True)
+    if matchup_stats:
+        print("    Self matchup results:", flush=True)
+        for opponent, stats in sorted(matchup_stats.items()):
+            games = stats["games"]
+            win_rate = stats["wins"] / max(1, games)
+            print(
+                f"      vs {opponent}: {stats['wins']}W-{stats['draws']}D-{stats['losses']}L "
+                f"({win_rate:.1%} won)",
+                flush=True,
+            )
 
 
 if __name__ == "__main__":
