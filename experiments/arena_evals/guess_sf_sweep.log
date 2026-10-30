@@ -1,0 +1,45 @@
+Playing 3150 games with 8 worker(s)...
+  315/3150 games
+  630/3150 games
+  945/3150 games
+  1260/3150 games
+  1575/3150 games
+  1890/3150 games
+  2205/3150 games
+  2520/3150 games
+  2835/3150 games
+  3150/3150 games
+
+Results (score of the first player in each pair):
+  bot:greedy                     vs bot:guess-sf-15x1000            35.0 / 150
+  bot:greedy                     vs bot:guess-sf-15x500             34.0 / 150
+  bot:greedy                     vs bot:guess-sf-20x500             21.0 / 150
+  bot:greedy                     vs bot:guess-sf-25x500             26.0 / 150
+  bot:greedy                     vs bot:guess-sf-30x500             25.0 / 150
+  bot:greedy                     vs bot:guess-sf-30x800             26.0 / 150
+  bot:guess-sf-15x1000           vs bot:guess-sf-15x500             68.0 / 150
+  bot:guess-sf-15x1000           vs bot:guess-sf-20x500             68.0 / 150
+  bot:guess-sf-15x1000           vs bot:guess-sf-25x500             56.0 / 150
+  bot:guess-sf-15x1000           vs bot:guess-sf-30x500             72.0 / 150
+  bot:guess-sf-15x1000           vs bot:guess-sf-30x800             78.0 / 150
+  bot:guess-sf-15x500            vs bot:guess-sf-20x500             68.0 / 150
+  bot:guess-sf-15x500            vs bot:guess-sf-25x500             63.0 / 150
+  bot:guess-sf-15x500            vs bot:guess-sf-30x500             64.0 / 150
+  bot:guess-sf-15x500            vs bot:guess-sf-30x800             76.0 / 150
+  bot:guess-sf-20x500            vs bot:guess-sf-25x500             76.0 / 150
+  bot:guess-sf-20x500            vs bot:guess-sf-30x500             77.0 / 150
+  bot:guess-sf-20x500            vs bot:guess-sf-30x800             74.0 / 150
+  bot:guess-sf-25x500            vs bot:guess-sf-30x500             62.0 / 150
+  bot:guess-sf-25x500            vs bot:guess-sf-30x800             78.0 / 150
+  bot:guess-sf-30x500            vs bot:guess-sf-30x800             77.0 / 150
+
+How games ended: {'king captured': 3150}
+
+Ratings (95% interval):
+  bot:guess-sf-30x500               1278   [ 1242,  1311]
+  bot:guess-sf-20x500               1273   [ 1241,  1307]
+  bot:guess-sf-25x500               1273   [ 1244,  1302]
+  bot:guess-sf-30x800               1253   [ 1215,  1286]
+  bot:guess-sf-15x500               1238   [ 1207,  1270]
+  bot:guess-sf-15x1000              1229   [ 1197,  1263]
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
