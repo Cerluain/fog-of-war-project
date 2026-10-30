@@ -212,63 +212,6 @@ class ExploratoryAgentWrapper:
 
     def close(self):
         pass
-    
-
-class ExploratoryAgentWrapper:
-    """CPU self-play wrapper with smooth temperature/window decay."""
-    def __init__(self, agent_dir: str, scale: float = 1.0):
-        agent_mod = load_local_module(agent_dir, "agent")
-        self.agent = agent_mod.Agent(agent_dir, device="cpu")
-        self.scale = scale
-        self.ply = 0
-        self.jit = 1.0
-        self.rng = random.Random(0)
-
-    def reset(self, color: str, seed: int) -> None:
-        self.agent.reset(color, seed)
-        self.rng = random.Random(seed)
-        self.ply = 0
-        self.jit = self.rng.uniform(0.85, 1.15)
-
-    @torch.no_grad()
-    def act(self, obs: dict) -> str:
-        self.ply += 1
-        # Always update memory first so prev / pre_prev history stays strictly in sync
-        self.agent.memory.update(obs)
-
-        for uci in obs["legal_moves"]:
-            if obs["enemy"].get(uci[2:4]) == "K":
-                return uci
-
-        legal = self.agent.features.legal_indices(obs)
-        keys = list(legal.keys())
-        if len(keys) == 1:
-            return legal[keys[0]]
-
-        encoded = self.agent.features.encode(obs, self.agent.memory)
-        x = torch.from_numpy(encoded).float().unsqueeze(0)
-        out = self.agent.net(x)
-        logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
-        l = logits[keys]
-
-        # Smooth decay from 1.0 (opening) toward floors (endgame), half-life = 12 moves
-        decay = 0.5 ** (self.ply / 7.0)
-        temp = (0.35 + 0.65 * decay) * self.scale * self.jit
-        win = (0.40 + 0.60 * decay) * self.scale
-
-        # Keep moves within `win` logits of the best move (capped at top 5)
-        cand = torch.where(l >= l.max() - win)[0]
-        if len(cand) > 5:
-            cand = torch.topk(l, k=5).indices
-
-        probs = F.softmax(l[cand] / max(temp, 1e-3), dim=-1).tolist()
-        chosen = self.rng.choices(cand.tolist(), weights=probs, k=1)[0]
-        return legal[keys[chosen]]
-
-    def close(self):
-        pass
-
-
 def normalize_uci(uci: str) -> str:
     return uci[:4] + "q" if len(uci) == 5 else uci
 
