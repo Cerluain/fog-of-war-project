@@ -43,19 +43,20 @@ def all_vs_all(players):
     return list(itertools.combinations_with_replacement(players, 2))
 
 
-WARMUP_MATCHUPS = all_vs_all([
-    "bot:guess-sf-8x500",
-    "bot:naive-sf",
-    "bot:greedy",
-    "bot:random",
-])
+
+WARMUP_MATCHUPS = (
+    [("bot:guess-sf-40x500", "bot:greedy")] * 5 +    
+    [("bot:guess-sf-40x500", "bot:naive-sf")] * 3 +  
+    [("bot:guess-sf-40x500", "bot:guess-sf-8x500")] * 2  
+)
 
 ITERATIVE_MATCHUPS = (
-    [("self", "self")]  +
-    [("self", "self_hot")] * 3 +
-    [("self", "league")] * 2 +
-    [("self", "bot:greedy")] * 4
+    [("self", "self")] * 3 +             
+    [("self", "self_hot")] * 3 +     
+    [("self", "league")] * 2 +           
+    [("self", "bot:greedy")] * 2         
 )
+
 
 def load_local_module(agent_dir: str, name: str):
     path = os.path.join(agent_dir, f"{name}.py")
@@ -65,14 +66,153 @@ def load_local_module(agent_dir: str, name: str):
     spec.loader.exec_module(mod)
     return mod
 
+
+PIECE_VALS = {
+    chess.PAWN: 1,
+    chess.KNIGHT: 3,
+    chess.BISHOP: 3,
+    chess.ROOK: 5,
+    chess.QUEEN: 9,
+    chess.KING: 100,
+}
+
+def is_omniscient_blunder(board: chess.Board, uci: str) -> bool:
+    """Returns True if playing `uci` on the true `board` leaves our King capturable
+    next turn or blunders a high-value piece (Queen/Rook) for free or to a lesser piece.
+    """
+    mv = chess.Move.from_uci(uci)
+    us = board.turn
+    them = not us
+
+    moved_piece = board.piece_at(mv.from_square)
+    captured_piece = board.piece_at(mv.to_square)
+    captured_val = PIECE_VALS.get(captured_piece.piece_type, 0) if captured_piece else 0
+
+    b = board.copy(stack=False)
+    b.push(mv)
+
+    # 1. CRITICAL: Did we leave our King attacked on the next ply? (Instant loss in FoW!)
+    king_sq = b.king(us)
+    if king_sq is not None and b.is_attacked_by(them, king_sq):
+        return True
+
+    # 2. OPTIONAL TACTICAL VETO: Did we hang a Queen or Rook on the destination square?
+    if moved_piece is not None and moved_piece.piece_type in (chess.QUEEN, chess.ROOK):
+        my_val = PIECE_VALS[moved_piece.piece_type]
+        if b.is_attacked_by(them, mv.to_square):
+            # Check the cheapest enemy attacker on `to_square`
+            attackers = b.attackers(them, mv.to_square)
+            min_attacker_val = min(
+                (PIECE_VALS.get(b.piece_type_at(sq), 100) for sq in attackers),
+                default=100,
+            )
+            is_defended = b.is_attacked_by(us, mv.to_square)
+            # If undefended and we didn't capture something of equal/greater value -> blunder
+            if not is_defended and captured_val < my_val:
+                return True
+            # If attacked by a cheaper piece and what we captured doesn't cover the trade -> blunder
+            if min_attacker_val < my_val and (captured_val + min_attacker_val) < my_val:
+                return True
+
+    return False
+
 def build_bot(spec: str, agent_dir: str):
     if spec == "self":
-        return ExploratoryAgentWrapper(agent_dir, scale=1.0)
+        return ExploratoryAgentWrapper(agent_dir, scale=1.0, guarded=False)
+    if spec == "self_guarded":
+        return ExploratoryAgentWrapper(agent_dir, scale=0.0, guarded=True, topk=5)
     if spec == "self_hot":
-        return ExploratoryAgentWrapper(agent_dir, scale=1.5)
+        return ExploratoryAgentWrapper(agent_dir, scale=1.5, guarded=False)
     if spec.startswith("agent:"):
-        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=1.0)
+        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=1.0, guarded=False)
     return make_bot(spec)
+
+
+class ExploratoryAgentWrapper:
+    """CPU self-play wrapper with smooth temperature/window decay and optional omniscient guardrail."""
+    def __init__(self, agent_dir: str, scale: float = 1.0, guarded: bool = False, topk: int = 5):
+        agent_mod = load_local_module(agent_dir, "agent")
+        self.agent = agent_mod.Agent(agent_dir, device="cpu")
+        self.scale = scale
+        self.guarded = guarded
+        self.topk = topk
+        self.ply = 0
+        self.jit = 1.0
+        self.rng = random.Random(0)
+
+    def reset(self, color: str, seed: int) -> None:
+        self.agent.reset(color, seed)
+        self.rng = random.Random(seed)
+        self.ply = 0
+        self.jit = self.rng.uniform(0.85, 1.15)
+
+    @torch.no_grad()
+    def act(self, obs: dict, board: chess.Board = None) -> str:
+        self.ply += 1
+        # Always update memory first so prev / pre_prev history stays strictly in sync
+        self.agent.memory.update(obs)
+
+        for uci in obs["legal_moves"]:
+            if obs["enemy"].get(uci[2:4]) == "K":
+                return uci
+
+        legal = self.agent.features.legal_indices(obs)
+        keys = list(legal.keys())
+        if len(keys) == 1:
+            return legal[keys[0]]
+
+        encoded = self.agent.features.encode(obs, self.agent.memory)
+        x = torch.from_numpy(encoded).float().unsqueeze(0)
+        out = self.agent.net(x)
+        logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
+        l = logits[keys]
+
+        # --- MODE A: OMNISCIENT TOP-K NON-BLUNDER GUARDRAIL ---
+        if self.guarded and board is not None:
+            k = min(self.topk, len(keys))
+            top_indices = torch.topk(l, k=k).indices.tolist()
+
+            # Walk down the top-k moves in order of policy preference;
+            # play the first move that is NOT an omniscient blunder!
+            for idx in top_indices:
+                cand_uci = legal[keys[idx]]
+                if not is_omniscient_blunder(board, cand_uci):
+                    return cand_uci
+
+            # Fallback: if all top-k moves are in danger, check if ANY legal move saves the King
+            us = board.turn
+            them = not us
+            for idx in torch.argsort(l, descending=True).tolist():
+                cand_uci = legal[keys[idx]]
+                b = board.copy(stack=False)
+                b.push(chess.Move.from_uci(cand_uci))
+                king_sq = b.king(us)
+                if king_sq is not None and not b.is_attacked_by(them, king_sq):
+                    return cand_uci
+
+            # If checkmated/unavoidable, play the #1 policy move
+            return legal[keys[top_indices[0]]]
+
+        # --- MODE B: STANDARD EXPLORATORY SAMPLING ---
+        if self.scale <= 0.0:
+            best_idx = l.argmax().item()
+            return legal[keys[best_idx]]
+
+        decay = 0.5 ** (self.ply / 7.0)
+        temp = (0.35 + 0.65 * decay) * self.scale * self.jit
+        win = (0.40 + 0.60 * decay) * self.scale
+
+        cand = torch.where(l >= l.max() - win)[0]
+        if len(cand) > self.topk:
+            cand = torch.topk(l, k=self.topk).indices
+
+        probs = F.softmax(l[cand] / max(temp, 1e-3), dim=-1).tolist()
+        chosen = self.rng.choices(cand.tolist(), weights=probs, k=1)[0]
+        return legal[keys[chosen]]
+
+    def close(self):
+        pass
+    
 
 class ExploratoryAgentWrapper:
     """CPU self-play wrapper with smooth temperature/window decay."""
@@ -347,13 +487,12 @@ def main():
     ap.add_argument("--agent-dir", default="submission", help="Agent directory for features and self-play")
     ap.add_argument("--pool-dirs", nargs="*", default=[], help="Additional agent directories for league opponents")
     ap.add_argument("--out", default="data/replay_buffer", help="Replay buffer directory")
-    ap.add_argument("--resume", action="store_true", help="Use existing agent weights for self-play")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
     os.makedirs(args.out, exist_ok=True)
     weights_file = os.path.join(args.agent_dir, "weights", "model.safetensors")
-    has_trained_agent = os.path.exists(weights_file) and (args.iter > 0 or args.resume)
+    has_trained_agent = os.path.exists(weights_file) and args.iter > 0
 
     mode_str = f"DAgger/League Self-Play ({args.agent_dir})" if has_trained_agent else "Warmup Reference Bots"
     print(
