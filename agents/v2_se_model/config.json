@@ -1,5 +1,5 @@
 {
  "in_planes": 34,
  "channels": 128,
- "blocks": 6
+ "blocks": 16
 }
