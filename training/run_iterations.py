@@ -2,8 +2,12 @@
 
     Note that warmup-games only keep a third of positions: 
 
+    FOR MAX_BUFFER CONSIDER 50 to 60 POSITIONS PER GAME ONCE IT STABILIZES
+
     python training/run_iterations.py --iterations 5 --warmup-games 2500 --games-per-iter 1500 \
         --workers 4 --agent-dir agents/v1_se_model --lambda-start 1.0 --lambda-end 0.2
+
+    python training/run_iterations.py --iterations 4 --agent-dir agents/v1_se_model --buffer-dir data/v1_mini_4it --warmup-games 15000 --games-per-iter 1800 --workers 10 --blocks 8 
 
     LARGE SCALE
     python training/run_iterations.py --iterations 15 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v2_se_model/ --blocks 8 --buffer-dir data/v2_megamodel --evict-warmup-after 3
@@ -39,7 +43,7 @@ def main():
     ap.add_argument("--workers", type=int, default=6, help="CPU workers for data generation")
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
     ap.add_argument("--teacher-rate-start", type=float, default=1, help="Stockfish labeling rate on Iteration 0")
-    ap.add_argument("--teacher-rate-end", type=float, default=0.001, help="Stockfish labeling rate on final iteration")
+    ap.add_argument("--teacher-rate-end", type=float, default=0.01, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")

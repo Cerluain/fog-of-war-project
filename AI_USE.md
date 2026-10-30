@@ -9,6 +9,15 @@ List every AI assistant or coding agent you used for this project. Keep it curre
 
 | Gemini | Code Understanding | Medium | Used it to understand certain parts of the code that I didn't quite understand such as how the mask of legalmoves was implemented with np methods.
 | Gemini | Development | Full | Wrote my own SE_block and asked gemini argon to make sure it was high quality
+| Gemini | Research | Medium | Found from Gemini that Maia 2 architecture was meant to mimic players so the "skill level" blocks I read about were not necessary. It showed me a paper to read about Leela architecture intsead.
+
+
+....
+| Gemini | Research | Medium | Had gemini find me resources about "searchless" models, which the prof suggested I look into. It gave me a paper called "Grandmaster-Level Chess Without Search" which only looks at the very next "ply". I also used it to get an idea of the # of blocks I should test first.
+| Gemini | Development | Full | Had gemini make me an initial agent.py and features.py file for the v3 iteration that had a 1-ply lookahead. I also asked it to explain the 
+| Claude | Development | High | Brought my critiques of additions of king_danger and piece_value heuristics in features.py, used claude to change the code
+| Gemini | Development | High | Used gemini to critique final changes
+
 
 Commits written mostly by an agent should carry a trailer naming the tool, for example
 `Co-Authored-By: <tool name>`.

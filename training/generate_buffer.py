@@ -47,14 +47,15 @@ def all_vs_all(players):
 WARMUP_MATCHUPS = (
     [("bot:guess-sf-40x500", "bot:greedy")] * 5 +    
     [("bot:guess-sf-40x500", "bot:naive-sf")] * 3 +  
-    [("bot:guess-sf-40x500", "bot:guess-sf-8x500")] * 2  
+    [("bot:guess-sf-40x500", "bot:guess-sf-8x400")] * 2  
 )
 
 ITERATIVE_MATCHUPS = (
     [("self", "self")] * 3 +             
-    [("self", "self_guarded")] * 3 +    
-    [("self", "league")] * 2 +           
-    [("self", "bot:greedy")] * 2        
+    [("self", "self_guarded")] * 3 +
+    [("self", "league")] * 2 +      
+    [("self", "bot:greedy")] * 2 +  
+    [("self_guarded", "bot:greedy")] *2        
 )
 
 
@@ -67,7 +68,7 @@ def load_local_module(agent_dir: str, name: str):
     return mod
 
 
-PIECE_VALS = {
+PIECE_VALS = { # ONLY USE DURING TRAINING!!!
     chess.PAWN: 1,
     chess.KNIGHT: 3,
     chess.BISHOP: 3,
@@ -76,7 +77,7 @@ PIECE_VALS = {
     chess.KING: 100,
 }
 
-def is_omniscient_blunder(board: chess.Board, uci: str) -> bool:
+def is_omniscient_blunder(board: chess.Board, uci: str) -> bool: #ONLY FOR TRAINING PLS
     """Returns True if playing `uci` on the true `board` leaves our King capturable
     next turn or blunders a high-value piece (Queen/Rook) for free or to a lesser piece.
     """

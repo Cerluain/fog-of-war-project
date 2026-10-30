@@ -1,9 +1,10 @@
 """SE-ResNet agent: loads config.json and weights/model.safetensors from its own directory,
 tracks enemy piece memory, encodes the observation, and plays the best legal move.
 
-Move choice: take the policy's top-K legal moves, step each one ply forward, let the
-network evaluate the opponent's resulting position (value head), and combine:
-    score = log pi(move) + value_weight * (-v_opp) - king_weight * P(our King captured)
+Move choice: take the policy's top-K legal moves, step each one ply forward using the
+network's belief head, let the network evaluate the opponent's resulting position
+(value head), and combine:
+    score = log pi(move) + value_weight * (-v_opp)
 """
 import importlib.util
 import json
@@ -44,13 +45,12 @@ class Agent:
         self.net.load_state_dict(load_file(weights_path))
         self.net.to(self.device).eval()
 
-        # New lookahead "knobs"
-        self.top_k = 5
-        self.value_weight = 1.0
-        self.king_weight = 4.0 # FLAG THIS?
+        # Lookahead hyperparameters (can also be overridden in config.json)
+        self.top_k = cfg.get("top_k", 5)
+        self.value_weight = cfg.get("value_weight", 1.0)
+        self.use_continuous = cfg.get("use_continuous_belief", False)
 
-        # HARD CODED SO PLS BE CAREFUL
-        # Belief head was trained with pos_weight=10 -> raw logits are shifted by +ln(10)
+        # Belief head was trained with pos_weight=10.0 -> raw logits are shifted by +ln(10)
         self.log_pos_weight = math.log(10.0)
 
     def reset(self, color: str, seed: int) -> None:
@@ -59,56 +59,60 @@ class Agent:
 
     @torch.no_grad()
     def act(self, obs: dict) -> str:
-        """Bot does two separate forward passes"""
-        # Capturing the enemy King wins the game
+        """Executes a 2-pass searchless neural evaluation."""
+        self.memory.update(obs)
+
+        # Game rule: capturing a visible enemy King immediately wins the game
         for uci in obs["legal_moves"]:
             if obs["enemy"].get(uci[2:4]) == "K":
                 return uci
 
-        self.memory.update(obs)
+        legal = self.features.legal_indices(obs)
+        legal_idx = list(legal)
+        if len(legal_idx) == 1:
+            return legal[legal_idx[0]]
+
         encoded = self.features.encode(obs, self.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
 
-        # Same as v2 so far
-        # 1. PASS 1: policy + belief on the real observation
-        logits, _, b_logits = self.net(x)
+        # 1. PASS 1: Policy + Belief on the real observation
+        out = self.net(x)
+        if not isinstance(out, tuple) or len(out) < 3 or not hasattr(self.features, "step_1ply_tensors"):
+            logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
+            best = max(legal, key=lambda i: logits[i].item())
+            return legal[best]
+
+        logits, _, b_logits = out
         logits = logits[0].cpu()
 
-        # 2.Next, we only use legal moves, compute softmax, and choose the top k
-        legal = self.features.legal_indices(obs)
-        legal_idx = list(legal)
-        log_p = torch.log_softmax(logits[legal_idx], dim=0).tolist()
-        log_p = dict(zip(legal_idx, log_p))
+        # 2. Restrict to legal moves, compute log-probabilities, and pick top-k candidates
+        log_p_tensor = torch.log_softmax(logits[legal_idx], dim=0)
+        log_p = dict(zip(legal_idx, log_p_tensor.tolist()))
         top = sorted(legal_idx, key=lambda i: logits[i].item(), reverse=True)[: self.top_k]
         cand_ucis = [legal[i] for i in top]
         cand_log_probs = [log_p[i] for i in top]
         k = len(cand_ucis)
         if k == 1:
-            return cand_ucis[0] # Skips extra compute if it's obvious
+            return cand_ucis[0]
 
-        # 3.Calibrated belief probabilities so approx sum of all pieces left = sum of b_probs (6, 8, 8)
+        # 3. Calibrate belief probabilities (undoing pos_weight=10 prior shift) -> (6, 8, 8)
         b_probs = torch.sigmoid(b_logits[0] - self.log_pos_weight).cpu().numpy()
 
-        # 4. Step state forward 1 ply for each of the k candidates (strictly binary 0/1 planes)
-        next_x_np, king_risk_np = self.features.step_1ply_tensors(
-            obs, self.memory, b_probs, cand_ucis
+        # 4. Step state forward 1 ply for each of the k candidates
+        next_x_np = self.features.step_1ply_tensors(
+            obs, self.memory, b_probs, cand_ucis, use_continuous=self.use_continuous
         )
 
-        # 5. PASS 2: feed the k simulated 1-ply states back into PolicyNet
+        # 5. PASS 2: Feed the k simulated 1-ply states back into PolicyNet
         next_x = torch.from_numpy(next_x_np).to(self.device)
-        next_out = self.net(next_x) # SECOND PASS HERE :P
+        next_out = self.net(next_x)
         v_opp = next_out[1].squeeze(-1).cpu().numpy()
-        our_1ply_value = -v_opp # Value shouldn't be symmetric b/c -0.5 value for draws
-                                # It should still work as long as not used as value.
+        our_1ply_value = -v_opp
 
-        # 6. Policy log-prob + 1-ply value - King-capture rule check
+        # 6. Combine Policy log-prob + 1-ply neural Value evaluation
         best_i, best_score = 0, -1e9
         for i in range(k):
-            score = (
-                float(cand_log_probs[i])
-                + self.value_weight * float(our_1ply_value[i])
-                - self.king_weight * float(king_risk_np[i])
-            )
+            score = float(cand_log_probs[i]) + self.value_weight * float(our_1ply_value[i])
             if score > best_score:
                 best_score, best_i = score, i
 
