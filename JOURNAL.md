@@ -132,18 +132,12 @@ Very significant difference in performance, even considering the evict warmup af
 The keep=0.333 model outperformed the keep=1 model by nearly 100 elo points. Some of that could be noise
 
 - **AI help:** 
+Just ran the experiment myself with keep=0.333 and x3 warmup games
 
-### 2026-10-27: 
-- **Question / hypothesis:** 
-- **Commit:** a1547bae56cf31039887b45501d02f0e158a6669
-- **Setup:** 
-    Comparing against 
-    Parameters: 128 channels, 8 res blocks, 22 in features. 
-    Training: 2 iterations, 1k warmup games + 1.5k dataset aggregation of self-play/iter, 500 sgd steps/iteration, 2048 batch size
 
-### 2026-10-27: Ran the decay experiment but with exponential decay
+### 2026-10-28: Ran the decay experiment but with exponential decay
 - **Question / hypothesis:** If I change to exponential decay, would the bots perform better or worse?
-- **Commit:** 
+- **Commit:** 1ac7ced5d57b0d7abd77634b9c81af0e10b7cb9e
 - **Setup:** 
     Parameters: 128 channels, 6 res blocks, 22 in features. 
     Training: 12 iterations, (5k vs 15k) warmup games + 3.6k dataset aggregation of self-play/iter, 1200 sgd steps/iteration, 2048 batch size, evicts warmup after 2 iterations
@@ -176,3 +170,53 @@ Very significant difference in performance, even considering the evict warmup af
 The keep=0.333 model outperformed the keep=1 model by nearly 100 elo points. Some of that could be noise
 
 - **AI help:** 
+Asked the ai to generate the exponential decay experiment to run the python files. I provided the exact schedules
+
+
+
+### 2026-10-29: Optimal Guess Stockfish
+- **Question / hypothesis:** What's the best guess-sf-KxN configuration to make training data, before marginal returns begin?
+I believed it was around 20x500 so I've had it configured there.
+- **Commit:** cabc2d59c22fa2c628731d1718fa8d877a73932e
+- **Setup:** 
+    Ran a round robin arena match with the guess-sf K N values of 30x500, 20x500, 25x500, 30x800, 15x500, 15x1000 and including bot:greedy
+    150 games for each pair.
+- **Result:** 
+
+And these were the round robin results of configuration bots that fought each other:
+Ratings (95% interval):
+  bot:guess-sf-30x500               1278   [ 1242,  1311]
+  bot:guess-sf-20x500               1273   [ 1241,  1307]
+  bot:guess-sf-25x500               1273   [ 1244,  1302]
+  bot:guess-sf-30x800               1253   [ 1215,  1286]
+  bot:guess-sf-15x500               1238   [ 1207,  1270]
+  bot:guess-sf-15x1000              1229   [ 1197,  1263]
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
+
+Despite 30x500 and 15x1000 having the same amount of compute, 30x500 outperformed it by 49 points. In addition, it appears my hypothesis of 20x500 isn't far off.
+
+- **Decision:** 
+I might test slightly higher K values, but I'll at least update K to be 30 to start with higher quality data in training.
+
+- **AI help:** 
+Asked the ai to generate the exponential decay experiment to run the python files. I provided the exact schedules
+
+
+### 2026-10-29: Optimal Guess Stockfish
+- **Question / hypothesis:** Tried to further hone in at the exact config that's optimal for higher elo matches.
+- **Commit:** 
+- **Setup:** 
+    Ran a round robin arena match with the guess-sf K N values of 40x500, 35x500, 45x500, 30x500 and including bot:greedy
+    500 games but only against greedy.
+- **Result:** 
+  Ratings (95% interval):
+  bot:guess-sf-40x500               1307   [ 1262,  1353]
+  bot:guess-sf-44x500               1263   [ 1226,  1303]
+  bot:guess-sf-36x500               1226   [ 1187,  1258]
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
+
+- **Decision:** 
+
+
+- **AI help:** 
+N/a this time I changed the schedules myself
