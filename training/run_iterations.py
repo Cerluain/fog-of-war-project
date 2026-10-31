@@ -1,20 +1,4 @@
-"""Master iterative training loop with teacher-decay schedule and league opponent pool.
-
-    Note that warmup-games only keep a third of positions: 
-
-    FOR MAX_BUFFER CONSIDER 50 to 60 POSITIONS PER GAME ONCE IT STABILIZES
-
-    python training/run_iterations.py --iterations 5 --warmup-games 2500 --games-per-iter 1500 \
-        --workers 4 --agent-dir agents/v1_se_model --lambda-start 1.0 --lambda-end 0.2
-
-    python training/run_iterations.py --iterations 4 --agent-dir agents/v1_se_model --buffer-dir data/v1_mini_4it --warmup-games 15000 --games-per-iter 1800 --workers 10 --blocks 8 
-
-    LARGE SCALE
-    python training/run_iterations.py --iterations 15 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v2_se_model/ --blocks 8 --buffer-dir data/v2_megamodel --evict-warmup-after 3
-
-    Resume an existing agent:
-    python training/run_iterations.py --resume --iterations 5
-"""
+"""Master iterative training loop with automatic logging to data/logs and plotting to data/plots."""
 import argparse
 import os
 import shutil
@@ -22,9 +6,29 @@ import subprocess
 import sys
 
 
-def run_cmd(cmd):
-    print(f"\n>>> Running: {' '.join(cmd)}", flush=True)
-    subprocess.run(cmd, check=True)
+def get_agent_name(agent_dir: str) -> str:
+    return os.path.basename(os.path.normpath(agent_dir))
+
+
+def run_cmd(cmd, log_file=None):
+    header = f"\n>>> Running: {' '.join(cmd)}\n"
+    print(header, end="", flush=True)
+    if log_file:
+        with open(log_file, "a", encoding="utf-8") as lf:
+            lf.write(header)
+            lf.flush()
+            proc = subprocess.Popen(
+                cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
+            )
+            for line in proc.stdout:
+                print(line, end="", flush=True)
+                lf.write(line)
+                lf.flush()
+            proc.wait()
+            if proc.returncode != 0:
+                raise subprocess.CalledProcessError(proc.returncode, cmd)
+    else:
+        subprocess.run(cmd, check=True)
 
 
 def snapshot_agent(agent_dir: str, league_root: str, iteration: int) -> str:
@@ -42,11 +46,13 @@ def main():
     ap.add_argument("--games-per-iter", type=int, default=2000, help="New games added per subsequent iteration")
     ap.add_argument("--workers", type=int, default=6, help="CPU workers for data generation")
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
-    ap.add_argument("--teacher-rate-start", type=float, default=1, help="Stockfish labeling rate on Iteration 0")
+    ap.add_argument("--teacher-rate-start", type=float, default=1.0, help="Stockfish labeling rate on Iteration 0")
     ap.add_argument("--teacher-rate-end", type=float, default=0.01, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
+    ap.add_argument("--log-dir", default="data/logs", help="Directory for agent training logs")
+    ap.add_argument("--plot-dir", default="data/plots", help="Directory for output plots")
     ap.add_argument("--max-buffer", type=int, default=300_000, help="FIFO buffer capacity (positions)")
     ap.add_argument("--evict-warmup-after", type=int, default=3, help="Evict iter 0 warmup shards starting at this iteration")
     ap.add_argument("--agent-dir", default="submission")
@@ -61,59 +67,52 @@ def main():
     ap.add_argument("--lambda-end", type=float, default=0.15, help="Teacher weight lambda on final iteration")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
-    ap.add_argument(
-        "--resume",
-        action="store_true",
-        help="Resume training from existing agent weights if they exist",
-    )
+    ap.add_argument("--resume", action="store_true", help="Resume training from existing agent weights if they exist")
     args = ap.parse_args()
 
     py = sys.executable
     os.makedirs(args.league_dir, exist_ok=True)
+    os.makedirs(args.log_dir, exist_ok=True)
+    os.makedirs(args.plot_dir, exist_ok=True)
+
+    agent_name = get_agent_name(args.agent_dir)
+    log_file = os.path.join(args.log_dir, f"{agent_name}.log")
+    if not args.resume and os.path.exists(log_file):
+        os.remove(log_file)  # Start fresh log unless resuming
+
+    print(f"=== Piping all training & generation output to: {log_file} ===", flush=True)
     league_snapshots = []
 
     for it in range(args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
 
-        # Exponentially anneal teacher weight lambda from lambda_start -> lambda_end.
         if args.iterations > 1 and args.lambda_start > 0 and args.lambda_end > 0:
             frac = it / (args.iterations - 1)
             lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** frac)
         else:
             lam = args.lambda_start
 
-        # Decay teacher_rate independently so CPU generation speeds up and
-        # buffer teacher density drops.
         if args.iterations > 1:
             frac = it / (args.iterations - 1)
             if args.teacher_rate_start > 0 and args.teacher_rate_end > 0:
-                cur_t_rate = args.teacher_rate_start * (
-                    (args.teacher_rate_end / args.teacher_rate_start) ** frac
-                )
+                cur_t_rate = args.teacher_rate_start * ((args.teacher_rate_end / args.teacher_rate_start) ** frac)
             else:
-                cur_t_rate = args.teacher_rate_start + frac * (
-                    args.teacher_rate_end - args.teacher_rate_start
-                )
+                cur_t_rate = args.teacher_rate_start + frac * (args.teacher_rate_end - args.teacher_rate_start)
         else:
             cur_t_rate = args.teacher_rate_start
 
-        # On iteration 0 warmup, reference bots play, so weight teacher higher; outcome kicks in fully on iter >= 1
         outcome_w = 0.5 if it == 0 else 1.0
         min_iter = 1 if (args.evict_warmup_after > 0 and it >= args.evict_warmup_after) else 0
-
-        # Iteration 0 (Warmup): subsample positions and use the initial teacher rate.
-        # Iterations >= 1 (Self-Play): keep 100% of model moves and use the decayed rate.
         iter_keep = 0.333 if it == 0 else args.keep
-        iter_t_rate = cur_t_rate
 
-        # 1. Generate new shard(s) into the replay buffer
+        # 1. Generate new shard(s) into the replay buffer (Iter it+1 evaluates Model from Iter it)
         gen_cmd = [
             py, "training/generate_buffer.py",
             "--iter", str(it),
             "--games", str(n_games),
             "--workers", str(args.workers),
             "--nodes", str(args.nodes),
-            "--teacher-rate", str(iter_t_rate),
+            "--teacher-rate", str(cur_t_rate),
             "--keep", str(iter_keep),
             "--agent-dir", args.agent_dir,
             "--out", args.buffer_dir,
@@ -121,11 +120,9 @@ def main():
         ]
         if league_snapshots:
             gen_cmd.extend(["--pool-dirs"] + league_snapshots[-4:])
-        if args.resume:
-            gen_cmd.append("--resume")
-        run_cmd(gen_cmd)
+        run_cmd(gen_cmd, log_file=log_file)
 
-        # 2. Train model on 2,048-position random batches sampled from the FIFO buffer
+        # 2. Train model on FIFO buffer
         train_cmd = [
             py, "training/train_buffer.py",
             "--buffer-dir", args.buffer_dir,
@@ -146,14 +143,23 @@ def main():
         ]
         if args.resume or it > 0:
             train_cmd.append("--resume")
-        run_cmd(train_cmd)
+        run_cmd(train_cmd, log_file=log_file)
 
         # 3. Save checkpoint into the opponent league pool
         snap = snapshot_agent(args.agent_dir, args.league_dir, it)
         league_snapshots.append(snap)
 
+        # 4. Update JSON & plots in data/plots/ after each iteration
+        run_cmd([
+            py, "training/plot_experiments.py",
+            "--parse-log", log_file,
+            "--name", agent_name,
+            "--agent-name", args.agent_dir,
+            "--plot-dir", args.plot_dir,
+        ])
+
     print(f"\n=== Completed all {args.iterations} iterations! Validating {args.agent_dir}... ===")
-    run_cmd([py, "-m", "fow.validate", args.agent_dir])
+    run_cmd([py, "-m", "fow.validate", args.agent_dir], log_file=log_file)
 
 
 if __name__ == "__main__":

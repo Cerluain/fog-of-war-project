@@ -292,24 +292,73 @@ def main():
             net.eval()
             t_correct, t_total = 0, 0
             w_correct, w_total = 0, 0
+            v_out_sum, v_teach_sum, v_val_sum, v_bel_sum, v_batches = 0.0, 0.0, 0.0, 0.0, 0
+
             with torch.no_grad():
                 for i in range(0, n_val, 1024):
-                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb, _ = get_batch(val_idx[i : i + 1024])
-                    v_logits, _, _ = forward_net(v_xb, v_mb)
-                    preds = v_logits.argmax(1)
+                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb, v_bb = get_batch(val_idx[i : i + 1024])
+                    with torch.amp.autocast("cuda", enabled=use_amp):
+                        v_logits, v_vpred, v_blogits = forward_net(v_xb, v_mb)
+                        preds = v_logits.argmax(1)
 
-                    if v_htb.any():
-                        t_correct += (preds[v_htb] == v_ytb[v_htb]).sum().item()
-                        t_total += v_htb.sum().item()
+                        # 1. Teacher validation accuracy & loss
+                        if v_htb.any():
+                            t_correct += (preds[v_htb] == v_ytb[v_htb]).sum().item()
+                            t_total += v_htb.sum().item()
+                            v_ce_t = v_htb.float().mean() * F.cross_entropy(v_logits[v_htb], v_ytb[v_htb])
+                        else:
+                            v_ce_t = torch.tensor(0.0, device=dev)
 
-                    win_mask = v_zb > 0.5
-                    if win_mask.any():
-                        w_correct += (preds[win_mask] == v_ypb[win_mask]).sum().item()
-                        w_total += win_mask.sum().item()
+                        # 2. Winning-move validation accuracy
+                        win_mask = v_zb > 0.5
+                        if win_mask.any():
+                            w_correct += (preds[win_mask] == v_ypb[win_mask]).sum().item()
+                            w_total += win_mask.sum().item()
+
+                        # 3. Outcome validation loss
+                        if args.outcome_mode == "none" or args.outcome_weight <= 0:
+                            v_l_out = torch.tensor(0.0, device=dev)
+                        elif args.outcome_mode == "win_only":
+                            ce_ps = F.cross_entropy(v_logits, v_ypb, reduction="none")
+                            wts = (v_zb > 0.5).float()
+                            v_l_out = (ce_ps * wts).sum() / wts.sum().clamp_min(1.0)
+                        else:
+                            b_val = v_vpred if v_vpred is not None else args.baseline
+                            adv = v_zb - b_val
+                            log_p = F.log_softmax(v_logits, dim=-1)
+                            p_log_p = log_p.gather(1, v_ypb.unsqueeze(1)).squeeze(1)
+                            p_p = p_log_p.exp()
+                            pos_adv, neg_adv = adv.clamp(min=0.0), adv.clamp(max=0.0)
+                            pos_cnt = (pos_adv > 0).sum().clamp_min(1.0)
+                            v_l_out = -(pos_adv * p_log_p + 0.5 * neg_adv * p_p * p_log_p).sum() / pos_cnt
+
+                        # 4. Value & Belief validation losses
+                        v_l_val = F.mse_loss(v_vpred, v_zb) if v_vpred is not None else torch.tensor(0.0, device=dev)
+                        if v_blogits is not None and args.belief_weight > 0:
+                            pos_w = torch.tensor(10.0, device=dev)
+                            l_be = F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w)
+                            b_pr = torch.sigmoid(v_blogits)
+                            l_bp = F.mse_loss(
+                                F.avg_pool2d(b_pr, 3, 1, 1), F.avg_pool2d(v_bb, 3, 1, 1)
+                            )
+                            f_msk = (v_xb[:, 12:13, :, :] == 0).float()
+                            l_bf = (
+                                F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w, reduction="none")
+                                * f_msk
+                            ).mean()
+                            v_l_bel = 0.5 * l_be + 0.5 * l_bf + 2.0 * l_bp
+                        else:
+                            v_l_bel = torch.tensor(0.0, device=dev)
+
+                    v_out_sum += v_l_out.item()
+                    v_teach_sum += v_ce_t.item()
+                    v_val_sum += v_l_val.item()
+                    v_bel_sum += v_l_bel.item()
+                    v_batches += 1
 
             val_t_acc = t_correct / max(1, t_total)
             val_w_acc = w_correct / max(1, w_total)
-            # Composite checkpoint selection metric
+            nb = max(1, v_batches)
             score = val_t_acc if args.outcome_mode == "none" else (0.5 * val_t_acc + 0.5 * val_w_acc)
 
             marker = ""
@@ -322,7 +371,10 @@ def main():
                 f"step {step:4d}/{args.steps}: tot={run_tot / args.eval_every:.3f} "
                 f"(out={run_out / args.eval_every:.3f}, teach={run_teach / args.eval_every:.3f}, "
                 f"value={run_value / args.eval_every:.3f}, belief={run_belief / args.eval_every:.3f}) | "
-                f"val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f} ({time.time() - t0:.0f}s){marker}",
+                f"val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f}, "
+                f"val_out={v_out_sum / nb:.3f}, val_teach={v_teach_sum / nb:.3f}, "
+                f"val_val={v_val_sum / nb:.3f}, val_belief={v_bel_sum / nb:.3f} "
+                f"({time.time() - t0:.0f}s){marker}",
                 flush=True,
             )
             run_tot = run_out = run_teach = run_value = run_belief = 0.0
