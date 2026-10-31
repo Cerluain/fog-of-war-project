@@ -204,7 +204,7 @@ Asked the ai to generate the exponential decay experiment to run the python file
 
 ### 2026-10-29: Optimal Guess Stockfish
 - **Question / hypothesis:** Tried to further hone in at the exact config that's optimal for higher elo matches.
-- **Commit:** 
+- **Commit:** 147abe41396dfd8c7589e4d03709c9561966a39c
 - **Setup:** 
     Ran a round robin arena match with the guess-sf K N values of 40x500, 35x500, 45x500, 30x500 and including bot:greedy
     500 games but only against greedy.
@@ -216,7 +216,7 @@ Asked the ai to generate the exponential decay experiment to run the python file
   bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
 
 - **Decision:** 
-
+Decided to use the 40x500 for warmup games
 
 - **AI help:** 
 N/a this time I changed the schedules myself
@@ -228,7 +228,7 @@ We'll keep it standard this way until I conduct experiments in the future analyz
 
 ### 2026-10-30: 1-ply lookahead architecture vs 0-ply. Both SE block-5B models.
 - **Question / hypothesis:** Expecting the 1-ply lookahead to outperform the 0-ply because it's more compute.
-- **Commit:** 
+- **Commit:** 4ed2d31892e6bc8a7906aa0114e988043d7a190a
 - **Setup:** 
 python training/run_iterations.py --iterations 20 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v3_se_model/ --blocks 16 --buffer-dir data/v3_megamodel --evict-warmup-after 3 
 python training/run_iterations.py --iterations 20 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v2_se_model/ --blocks 16 --buffer-dir data/v3_megamodel --evict-warmup-after 3 

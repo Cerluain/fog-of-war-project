@@ -17,7 +17,9 @@ List every AI assistant or coding agent you used for this project. Keep it curre
 | Gemini | Development | Full | Had gemini make me an initial agent.py and features.py file for the v3 iteration that had a 1-ply lookahead. I also asked it to explain the 
 | Claude | Development | High | Brought my critiques of additions of king_danger and piece_value heuristics in features.py, used claude to change the code
 | Gemini | Development | High | Used gemini to critique final changes
-
+| Gemini | Analysis | High | Brainstormed back and forth about the test results of my experiment, where every single match of the bot against itself dropped to winning every single time with 
+white and losing every single time with black. Then started to use the higher tier Argon to debug my scripts: 
+... (Then also write another section on the advice it gave like considering skipping the teacher validation completely) 
 
 Commits written mostly by an agent should carry a trailer naming the tool, for example
 `Co-Authored-By: <tool name>`.
