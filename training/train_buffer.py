@@ -1,4 +1,4 @@
-"""Train a policy (and optional value) network with outcome-weighted cloning + decaying teacher loss.
+"""Train a policy (and optional value/belief) network with outcome-weighted cloning + teacher loss.
 
     python training/train_buffer.py --buffer-dir data/replay_buffer --agent-dir submission \
         --steps 800 --batch 2048 --teacher-weight 0.5 --outcome-mode advantage
@@ -7,6 +7,7 @@ import argparse
 import glob
 import importlib.util
 import json
+import math
 import os
 import re
 import time
@@ -44,7 +45,6 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
 
     for s in reversed(shards):
         d = np.load(s)
-        # Skip legacy shards with mismatched input plane dimensions
         if expected_planes is None:
             expected_planes = d["x"].shape[1]
         elif d["x"].shape[1] != expected_planes:
@@ -116,7 +116,7 @@ def main():
     ap.add_argument("--outcome-weight", type=float, default=1.0, help="Weight for outcome-weighted policy loss")
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
     ap.add_argument("--baseline", type=float, default=0.0, help="Advantage baseline b in (z - b)")
-    ap.add_argument("--entropy-bonus", type=float, default=0.0, help="Entropy regularization coefficient")
+    ap.add_argument("--entropy-bonus", type=float, default=0.01, help="Entropy regularization coefficient")
     ap.add_argument("--value-weight", type=float, default=0.3, help="Weight for value head MSE if model returns (logits, v)")
     ap.add_argument("--belief-weight", type=float, default=0.5, help="Weight for the auxiliary spatial belief loss")
     ap.add_argument("--val", type=float, default=0.05)
@@ -149,7 +149,6 @@ def main():
             f"Holdout Val: {n_val:,} pos ({n_vshards} shards) | min_iter={args.min_iter}"
         )
     else:
-        # Fallback to random in-memory split if no val/ directory exists
         perm = rng.permutation(n)
         n_val = max(1, int(args.val * n))
         val_idx, tr_idx = perm[:n_val], perm[n_val:]
@@ -188,6 +187,7 @@ def main():
     sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=args.lr, total_steps=args.steps, pct_start=0.1)
     use_amp = (dev.type == "cuda")
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    log_pos_w = math.log(10.0)
 
     def get_train_batch(idx):
         xb = torch.from_numpy(x[idx]).float().to(dev, non_blocking=True)
@@ -244,13 +244,13 @@ def main():
         with torch.amp.autocast("cuda", enabled=use_amp):
             masked_logits, v_pred, b_logits = forward_net(xb, mb)
 
-            # 1. Teacher Cross-Entropy Loss (normalized per batch sample)
+            # 1. Teacher Cross-Entropy Loss (uncompounded; directly controlled by args.teacher_weight)
             if args.teacher_weight > 0 and htb.any():
-                ce_t = (htb.float().mean()) * F.cross_entropy(masked_logits[htb], ytb[htb])
+                ce_t = F.cross_entropy(masked_logits[htb], ytb[htb])
             else:
                 ce_t = torch.tensor(0.0, device=dev)
 
-            # 2. Outcome-Weighted Policy Loss
+            # 2. Outcome-Weighted Policy Loss (with endgame conversion floor of 0.25 on won games)
             if args.outcome_mode == "none" or args.outcome_weight <= 0:
                 loss_out = torch.tensor(0.0, device=dev)
             elif args.outcome_mode == "win_only":
@@ -266,7 +266,7 @@ def main():
                 picked_log_p = log_p.gather(1, ypb.unsqueeze(1)).squeeze(1)
                 picked_p = picked_log_p.exp().detach()
 
-                pos_adv = adv.clamp(min=0.0)
+                pos_adv = torch.where(zb > 0.5, adv.clamp(min=0.25, max=1.25), adv.clamp(min=0.0))
                 neg_adv = adv.clamp(max=0.0)
                 pos_count = (pos_adv > 0).sum().clamp_min(1.0)
                 loss_out = -(pos_adv * picked_log_p + 0.5 * neg_adv * picked_p * picked_log_p).sum() / pos_count
@@ -280,21 +280,16 @@ def main():
             else:
                 entropy = torch.tensor(0.0, device=dev)
 
-            # 4. Auxiliary Belief Head Loss
+            # 4. Auxiliary Belief Head Loss (Pure exact square BCE + fog-focused BCE, no avg_pool2d blurring)
             if b_logits is not None and args.belief_weight > 0:
                 pos_w = torch.tensor(10.0, device=dev)
                 loss_b_exact = F.binary_cross_entropy_with_logits(b_logits, bb, pos_weight=pos_w)
-
-                b_probs = torch.sigmoid(b_logits)
-                pool_pred = F.avg_pool2d(b_probs, kernel_size=3, stride=1, padding=1)
-                pool_true = F.avg_pool2d(bb, kernel_size=3, stride=1, padding=1)
-                loss_b_prox = F.mse_loss(pool_pred, pool_true)
 
                 fog_mask = (xb[:, 12:13, :, :] == 0).float()
                 loss_b_fog = (
                     F.binary_cross_entropy_with_logits(b_logits, bb, pos_weight=pos_w, reduction="none") * fog_mask
                 ).mean()
-                loss_belief = 0.5 * loss_b_exact + 0.5 * loss_b_fog + 2.0 * loss_b_prox
+                loss_belief = 0.5 * loss_b_exact + 0.5 * loss_b_fog
             else:
                 loss_belief = torch.tensor(0.0, device=dev)
 
@@ -331,7 +326,6 @@ def main():
                         v_logits, v_vpred, v_blogits = forward_net(v_xb, v_mb)
                         preds = v_logits.argmax(1)
 
-                        # Teacher accuracy and unscaled validation cross-entropy
                         if v_htb.any():
                             t_correct += (preds[v_htb] == v_ytb[v_htb]).sum().item()
                             t_total += v_htb.sum().item()
@@ -339,13 +333,11 @@ def main():
                         else:
                             v_ce_t = torch.tensor(0.0, device=dev)
 
-                        # Win-move accuracy
                         win_mask = v_zb > 0.5
                         if win_mask.any():
                             w_correct += (preds[win_mask] == v_ypb[win_mask]).sum().item()
                             w_total += win_mask.sum().item()
 
-                        # Outcome validation loss
                         if args.outcome_mode == "none" or args.outcome_weight <= 0:
                             v_l_out = torch.tensor(0.0, device=dev)
                         elif args.outcome_mode == "win_only":
@@ -358,23 +350,21 @@ def main():
                             log_p = F.log_softmax(v_logits, dim=-1)
                             p_log_p = log_p.gather(1, v_ypb.unsqueeze(1)).squeeze(1)
                             p_p = p_log_p.exp()
-                            pos_adv, neg_adv = adv.clamp(min=0.0), adv.clamp(max=0.0)
+                            pos_adv = torch.where(v_zb > 0.5, adv.clamp(min=0.25, max=1.25), adv.clamp(min=0.0))
+                            neg_adv = adv.clamp(max=0.0)
                             pos_cnt = (pos_adv > 0).sum().clamp_min(1.0)
                             v_l_out = -(pos_adv * p_log_p + 0.5 * neg_adv * p_p * p_log_p).sum() / pos_cnt
 
-                        # Value and belief validation loss
                         v_l_val = F.mse_loss(v_vpred, v_zb) if v_vpred is not None else torch.tensor(0.0, device=dev)
                         if v_blogits is not None and args.belief_weight > 0:
                             pos_w = torch.tensor(10.0, device=dev)
                             l_be = F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w)
-                            b_pr = torch.sigmoid(v_blogits)
-                            l_bp = F.mse_loss(F.avg_pool2d(b_pr, 3, 1, 1), F.avg_pool2d(v_bb, 3, 1, 1))
                             f_msk = (v_xb[:, 12:13, :, :] == 0).float()
                             l_bf = (
                                 F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w, reduction="none")
                                 * f_msk
                             ).mean()
-                            v_l_bel = 0.5 * l_be + 0.5 * l_bf + 2.0 * l_bp
+                            v_l_bel = 0.5 * l_be + 0.5 * l_bf
                         else:
                             v_l_bel = torch.tensor(0.0, device=dev)
 
@@ -387,10 +377,16 @@ def main():
             val_t_acc = t_correct / max(1, t_total)
             val_w_acc = w_correct / max(1, w_total)
             nb = max(1, v_batches)
-            score = val_t_acc if args.outcome_mode == "none" else (0.5 * val_t_acc + 0.5 * val_w_acc)
+            if args.outcome_mode == "none":
+                score = val_t_acc
+            elif t_total > 0 and args.teacher_weight > 0:
+                score = 0.5 * val_t_acc + 0.5 * val_w_acc
+            else:
+                score = val_w_acc
 
             marker = ""
-            if score >= best_score:
+            # Avoid locking into a premature Step 100 OneCycleLR peak checkpoint
+            if score >= best_score and (step >= 300 or best_score < 0):
                 best_score = score
                 save_file({k: v.detach().cpu().contiguous() for k, v in net.state_dict().items()}, weights_path)
                 marker = " *saved*"

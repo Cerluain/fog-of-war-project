@@ -22,6 +22,12 @@ white and losing every single time with black. Then started to use the higher ti
 ... (Then also write another section on the advice it gave like considering skipping the teacher validation completely) 
 | Gemini | Analysis & Code | High | Started with lower usage, doing my test after setting teacher_validation to zero hoping for a stronger model. Yet the performance against greedy dropped significantly compared to the last instance. I used Gemini to then go in a bug hunt accross my code, I found some issues with things that could potentially be against policy, like piece values, found an issue with how I feed the visibility mask to the next forward pass in the 1-ply. And it found several issues: the decay in the exploratory agent wrapper making self deterministic, a bug with the advantage used in RL but the implementation is causing good moves to be learned significantly less than mediocre moves because the gap from the value it expected is significantly smaller.
 It also suggested I get rid of teacher labeled learning but I'm doubtful of that advice because my experiments showed slighlty better performance with teacher labels.
+| Gemini | Analysis & Research | Medium | I was also reading the train_buffer.py that uses pooling to compute the belief head loss, because that often makes sense in CNN's for images but not really for chess so I double checked with gemini to make sure I wasn't missing something.
+| Gemini | Development | Full | Used Gemini to update train_buffer.py and generate_buffer.py with the bug fixes and changes in features like no avg_pooling for the belief head
+
+
+
+
 
 
 Commits written mostly by an agent should carry a trailer naming the tool, for example

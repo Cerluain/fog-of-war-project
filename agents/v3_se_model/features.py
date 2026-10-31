@@ -12,7 +12,6 @@ Input planes (34 x 8 x 8):
    32    your queenside castling right
    33    the square where you lost a piece on the opponent's last move
 Moves: index = from_square * 64 + to_square (oriented). Promotions always use the queen.
-
 """
 import numpy as np
 from fow.memory import Memory as BaseMemory
@@ -130,7 +129,7 @@ def step_1ply_tensors(
     input tensor at ply t+1.
 
     b_probs        : (6, 8, 8) calibrated enemy-piece probabilities in OUR oriented view.
-    use_continuous : If False, thresholds fog beliefs at 0.5 for binary {0, 1} planes.
+    use_continuous : If False, thresholds fog beliefs at 0.35 (plus last_seen memory) for binary {0, 1} planes.
                      If True, feeds continuous calibrated probabilities in the fog.
     Returns:
       next_x       : (K, N_PLANES, 8, 8) float32 input batch for the opponent at ply t+1
@@ -139,13 +138,22 @@ def step_1ply_tensors(
     K = len(candidate_ucis)
     next_x = np.zeros((K, N_PLANES, 8, 8), dtype=np.float32)
 
-    # 1. Enemy map: exact 0/1 on visible squares, neural network belief in the fog
+    # 1. Enemy map: exact 0/1 on visible squares, neural network belief + memory in the fog
     vis_2d = np.zeros(64, dtype=np.float32)
     for s in obs["visible"]:
         vis_2d[orient(sq_index(s), c)] = 1.0
     vis_2d = vis_2d.reshape(8, 8)
 
     enemy_cont = b_probs.astype(np.float32) * (1.0 - vis_2d[None])
+
+    # Incorporate official fow.memory.Memory last_seen on non-visible squares
+    last_seen = memory if isinstance(memory, dict) else getattr(memory, "last_seen", {})
+    for s, t in last_seen.items():
+        r, f = divmod(orient(sq_index(s), c), 8)
+        if vis_2d[r, f] == 0.0:
+            enemy_cont[ORDER.index(t), r, f] = max(enemy_cont[ORDER.index(t), r, f], 0.65)
+
+    # Visible squares are 100% ground-truth known
     for s, t in obs["enemy"].items():
         r, f = divmod(orient(sq_index(s), c), 8)
         enemy_cont[:, r, f] = 0.0
@@ -154,8 +162,8 @@ def step_1ply_tensors(
     if use_continuous:
         enemy_map = enemy_cont
     else:
-        # Binary version for the network input (matches the training distribution)
-        enemy_map = (enemy_cont > 0.5).astype(np.float32)
+        # Binary version for the network input (matches the {0, 1} training distribution)
+        enemy_map = (enemy_cont > 0.35).astype(np.float32)
         kr, kf = divmod(int(np.argmax(enemy_cont[5])), 8)  # Guarantee one enemy king
         enemy_map[5] = 0.0
         enemy_map[5, kr, kf] = 1.0
@@ -166,6 +174,7 @@ def step_1ply_tensors(
         r, f = divmod(orient(sq_index(s), c), 8)
         own_before[ORDER.index(t), r, f] = 1.0
     opp_enemy_before = np.flip(own_before, axis=1)
+    opp_vis_approx = np.flip(1.0 - vis_2d, axis=0)
 
     for k, uci in enumerate(candidate_ucis):
         from_name, to_name = uci[0:2], uci[2:4]
@@ -187,7 +196,7 @@ def step_1ply_tensors(
 
         # Remove any enemy piece captured on the destination square
         e_map = enemy_map.copy()
-        captured = bool(enemy_cont[:, tr, tf].max() > 0.5)
+        captured = bool(enemy_cont[:, tr, tf].max() > 0.35)
         e_map[:, tr, tf] = 0.0
 
         own_planes = np.zeros((6, 8, 8), dtype=np.float32)
@@ -201,7 +210,7 @@ def step_1ply_tensors(
 
         next_x[k, 0:6] = opp_own
         next_x[k, 6:12] = opp_enemy
-        next_x[k, 12] = np.clip(opp_own.sum(axis=0) + opp_enemy.sum(axis=0), 0.0, 1.0)
+        next_x[k, 12] = np.clip(opp_vis_approx + opp_own.sum(axis=0) + opp_enemy.sum(axis=0), 0.0, 1.0)
         next_x[k, 13:19] = opp_enemy_before  # Turn t-1 positions
         next_x[k, 19:25] = opp_enemy_before  # Turn t-2 proxy
         next_x[k, 25:31] = opp_enemy         # Memory

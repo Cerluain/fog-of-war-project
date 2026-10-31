@@ -1,5 +1,6 @@
 """Master iterative training loop with automatic logging to data/logs and plotting to data/plots."""
 import argparse
+import glob
 import os
 import shutil
 import subprocess
@@ -41,20 +42,20 @@ def snapshot_agent(agent_dir: str, league_root: str, iteration: int) -> str:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--iterations", type=int, default=5, help="Total Gen -> Train iterations")
-    ap.add_argument("--warmup-games", type=int, default=7500, help="Games in Iteration 0 (warmup)")
-    ap.add_argument("--games-per-iter", type=int, default=1300, help="New games added per subsequent iteration")
+    ap.add_argument("--iterations", type=int, default=15, help="Total Gen -> Train iterations")
+    ap.add_argument("--warmup-games", type=int, default=10000, help="Games in Iteration 0 (warmup)")
+    ap.add_argument("--games-per-iter", type=int, default=1500, help="New games added per subsequent iteration")
     ap.add_argument("--workers", type=int, default=6, help="CPU workers for data generation")
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
-    ap.add_argument("--teacher-rate-start", type=float, default=1.0, help="Stockfish labeling rate on Iteration 0")
-    ap.add_argument("--teacher-rate-end", type=float, default=0.01, help="Stockfish labeling rate on final iteration")
+    ap.add_argument("--teacher-rate-start", type=float, default=0.0, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
+    ap.add_argument("--teacher-rate-end", type=float, default=0.0, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
     ap.add_argument("--log-dir", default="data/logs", help="Directory for agent training logs")
     ap.add_argument("--plot-dir", default="data/plots", help="Directory for output plots")
     ap.add_argument("--max-buffer", type=int, default=500_000, help="FIFO buffer capacity (positions)")
-    ap.add_argument("--evict-warmup-after", type=int, default=6, help="Evict iter 0 warmup shards starting at this iteration")
+    ap.add_argument("--evict-warmup-after", type=int, default=0, help="Evict iter 0 warmup shards starting at this iteration (0 = keep in FIFO)")
     ap.add_argument("--agent-dir", default="submission")
     ap.add_argument("--channels", type=int, default=128)
     ap.add_argument("--blocks", type=int, default=6)
@@ -63,8 +64,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--wd", type=float, default=1e-3)
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
-    ap.add_argument("--lambda-start", type=float, default=1.2, help="Teacher weight lambda on Iteration 0")
-    ap.add_argument("--lambda-end", type=float, default=0.2, help="Teacher weight lambda on final iteration")
+    ap.add_argument("--lambda-start", type=float, default=1.0, help="Teacher weight lambda on Iteration 0")
+    ap.add_argument("--lambda-end", type=float, default=0.20, help="Teacher weight lambda on final iteration")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--resume", action="store_true", help="Resume training from existing agent weights if they exist")
@@ -77,23 +78,30 @@ def main():
 
     agent_name = get_agent_name(args.agent_dir)
     log_file = os.path.join(args.log_dir, f"{agent_name}.log")
-    if not args.resume and os.path.exists(log_file):
-        os.remove(log_file)  # Start fresh log unless resuming
+
+    # Prevent old shards or weights from contaminating a fresh non-resumed run
+    if not args.resume:
+        if os.path.exists(log_file):
+            os.remove(log_file)
+        for old_shard in glob.glob(os.path.join(args.buffer_dir, "*.npz")) + glob.glob(os.path.join(args.buffer_dir, "val", "*.npz")):
+            os.remove(old_shard)
+        weights_file = os.path.join(args.agent_dir, "weights", "model.safetensors")
+        if os.path.exists(weights_file):
+            os.remove(weights_file)
 
     print(f"=== Piping all training & generation output to: {log_file} ===", flush=True)
     league_snapshots = []
 
     for it in range(args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
+        frac = it / max(1, args.iterations - 1)
 
         if args.iterations > 1 and args.lambda_start > 0 and args.lambda_end > 0:
-            frac = it / (args.iterations - 1)
             lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** frac)
         else:
             lam = args.lambda_start
 
         if args.iterations > 1:
-            frac = it / (args.iterations - 1)
             if args.teacher_rate_start > 0 and args.teacher_rate_end > 0:
                 cur_t_rate = args.teacher_rate_start * ((args.teacher_rate_end / args.teacher_rate_start) ** frac)
             else:
@@ -101,11 +109,13 @@ def main():
         else:
             cur_t_rate = args.teacher_rate_start
 
+        # Smooth learning rate schedule from args.lr (1e-3) down to 25% (2.5e-4) in late iterations
+        cur_lr = args.lr * (0.25 ** frac)
         outcome_w = 0.5 if it == 0 else 1.0
         min_iter = 1 if (args.evict_warmup_after > 0 and it >= args.evict_warmup_after) else 0
         iter_keep = 0.333 if it == 0 else args.keep
 
-        # 1. Generate new shard(s) into the replay buffer (Iter it+1 evaluates Model from Iter it)
+        # 1. Generate new shard(s) into the replay buffer
         gen_cmd = [
             py, "training/generate_buffer.py",
             "--iter", str(it),
@@ -119,7 +129,8 @@ def main():
             "--seed", str(args.seed),
         ]
         if league_snapshots:
-            gen_cmd.extend(["--pool-dirs"] + league_snapshots[-4:])
+            # Keep all league snapshots so opponent pool includes early, mid, and recent styles
+            gen_cmd.extend(["--pool-dirs"] + league_snapshots)
         run_cmd(gen_cmd, log_file=log_file)
 
         # 2. Train model on FIFO buffer
@@ -133,7 +144,7 @@ def main():
             "--blocks", str(args.blocks),
             "--steps", str(args.steps_per_iter),
             "--batch", str(args.batch),
-            "--lr", str(args.lr),
+            "--lr", f"{cur_lr:.6f}",
             "--wd", str(args.wd),
             "--outcome-mode", args.outcome_mode,
             "--outcome-weight", f"{outcome_w:.3f}",

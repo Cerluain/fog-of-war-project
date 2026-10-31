@@ -5,7 +5,6 @@ Move choice: take the policy's top-K legal moves, step each one ply forward usin
 network's belief head, let the network evaluate the opponent's resulting position
 (value head), and combine:
     score = log pi(move) + value_weight * (-v_opp)
-    
 """
 import importlib.util
 import json
@@ -48,7 +47,7 @@ class Agent:
 
         # Lookahead hyperparameters (can also be overridden in config.json)
         self.top_k = cfg.get("top_k", 5)
-        self.value_weight = cfg.get("value_weight", 1.0)
+        self.value_weight = cfg.get("value_weight", 0.30)
         self.use_continuous = cfg.get("use_continuous_belief", False)
 
         # Belief head was trained with pos_weight=10.0 -> raw logits are shifted by +ln(10)
@@ -78,7 +77,7 @@ class Agent:
 
         # 1. PASS 1: Policy + Belief on the real observation
         out = self.net(x)
-        if not isinstance(out, tuple) or len(out) < 3 or not hasattr(self.features, "step_1ply_tensors"):
+        if not isinstance(out, tuple) or len(out) < 3 or not hasattr(self.features, "step_1ply_tensors") or self.value_weight <= 0.0:
             logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
             best = max(legal, key=lambda i: logits[i].item())
             return legal[best]
