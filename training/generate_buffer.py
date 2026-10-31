@@ -248,6 +248,7 @@ def extract_winner(game: Game):
     return None
 
 
+
 def record_matchup(stats, left, right, winner):
     """Record the result from self's perspective for a matchup involving self."""
     if "self" not in (left, right):
@@ -258,6 +259,11 @@ def record_matchup(stats, left, right, winner):
     result["games"] += 1
     if winner is None:
         result["draws"] += 1
+    elif left == right and left == "self":
+        if winner == "white": # Misleading metric technically, but better than before. And it tells me if there's a white advantage
+            result["wins"] += 1
+        else:
+            result["losses"] += 1
     elif left == "self" and winner == "white" or right == "self" and winner == "black":
         result["wins"] += 1
     else:
@@ -295,7 +301,14 @@ def worker(args):
     self_play_games, self_play_decisive = 0, 0
     matchup_stats = {}
 
+    # Separate accumulators for train shards (90% of games) and val shards (10% of games)
+    tr_data = {k: [] for k in ("x", "belief", "y_played", "y_teacher", "has_teacher", "z", "ply", "game_id", "legal")}
+    val_data = {k: [] for k in ("x", "belief", "y_played", "y_teacher", "has_teacher", "z", "ply", "game_id", "legal")}
+
     for g in range(n_games):
+        is_val_game = (g % 10 == 0)  # 10% of games strictly isolated for validation
+        target_buf = val_data if is_val_game else tr_data
+        
         a, b = rng.choice(matchups)
         if rng.random() < 0.5:
             a, b = b, a
@@ -307,6 +320,8 @@ def worker(args):
             else:
                 resolved_specs.append(spec)
         a_spec, b_spec = resolved_specs
+
+        spec_by_color = {"white": a_spec, "black": b_spec}
 
         for spec in (a_spec, b_spec):
             if spec not in bots:
@@ -338,7 +353,9 @@ def worker(args):
             ply += 1
             mem[c].update(obs)
 
-            keep_pos = (rng.random() < keep)
+            # ONLY keep positions played by agents we actually want to learn from!
+            can_record = should_record_player(spec_by_color[c], has_trained_agent)
+            keep_pos = can_record and (rng.random() < keep)
             t_idx = -1
             has_t = 0
 
@@ -346,31 +363,23 @@ def worker(args):
 
             if keep_pos and engine is not None and rng.random() < teacher_rate:
                 t_uci = teacher_move(engine, game, nodes)
-                if t_uci is None:
-                    # If Stockfish crashed on a FOW board state, respawn it
-                    try:
-                        engine.ping()
-                    except Exception:
-                        try:
-                            engine.quit()
-                        except Exception:
-                            pass
-                        engine = chess.engine.SimpleEngine.popen_uci(stockfish_path())
-                        engine.configure({"Threads": 1, "Hash": 16})
-                        t_uci = teacher_move(engine, game, nodes)
+                ...
                 if t_uci is not None:
                     t_idx = move_index(normalize_uci(t_uci), c)
                     has_t = 1
 
             leg_map = legal_indices(obs) if keep_pos else None
 
-            played_uci = players[c].act(obs)
+            # Pass game.board so self_guarded's omniscient blunder guardrail actually activates!
+            bot = players[c]
+            played_uci = bot.act(obs, game.board) if isinstance(bot, ExploratoryAgentWrapper) else bot.act(obs)
+
             if keep_pos:
                 p_idx = move_index(normalize_uci(played_uci), c)
                 mask = np.zeros(N_MOVES, np.uint8)
                 mask[list(leg_map)] = 1
                 b_target = encode_belief_target(game.board, c)
-                packed_belief = np.packbits(b_target.reshape(-1))  # 384 bits -> 48 uint8 bytes
+                packed_belief = np.packbits(b_target.reshape(-1))
                 game_traj.append((c, enc_x, p_idx, t_idx, has_t, ply, np.packbits(mask), packed_belief))
 
             game.play(played_uci)

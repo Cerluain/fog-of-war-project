@@ -40,16 +40,22 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
 
     xs, beliefs, y_playeds, y_teachers, has_teachers, zs, plies, legals = [], [], [], [], [], [], [], []
     total = 0
+    expected_planes = None
 
     for s in reversed(shards):
         d = np.load(s)
+        # Skip legacy shards with mismatched input plane dimensions
+        if expected_planes is None:
+            expected_planes = d["x"].shape[1]
+        elif d["x"].shape[1] != expected_planes:
+            continue
+
         n_s = len(d["x"])
         xs.append(d["x"])
         legals.append(d["legal"])
         if "belief" in d:
             b_arr = d["belief"]
         else:
-            # Fallback for older shards without belief labels
             b_arr = np.zeros((n_s, 48), dtype=np.uint8)
         beliefs.append(b_arr)
 
@@ -60,7 +66,6 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
             z_arr = d["z"].astype(np.float32)
             ply_arr = d["ply"].astype(np.float32)
         else:
-            # Backward compatibility with legacy (x, y, legal) shards
             y_t = d["y"].astype(np.int64)
             has_t = y_t >= 0
             y_p = y_t.copy()
@@ -96,6 +101,7 @@ def load_fifo_buffer(buffer_dir, max_positions=500_000, min_iter=0):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
+    ap.add_argument("--val-dir", default=None, help="Optional separate directory with dedicated validation shards")
     ap.add_argument("--agent-dir", default="submission")
     ap.add_argument("--max-buffer", type=int, default=500_000, help="FIFO buffer capacity in positions")
     ap.add_argument("--min-iter", type=int, default=0, help="Minimum iteration shard to include (evicts older warmup)")
@@ -110,7 +116,7 @@ def main():
     ap.add_argument("--outcome-weight", type=float, default=1.0, help="Weight for outcome-weighted policy loss")
     ap.add_argument("--outcome-mode", choices=["win_only", "advantage", "none"], default="advantage")
     ap.add_argument("--baseline", type=float, default=0.0, help="Advantage baseline b in (z - b)")
-    ap.add_argument("--entropy-bonus", type=float, default=0.005, help="Entropy regularization coefficient") # Not sure what this one does, not using it
+    ap.add_argument("--entropy-bonus", type=float, default=0.0, help="Entropy regularization coefficient")
     ap.add_argument("--value-weight", type=float, default=0.3, help="Weight for value head MSE if model returns (logits, v)")
     ap.add_argument("--belief-weight", type=float, default=0.5, help="Weight for the auxiliary spatial belief loss")
     ap.add_argument("--val", type=float, default=0.05)
@@ -126,18 +132,37 @@ def main():
         args.buffer_dir, args.max_buffer, args.min_iter
     )
     n = len(x)
-    perm = rng.permutation(n)
-    n_val = max(1, int(args.val * n))
-    val_idx, tr_idx = perm[:n_val], perm[n_val:]
+
+    # Check for dedicated zero-leakage validation buffer shards
+    val_subfolder = args.val_dir or os.path.join(args.buffer_dir, "val")
+    has_val_folder = os.path.exists(val_subfolder) and bool(glob.glob(os.path.join(val_subfolder, "*.npz")))
+
+    if has_val_folder:
+        vx, vbelief, vy_played, vy_teacher, vhas_teacher, vz, vply, vlegal, n_vshards = load_fifo_buffer(
+            val_subfolder, max_positions=50_000, min_iter=args.min_iter
+        )
+        tr_idx = np.arange(n)
+        val_idx = np.arange(len(vx))
+        n_val = len(vx)
+        print(
+            f"Buffer: {n:,} train pos ({n_shards} shards) | "
+            f"Holdout Val: {n_val:,} pos ({n_vshards} shards) | min_iter={args.min_iter}"
+        )
+    else:
+        # Fallback to random in-memory split if no val/ directory exists
+        perm = rng.permutation(n)
+        n_val = max(1, int(args.val * n))
+        val_idx, tr_idx = perm[:n_val], perm[n_val:]
+        vx, vbelief, vy_played, vy_teacher, vhas_teacher, vz, vlegal = (
+            x, belief, y_played, y_teacher, has_teacher, z, legal
+        )
+        print(f"Buffer: {n:,} pos ({n_shards} shards, min_iter={args.min_iter}) [In-memory {args.val:.1%} val split]")
 
     win_pct = (z == 1).mean()
     loss_pct = (z == -1).mean()
     draw_pct = (z == 0).mean()
     t_pct = has_teacher.mean()
-    print(
-        f"Buffer: {n:,} pos ({n_shards} shards, min_iter={args.min_iter}) | "
-        f"W/D/L: {win_pct:.1%}/{draw_pct:.1%}/{loss_pct:.1%} | Teacher labeled: {t_pct:.1%}"
-    )
+    print(f"  W/D/L: {win_pct:.1%}/{draw_pct:.1%}/{loss_pct:.1%} | Teacher labeled: {t_pct:.1%}")
 
     dev = torch.device(args.device)
     in_planes = x.shape[1]
@@ -164,15 +189,26 @@ def main():
     use_amp = (dev.type == "cuda")
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
-    def get_batch(idx):
+    def get_train_batch(idx):
         xb = torch.from_numpy(x[idx]).float().to(dev, non_blocking=True)
         ypb = torch.from_numpy(y_played[idx]).to(dev, non_blocking=True)
         ytb = torch.from_numpy(y_teacher[idx]).to(dev, non_blocking=True)
         htb = torch.from_numpy(has_teacher[idx]).to(dev, non_blocking=True)
         zb = torch.from_numpy(z[idx]).to(dev, non_blocking=True)
         mb = torch.from_numpy(np.unpackbits(legal[idx], axis=1)).bool().to(dev, non_blocking=True)
-        # Unpack [B, 48] -> [B, 384] -> [B, 6, 8, 8]
         bb = torch.from_numpy(np.unpackbits(belief[idx], axis=1).reshape(-1, 6, 8, 8)).float().to(
+            dev, non_blocking=True
+        )
+        return xb, ypb, ytb, htb, zb, mb, bb
+
+    def get_val_batch(idx):
+        xb = torch.from_numpy(vx[idx]).float().to(dev, non_blocking=True)
+        ypb = torch.from_numpy(vy_played[idx]).to(dev, non_blocking=True)
+        ytb = torch.from_numpy(vy_teacher[idx]).to(dev, non_blocking=True)
+        htb = torch.from_numpy(vhas_teacher[idx]).to(dev, non_blocking=True)
+        zb = torch.from_numpy(vz[idx]).to(dev, non_blocking=True)
+        mb = torch.from_numpy(np.unpackbits(vlegal[idx], axis=1)).bool().to(dev, non_blocking=True)
+        bb = torch.from_numpy(np.unpackbits(vbelief[idx], axis=1).reshape(-1, 6, 8, 8)).float().to(
             dev, non_blocking=True
         )
         return xb, ypb, ytb, htb, zb, mb, bb
@@ -203,19 +239,18 @@ def main():
     net.train()
     for step in range(1, args.steps + 1):
         batch_indices = rng.choice(tr_idx, size=min(args.batch, len(tr_idx)), replace=False)
-        xb, ypb, ytb, htb, zb, mb, bb = get_batch(batch_indices)
+        xb, ypb, ytb, htb, zb, mb, bb = get_train_batch(batch_indices)
 
         with torch.amp.autocast("cuda", enabled=use_amp):
             masked_logits, v_pred, b_logits = forward_net(xb, mb)
 
-            # 1. Teacher Cross-Entropy Loss (scaled by teacher_rate density in the batch)
+            # 1. Teacher Cross-Entropy Loss (normalized per batch sample)
             if args.teacher_weight > 0 and htb.any():
-                teacher_density = htb.float().mean()  # Equals teacher_rate (N_labeled / Batch_Size)
-                ce_t = teacher_density * F.cross_entropy(masked_logits[htb], ytb[htb])
+                ce_t = (htb.float().mean()) * F.cross_entropy(masked_logits[htb], ytb[htb])
             else:
                 ce_t = torch.tensor(0.0, device=dev)
 
-            # 2. Outcome-Weighted Cloning Loss on Actually Played Moves
+            # 2. Outcome-Weighted Policy Loss
             if args.outcome_mode == "none" or args.outcome_weight <= 0:
                 loss_out = torch.tensor(0.0, device=dev)
             elif args.outcome_mode == "win_only":
@@ -224,30 +259,28 @@ def main():
                 w_sum = weights.sum()
                 loss_out = (ce_per_sample * weights).sum() / w_sum if w_sum > 0 else torch.tensor(0.0, device=dev)
             else:
-                # Advantage mode: adv = z - V(s) or z - baseline
                 baseline_val = v_pred.detach() if v_pred is not None else args.baseline
                 adv = zb - baseline_val
 
-                # Compute log p(y_played) under legal move mask
                 log_p = F.log_softmax(masked_logits, dim=-1)
                 picked_log_p = log_p.gather(1, ypb.unsqueeze(1)).squeeze(1)
                 picked_p = picked_log_p.exp().detach()
 
-                # Positive advantages (wins): standard cross-entropy ascent
-                # Negative advantages (draws = -0.5, losses = -1.0): scaled by picked_p so gradients vanish as p -> 0!
                 pos_adv = adv.clamp(min=0.0)
                 neg_adv = adv.clamp(max=0.0)
-
                 pos_count = (pos_adv > 0).sum().clamp_min(1.0)
                 loss_out = -(pos_adv * picked_log_p + 0.5 * neg_adv * picked_p * picked_log_p).sum() / pos_count
 
-            # 3. Optional Value Head Loss & Policy Entropy Bonus
+            # 3. Value Head Loss & Regularization
             loss_val = F.mse_loss(v_pred, zb) if v_pred is not None else torch.tensor(0.0, device=dev)
-            probs = F.softmax(masked_logits, dim=-1)
-            log_probs = F.log_softmax(masked_logits, dim=-1).masked_fill(~mb, 0.0)
-            entropy = -(probs * log_probs).sum(dim=-1).mean()
+            if args.entropy_bonus > 0:
+                probs = F.softmax(masked_logits, dim=-1)
+                log_probs = F.log_softmax(masked_logits, dim=-1).masked_fill(~mb, 0.0)
+                entropy = -(probs * log_probs).sum(dim=-1).mean()
+            else:
+                entropy = torch.tensor(0.0, device=dev)
 
-            # 4. Auxiliary Belief Head Loss (exact square, fog-weighted, and spatial proximity)
+            # 4. Auxiliary Belief Head Loss
             if b_logits is not None and args.belief_weight > 0:
                 pos_w = torch.tensor(10.0, device=dev)
                 loss_b_exact = F.binary_cross_entropy_with_logits(b_logits, bb, pos_weight=pos_w)
@@ -259,10 +292,7 @@ def main():
 
                 fog_mask = (xb[:, 12:13, :, :] == 0).float()
                 loss_b_fog = (
-                    F.binary_cross_entropy_with_logits(
-                        b_logits, bb, pos_weight=pos_w, reduction="none"
-                    )
-                    * fog_mask
+                    F.binary_cross_entropy_with_logits(b_logits, bb, pos_weight=pos_w, reduction="none") * fog_mask
                 ).mean()
                 loss_belief = 0.5 * loss_b_exact + 0.5 * loss_b_fog + 2.0 * loss_b_prox
             else:
@@ -296,26 +326,26 @@ def main():
 
             with torch.no_grad():
                 for i in range(0, n_val, 1024):
-                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb, v_bb = get_batch(val_idx[i : i + 1024])
+                    v_xb, v_ypb, v_ytb, v_htb, v_zb, v_mb, v_bb = get_val_batch(val_idx[i : i + 1024])
                     with torch.amp.autocast("cuda", enabled=use_amp):
                         v_logits, v_vpred, v_blogits = forward_net(v_xb, v_mb)
                         preds = v_logits.argmax(1)
 
-                        # 1. Teacher validation accuracy & loss
+                        # Teacher accuracy and unscaled validation cross-entropy
                         if v_htb.any():
                             t_correct += (preds[v_htb] == v_ytb[v_htb]).sum().item()
                             t_total += v_htb.sum().item()
-                            v_ce_t = v_htb.float().mean() * F.cross_entropy(v_logits[v_htb], v_ytb[v_htb])
+                            v_ce_t = F.cross_entropy(v_logits[v_htb], v_ytb[v_htb])
                         else:
                             v_ce_t = torch.tensor(0.0, device=dev)
 
-                        # 2. Winning-move validation accuracy
+                        # Win-move accuracy
                         win_mask = v_zb > 0.5
                         if win_mask.any():
                             w_correct += (preds[win_mask] == v_ypb[win_mask]).sum().item()
                             w_total += win_mask.sum().item()
 
-                        # 3. Outcome validation loss
+                        # Outcome validation loss
                         if args.outcome_mode == "none" or args.outcome_weight <= 0:
                             v_l_out = torch.tensor(0.0, device=dev)
                         elif args.outcome_mode == "win_only":
@@ -332,15 +362,13 @@ def main():
                             pos_cnt = (pos_adv > 0).sum().clamp_min(1.0)
                             v_l_out = -(pos_adv * p_log_p + 0.5 * neg_adv * p_p * p_log_p).sum() / pos_cnt
 
-                        # 4. Value & Belief validation losses
+                        # Value and belief validation loss
                         v_l_val = F.mse_loss(v_vpred, v_zb) if v_vpred is not None else torch.tensor(0.0, device=dev)
                         if v_blogits is not None and args.belief_weight > 0:
                             pos_w = torch.tensor(10.0, device=dev)
                             l_be = F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w)
                             b_pr = torch.sigmoid(v_blogits)
-                            l_bp = F.mse_loss(
-                                F.avg_pool2d(b_pr, 3, 1, 1), F.avg_pool2d(v_bb, 3, 1, 1)
-                            )
+                            l_bp = F.mse_loss(F.avg_pool2d(b_pr, 3, 1, 1), F.avg_pool2d(v_bb, 3, 1, 1))
                             f_msk = (v_xb[:, 12:13, :, :] == 0).float()
                             l_bf = (
                                 F.binary_cross_entropy_with_logits(v_blogits, v_bb, pos_weight=pos_w, reduction="none")
