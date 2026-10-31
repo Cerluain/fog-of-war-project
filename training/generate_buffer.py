@@ -247,7 +247,14 @@ def extract_winner(game: Game):
         return "black"
     return None
 
-
+# BASICALLY DON'T EVER TRY TO LEARN FROM WEAK BOTS. You can only learn from your end
+def should_record_player(spec: str, has_trained_agent: bool) -> bool:
+    """Never record bot:greedy moves! In warmup, record Stockfish bots; in RL, record our agents."""
+    if spec == "bot:greedy" or spec == "bot:random":
+        return False
+    if has_trained_agent:
+        return spec in ("self", "self_guarded", "self_hot") or spec.startswith("agent:")
+    return True
 
 def record_matchup(stats, left, right, winner):
     """Record the result from self's perspective for a matchup involving self."""

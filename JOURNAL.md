@@ -220,3 +220,28 @@ Asked the ai to generate the exponential decay experiment to run the python file
 
 - **AI help:** 
 N/a this time I changed the schedules myself
+
+
+
+Note: Going to be working with the 5B models for now to try to match the searchless grandmaster paper. 
+We'll keep it standard this way until I conduct experiments in the future analyzing optimal channels and layers/depth.
+
+### 2026-10-30: 1-ply lookahead architecture vs 0-ply. Both SE block-5B models.
+- **Question / hypothesis:** Expecting the 1-ply lookahead to outperform the 0-ply because it's more compute.
+- **Commit:** 
+- **Setup:** 
+python training/run_iterations.py --iterations 20 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v3_se_model/ --blocks 16 --buffer-dir data/v3_megamodel --evict-warmup-after 3 
+python training/run_iterations.py --iterations 20 --warmup-games 15000 --games-per-iter 1800 --workers 8 --agent-dir agents/v2_se_model/ --blocks 16 --buffer-dir data/v3_megamodel --evict-warmup-after 3 
+
+Arena against 17 other unique bots, round robin:
+Ratings (95% interval):
+  agents\v2_se_model                      1314   [ 1138,  1497]
+  agents\v1_se_model                      1291   [ 1116,  1490]
+  agents\v3_se_model                      1260   [ 1072,  1461] (The one we just trained with 1-ply)
+  
+This was odd because the 4th iteration of training already had 85% wins againts greedy, and then it kept degrading and occasionally reaching 80's but no noticeable improvement. It's because
+my validation has been causing early stopping and the training is weak.
+
+- **Decision:** 
+
+- **AI help:** While doing this test, I was wondering why it's validation score kept getting really high, while a models performance against greedy kept degrading between iterations. And it found there was validation data leakage; since in RL I keep fetching positions from a large buffer. I don't know why I didn't think of the fact I was grabbing validation data from the same buffer I trained from(the new batch is added and last removed but still mostly the same).
