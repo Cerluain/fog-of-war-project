@@ -89,11 +89,13 @@ def parse_log_file(log_path: str, exp_name: str, agent_name: str) -> dict:
     # Parse training steps and group by iteration
     # Supports both legacy logs and new logs with value/belief/val_losses
     step_pattern = re.compile(
-        r"step\s+(\d+)/(\d+):\s+tot=([0-9.]+)\s+"
+        r"step\s+(\d+)/(\d+)(?::\s*|\s+\([^)]+\)(?:\s+\*saved\*)?\s*)"
+        r".*?tot=([0-9.]+)\s+"
         r"\(out=([0-9.]+),\s*teach=([0-9.]+)"
-        r"(?:,\s*value=([0-9.]+),\s*belief=([0-9.]+))?\)\s+\|\s+"
+        r"(?:,\s*(?:value|val_mse)=([0-9.]+),\s*belief=([0-9.]+))?\).*?\|\s*"
         r"val_teacher=([0-9.]+),\s*val_win_move=([0-9.]+)"
         r"(?:,\s*val_out=([0-9.]+),\s*val_teach=([0-9.]+),\s*val_val=([0-9.]+),\s*val_belief=([0-9.]+))?"
+        , re.DOTALL
     )
 
     last_raw_step = 0

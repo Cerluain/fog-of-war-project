@@ -391,14 +391,22 @@ def main():
                 save_file({k: v.detach().cpu().contiguous() for k, v in net.state_dict().items()}, weights_path)
                 marker = " *saved*"
 
+            val_t_acc_pct = val_t_acc * 100.0
+            val_w_acc_pct = val_w_acc * 100.0
+            nb = max(1, v_batches)
+
             print(
-                f"step {step:4d}/{args.steps}: tot={run_tot / args.eval_every:.3f} "
+                f"step {step:4d}/{args.steps} ({time.time() - t0:.0f}s){marker}\n"
+                f"  |- Train Loss [v]: tot={run_tot / args.eval_every:.3f} "
                 f"(out={run_out / args.eval_every:.3f}, teach={run_teach / args.eval_every:.3f}, "
-                f"value={run_value / args.eval_every:.3f}, belief={run_belief / args.eval_every:.3f}) | "
-                f"val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f}, "
+                f"val_mse={run_value / args.eval_every:.3f}, belief={run_belief / args.eval_every:.3f})\n"
+                f"  |- Val Acc    [^]: match_teacher={val_t_acc_pct:.1f}%, clone_win_move={val_w_acc_pct:.1f}%\n"
+                f"  +- Val Loss   [v]: out={v_out_sum / nb:.3f}, teach_ce={v_teach_sum / nb:.3f}, "
+                f"val_mse={v_val_sum / nb:.3f}, belief_bce={v_bel_sum / nb:.3f} "
+                # Backward-compatibility string for plot_experiments.py regex:
+                f"| val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f}, "
                 f"val_out={v_out_sum / nb:.3f}, val_teach={v_teach_sum / nb:.3f}, "
-                f"val_val={v_val_sum / nb:.3f}, val_belief={v_bel_sum / nb:.3f} "
-                f"({time.time() - t0:.0f}s){marker}",
+                f"val_val={v_val_sum / nb:.3f}, val_belief={v_bel_sum / nb:.3f}",
                 flush=True,
             )
             run_tot = run_out = run_teach = run_value = run_belief = 0.0
