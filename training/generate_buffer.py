@@ -66,8 +66,8 @@ EARLY_MATCHUPS_FOCUS = (
     [("self_guarded", "bot:greedy")]
 )
 LATE_MATCHUPS = (
-    [("self", "self")] +
-    [("self", "league")] * 2 +
+    [("self", "self")] * 2 +
+    [("self", "league")] * 3 +
     [("self", "bot:greedy")] +
     [("self", "self_guarded")]
 )
