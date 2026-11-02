@@ -285,7 +285,7 @@ v3_B focused on a 1:3 ratio between self and self_guarded
 v3_C shifts from 1:3 to 3:1 of the following pools:
 EARLY_MATCHUPS_FOCUS =                  LATE_MATCHUPS = 
     [("self_guarded", "self")] +          [("self", "self")] * 2 +
-    [("self_guarded", "league")] +        [("self", "league")] * 2 +
+    [("self_guarded", "league")] +        [("self", "league")] * 3 +
     [("self_guarded", "bot:greedy")]      [("self", "bot:greedy")] +
                                           [("self", "self_guarded")]
     
