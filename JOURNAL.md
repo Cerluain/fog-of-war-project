@@ -244,7 +244,10 @@ my validation has been causing early stopping and the training is weak.
 
 - **Decision:** 
 
-- **AI help:** While doing this test, I was wondering why it's validation score kept getting really high, while a models performance against greedy kept degrading between iterations. And it found there was validation data leakage; since in RL I keep fetching positions from a large buffer. I don't know why I didn't think of the fact I was grabbing validation data from the same buffer I trained from(the new batch is added and last removed but still mostly the same).
+
+- **AI help:** 
+Made a separate buffer pool for training data and validation data, so there shouldn't be overlap between them anymore and early dropping + overfitting should at least be better from now on.
+While doing this test, I was wondering why it's validation score kept getting really high, while a models performance against greedy kept degrading between iterations. And it found there was validation data leakage; since in RL I keep fetching positions from a large buffer. I don't know why I didn't think of the fact I was grabbing validation data from the same buffer I trained from(the new batch is added and last removed but still mostly the same).
 
 
 ### 2026-10-31: Progress of no teacher labels vs teacher labels.
