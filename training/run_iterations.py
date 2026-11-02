@@ -49,6 +49,8 @@ def main():
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
     ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
     ap.add_argument("--teacher-rate-end", type=float, default=0.2, help="Stockfish labeling rate on final iteration")
+    ap.add_argument("--early-share-start", type=float, default=0.75, help="Share of games from EARLY_MATCHUPS_FOCUS on Iteration 1 (0.75 = 3:1 early:late)")
+    ap.add_argument("--early-share-end", type=float, default=0.25, help="Share of games from EARLY_MATCHUPS_FOCUS on the final iteration (0.25 = 1:3 early:late)")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
@@ -115,6 +117,11 @@ def main():
         min_iter = 1 if (args.evict_warmup_after > 0 and it >= args.evict_warmup_after) else 0
         iter_keep = 0.333 if it == 0 else args.keep
 
+        # Matchup curriculum: Iteration 0 is warmup (reference bots only), so the early -> late ramp
+        # spans Iterations 1..N-1: early_share_start on Iteration 1, early_share_end on the last one.
+        matchup_frac = min(1.0, max(0.0, (it - 1) / max(1, args.iterations - 2)))
+        early_share = args.early_share_start + matchup_frac * (args.early_share_end - args.early_share_start)
+
         # 1. Generate new shard(s) into the replay buffer
         gen_cmd = [
             py, "training/generate_buffer.py",
@@ -124,6 +131,7 @@ def main():
             "--nodes", str(args.nodes),
             "--teacher-rate", str(cur_t_rate),
             "--keep", str(iter_keep),
+            "--early-share", f"{early_share:.4f}",
             "--agent-dir", args.agent_dir,
             "--out", args.buffer_dir,
             "--seed", str(args.seed),

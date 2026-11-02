@@ -45,15 +45,47 @@ WARMUP_MATCHUPS = (
 #     [("self_guarded", "bot:greedy")] * 2
 # )
 
-# PROPOSED SPEEDY GROWTH MATCHUPS. 1:3 ratio
-ITERATIVE_MATCHUPS = (
-    [("self", "self")] +
-    [("self", "league")] +
-    [("self", "bot:greedy")] +
-    [("self", "self_guarded")] * 3 +
-    [("self_guarded", "league")] * 3 +
-    [("self_guarded", "bot:greedy")] * 3
+# PREVIOUS FIXED 1:3 "SPEEDY GROWTH" MATCHUPS (v3_B), replaced by the curriculum below:
+# ITERATIVE_MATCHUPS = (
+#     [("self", "self")] +
+#     [("self", "league")] +
+#     [("self", "bot:greedy")] +
+#     [("self", "self_guarded")] * 3 +
+#     [("self_guarded", "league")] * 3 +
+#     [("self_guarded", "bot:greedy")] * 3
+# )
+
+# MATCHUP CURRICULUM: the share of games drawn from EARLY_MATCHUPS_FOCUS vs LATE_MATCHUPS is set per
+# iteration by --early-share (run_iterations.py ramps it from 0.75 (3:1) down to 0.25 (1:3)).
+# Each game first picks a pool (early with probability early_share, else late), then a uniform
+# matchup inside that pool, so the 3:1 / 1:3 ratio holds between the pools even though they have
+# different numbers of entries.
+EARLY_MATCHUPS_FOCUS = (
+    [("self_guarded", "self")] +
+    [("self_guarded", "league")] +
+    [("self_guarded", "bot:greedy")]
 )
+LATE_MATCHUPS = (
+    [("self", "self")] +
+    [("self", "league")] * 2 +
+    [("self", "bot:greedy")] +
+    [("self", "self_guarded")]
+)
+
+
+def pick_matchup(rng, early_pool, late_pool, early_share):
+    """Pick the pool by early_share, then a matchup uniformly inside it.
+
+    If one pool is empty (e.g. warmup, which has no late pool) fall back to the other
+    without consuming an extra rng draw.
+    """
+    if not late_pool:
+        return rng.choice(early_pool)
+    if not early_pool:
+        return rng.choice(late_pool)
+    pool = early_pool if rng.random() < early_share else late_pool
+    return rng.choice(pool)
+
 
 
 def load_local_module(agent_dir: str, name: str):
@@ -294,25 +326,40 @@ def should_record_player(spec: str, has_trained_agent: bool) -> bool:
     return True
 
 
-def record_matchup(stats, left, right, winner):
-    """Record the result from self's perspective for a matchup involving self."""
-    if "self" not in (left, right):
+def record_matchup(stats, left, right, winner, actor="self"):
+    """Record the result from `actor`'s perspective for a matchup involving that actor.
+
+    `left` is the White spec and `right` the Black spec ("league" is left unresolved, so all league
+    snapshots share one key). In an actor-vs-actor mirror match the White side counts as the actor.
+    """
+    if actor not in (left, right):
         return
 
-    opponent = right if left == "self" else left
+    opponent = right if left == actor else left
     result = stats.setdefault(opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0})
     result["games"] += 1
     if winner is None:
         result["draws"] += 1
-    elif left == right and left == "self":
+    elif left == right and left == actor:
         if winner == "white":
             result["wins"] += 1
         else:
             result["losses"] += 1
-    elif left == "self" and winner == "white" or right == "self" and winner == "black":
+    elif left == actor and winner == "white" or right == actor and winner == "black":
         result["wins"] += 1
     else:
         result["losses"] += 1
+
+
+def merge_matchup_stats(per_worker_stats):
+    """Sum per-worker {opponent: {games, wins, draws, losses}} dicts."""
+    merged = {}
+    for worker_stats in per_worker_stats:
+        for opponent, stats in worker_stats.items():
+            total = merged.setdefault(opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0})
+            for key in total:
+                total[key] += stats[key]
+    return merged
 
 
 def save_shard_dict(path: str, buf: dict) -> int:
@@ -336,7 +383,7 @@ def save_shard_dict(path: str, buf: dict) -> int:
 
 
 def worker(args):
-    wid, n_games, nodes, teacher_rate, keep, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent = args
+    wid, n_games, nodes, teacher_rate, keep, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent, early_share = args
     torch.set_num_threads(1)
     t0 = time.time()
     rng = random.Random(seed + iteration * 1000 + wid)
@@ -353,14 +400,19 @@ def worker(args):
         engine.configure({"Threads": 1, "Hash": 16})
 
     valid_pool = [d for d in pool_dirs if os.path.exists(os.path.join(d, "weights", "model.safetensors"))]
-    matchups = ITERATIVE_MATCHUPS if has_trained_agent else WARMUP_MATCHUPS
+    if has_trained_agent:
+        early_pool, late_pool = list(EARLY_MATCHUPS_FOCUS), list(LATE_MATCHUPS)
+    else:
+        early_pool, late_pool = list(WARMUP_MATCHUPS), []
     if not valid_pool:
-        matchups = [m for m in matchups if "league" not in m]
+        early_pool = [m for m in early_pool if "league" not in m]
+        late_pool = [m for m in late_pool if "league" not in m]
 
     bots = {}
     decisive_games = 0
     self_play_games, self_play_decisive = 0, 0
     matchup_stats = {}
+    guarded_stats = {}
 
     keys = ("x", "belief", "y_played", "y_teacher", "has_teacher", "z", "ply", "game_id", "legal")
     tr_data = {k: [] for k in keys}
@@ -370,7 +422,7 @@ def worker(args):
         is_val_game = (g % 10 == 0)
         target_buf = val_data if is_val_game else tr_data
 
-        a, b = rng.choice(matchups)
+        a, b = pick_matchup(rng, early_pool, late_pool, early_share)
         if rng.random() < 0.5:
             a, b = b, a
 
@@ -447,6 +499,7 @@ def worker(args):
         if winner is not None:
             decisive_games += 1
         record_matchup(matchup_stats, a, b, winner)
+        record_matchup(guarded_stats, a, b, winner, actor="self_guarded")
         if a_spec == "self" and b_spec == "self":
             self_play_games += 1
             if winner is not None:
@@ -494,7 +547,7 @@ def worker(args):
     val_path = os.path.join(out, "val", f"iter_{iteration:03d}_shard_{seed}_{wid}.npz")
     n_tr = save_shard_dict(tr_path, tr_data)
     n_val = save_shard_dict(val_path, val_data)
-    return n_tr + n_val, decisive_games, n_games, self_play_decisive, self_play_games, matchup_stats
+    return n_tr + n_val, decisive_games, n_games, self_play_decisive, self_play_games, matchup_stats, guarded_stats
 
 
 def main():
@@ -507,6 +560,11 @@ def main():
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training (default 1.0)")
     ap.add_argument("--agent-dir", default="submission", help="Agent directory for features and self-play")
     ap.add_argument("--pool-dirs", nargs="*", default=[], help="Additional agent directories for league opponents")
+    ap.add_argument(
+        "--early-share", type=float, default=0.75,
+        help="Fraction of iterative (non-warmup) games drawn from EARLY_MATCHUPS_FOCUS; the rest come "
+             "from LATE_MATCHUPS (0.75 = 3:1, 0.25 = 1:3)",
+    )
     ap.add_argument("--out", default="data/replay_buffer", help="Replay buffer directory")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
@@ -515,7 +573,13 @@ def main():
     weights_file = os.path.join(args.agent_dir, "weights", "model.safetensors")
     has_trained_agent = os.path.exists(weights_file) and args.iter > 0
 
-    mode_str = f"DAgger/League Self-Play ({args.agent_dir})" if has_trained_agent else "Warmup Reference Bots"
+    if has_trained_agent:
+        mode_str = (
+            f"DAgger/League Self-Play ({args.agent_dir}) | "
+            f"early:late matchups = {args.early_share:.0%}:{1 - args.early_share:.0%}"
+        )
+    else:
+        mode_str = "Warmup Reference Bots"
     print(
         f"=== Generating Iteration {args.iter}: {args.games} games [{mode_str}] "
         f"(keep={args.keep}, teacher_rate={args.teacher_rate}) ===",
@@ -526,7 +590,8 @@ def main():
     jobs = [
         (
             i, per[i], args.nodes, args.teacher_rate, args.keep,
-            args.out, args.seed, args.iter, args.agent_dir, args.pool_dirs, has_trained_agent
+            args.out, args.seed, args.iter, args.agent_dir, args.pool_dirs, has_trained_agent,
+            min(1.0, max(0.0, args.early_share)),
         )
         for i in range(args.workers)
         if per[i] > 0
@@ -539,14 +604,8 @@ def main():
     tot_all = sum(r[2] for r in res)
     dec_sp = sum(r[3] for r in res)
     tot_sp = sum(r[4] for r in res)
-    matchup_stats = {}
-    for result in res:
-        for opponent, stats in result[5].items():
-            total = matchup_stats.setdefault(
-                opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0}
-            )
-            for key in total:
-                total[key] += stats[key]
+    matchup_stats = merge_matchup_stats(r[5] for r in res)
+    guarded_stats = merge_matchup_stats(r[6] for r in res)
 
     print(
         f"=== Iteration {args.iter} complete: added {n_pos:,} positions to {args.out} | "
@@ -565,6 +624,19 @@ def main():
             print(
                 f"      vs {opponent}: {stats['wins']}W-{stats['draws']}D-{stats['losses']}L "
                 f"({win_rate:.1%} won)",
+                flush=True,
+            )
+    if guarded_stats:
+        # Deliberately a different layout from the "Self matchup results" block above (no "vs", no
+        # "xW-yD-zL"), so any log parser keyed on that format keeps reading only the self numbers.
+        print("    Self_guarded matchup results:", flush=True)
+        for opponent, stats in sorted(guarded_stats.items()):
+            games = stats["games"]
+            win_rate = stats["wins"] / max(1, games)
+            draw_rate = stats["draws"] / max(1, games)
+            print(
+                f"      self_guarded -> {opponent}: {stats['wins']} W / {stats['draws']} D / {stats['losses']} L "
+                f"(n={games}, {win_rate:.1%} won, {draw_rate:.1%} drawn)",
                 flush=True,
             )
 
