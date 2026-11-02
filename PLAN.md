@@ -58,9 +58,16 @@ Is the amount of training saved worth using the Maia 2 weights and possibly have
 [X] Figure out how to get more varied data (Similar to Idea 2)
     []Randomly choose valid openings? Sometimes random? Could also help add variation while doing benchmarks
 [] Consider having an oponent that's "self", but uses omniscient stockfish ONLY ON THE TOP_K MOVES to decide which one it's actually going with. So we have some higher quality samples.
-[] AgentWrapper that Prunes Blunders, then wrap the "self" while training to have more winning game examples without blunders
+[X] AgentWrapper that Prunes Blunders, then wrap the "self" while training to have more winning game examples without blunders
 [] Add MCTS for search
 
 Later on():
 [] Evaluate changing learning rates curves to train model. Consider we keep changing our data buffer.
 [] Figure out a good training benchmark, because baseline is deterministic and going in arena against it gives either 0%, 50% or 100% win rate giving very weird elo metrics. And even the greedy and sf-guess are likely not the best benchmarks, especially once we scale.
+
+Experiments:
+[X] ***Self-guarded vs greedy matchups added to the matchups
+[X] **Dynamic matches. Starting out playing more self_guarded games, and later doing more games self vs self if our bot starts outperforming self_guarded.
+[] Teacher weight decay again [AFTER MATCHUPS USED ARE ALREADY DECIDED...]
+[] Data buffer sizes: One of the early 80%+ win rate runs from weaker models had 15k warmup games (and keep=1 I think)
+    --warmup-games 7500 --keep 1.0, or --warmup-games 12000 --keep 0.67

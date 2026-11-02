@@ -24,6 +24,16 @@ white and losing every single time with black. Then started to use the higher ti
 It also suggested I get rid of teacher labeled learning but I'm doubtful of that advice because my experiments showed slighlty better performance with teacher labels.
 | Gemini | Analysis & Research | Medium | I was also reading the train_buffer.py that uses pooling to compute the belief head loss, because that often makes sense in CNN's for images but not really for chess so I double checked with gemini to make sure I wasn't missing something.
 | Gemini | Development | Full | Used Gemini to update train_buffer.py and generate_buffer.py with the bug fixes and changes in features like no avg_pooling for the belief head
+| Claude | Development | Full | After looking at the results of training 50 iterations with balanced iterative matchups (self vs self, self vs self_guarded, self vs greedy, self_guarded vs greedy, self vs league), and another set of matchups that adds a self_guarded vs league matchup and generates 3x more self_guarded games than ones with self. The results matched the hypothesis, and that training with more self_guarded is good at the start but detrimental later on. So I asked claude to modify my script to shift from 3:1 to 1:3 ratios of the following matchups as training iterations progress:
+EARLY_MATCHUPS_FOCUS = 
+    [("self_guarded", "self")] +
+    [("self_guarded", "league")] +
+    [("self_guarded", "bot:greedy")] 
+LATE_MATCHUPS = 
+    [("self", "self")] * 2 +
+    [("self", "league")] * 2 +
+    [("self", "bot:greedy")] +
+    [("self", "self_guarded")] 
 
 
 
