@@ -36,12 +36,23 @@ WARMUP_MATCHUPS = (
     [("bot:guess-sf-40x500", "bot:guess-sf-8x400")] * 2
 )
 
+# OLD MATCHUPS:
+# ITERATIVE_MATCHUPS = (
+#     [("self", "self")] * 3 +              I'll lower bc self starts off bad
+#     [("self", "self_guarded")] * 3 +      Can stay
+#     [("self", "league")] * 2 +            Can stay, but adding self_guarded matchup version
+#     [("self", "bot:greedy")] * 2 +        
+#     [("self_guarded", "bot:greedy")] * 2
+# )
+
+# PROPOSED SPEEDY GROWTH MATCHUPS. 1:3 ratio
 ITERATIVE_MATCHUPS = (
-    [("self", "self")] * 3 +
+    [("self", "self")] +
+    [("self", "league")] +
+    [("self", "bot:greedy")] +
     [("self", "self_guarded")] * 3 +
-    [("self", "league")] * 2 +
-    [("self", "bot:greedy")] * 2 +
-    [("self_guarded", "bot:greedy")] * 2
+    [("self_guarded", "league")] * 3 +
+    [("self_guarded", "bot:greedy")] * 3
 )
 
 
