@@ -318,6 +318,7 @@ def main():
             t_correct, t_total = 0, 0
             w_correct, w_total = 0, 0
             v_out_sum, v_teach_sum, v_val_sum, v_bel_sum, v_batches = 0.0, 0.0, 0.0, 0.0, 0
+            v_min, v_max, v_std_sum = float("inf"), float("-inf"), 0.0
 
             with torch.no_grad():
                 for i in range(0, n_val, 1024):
@@ -325,6 +326,11 @@ def main():
                     with torch.amp.autocast("cuda", enabled=use_amp):
                         v_logits, v_vpred, v_blogits = forward_net(v_xb, v_mb)
                         preds = v_logits.argmax(1)
+
+                        if v_vpred is not None:
+                            v_min = min(v_min, v_vpred.min().item())
+                            v_max = max(v_max, v_vpred.max().item())
+                            v_std_sum += v_vpred.float().std().item()
 
                         if v_htb.any():
                             t_correct += (preds[v_htb] == v_ytb[v_htb]).sum().item()
@@ -391,28 +397,22 @@ def main():
                 save_file({k: v.detach().cpu().contiguous() for k, v in net.state_dict().items()}, weights_path)
                 marker = " *saved*"
 
-            val_t_acc_pct = val_t_acc * 100.0
-            val_w_acc_pct = val_w_acc * 100.0
-            nb = max(1, v_batches)
-
             print(
                 f"step {step:4d}/{args.steps} ({time.time() - t0:.0f}s){marker}\n"
                 f"  |- Train Loss [v]: tot={run_tot / args.eval_every:.3f} "
                 f"(out={run_out / args.eval_every:.3f}, teach={run_teach / args.eval_every:.3f}, "
                 f"val_mse={run_value / args.eval_every:.3f}, belief={run_belief / args.eval_every:.3f})\n"
-                f"  |- Val Acc    [^]: match_teacher={val_t_acc_pct:.1f}%, clone_win_move={val_w_acc_pct:.1f}%\n"
-                f"  +- Val Loss   [v]: out={v_out_sum / nb:.3f}, teach_ce={v_teach_sum / nb:.3f}, "
-                f"val_mse={v_val_sum / nb:.3f}, belief_bce={v_bel_sum / nb:.3f} "
-                # Backward-compatibility string for plot_experiments.py regex:
-                f"| val_teacher={val_t_acc:.3f}, val_win_move={val_w_acc:.3f}, "
-                f"val_out={v_out_sum / nb:.3f}, val_teach={v_teach_sum / nb:.3f}, "
+                f"  |- Val Acc    [^]: val_teacher={val_t_acc:.3f} ({val_t_acc * 100:.1f}%), "
+                f"val_win_move={val_w_acc:.3f} ({val_w_acc * 100:.1f}%)\n"
+                f"  +- Val Loss   [v]: val_out={v_out_sum / nb:.3f}, val_teach={v_teach_sum / nb:.3f}, "
                 f"val_val={v_val_sum / nb:.3f}, val_belief={v_bel_sum / nb:.3f}",
                 flush=True,
             )
             run_tot = run_out = run_teach = run_value = run_belief = 0.0
             net.train()
 
-    print(f"Finished training -> weights saved to {weights_path}")
+    v_range_str = f" | V(s) range: [{v_min:+.3f}, {v_max:+.3f}], std={v_std_sum / max(1, v_batches):.3f}" if v_min <= v_max else ""
+    print(f"Finished training -> weights saved to {weights_path}{v_range_str}")
 
 
 if __name__ == "__main__":
