@@ -1,0 +1,3 @@
+## Training Folder
+This folder includes run_iterations which is the main script to call for training agents. Each iteration it'll call generate_buffer.py which generates data/game positions and puts them in a buffer in the data folder.
+Then train_buffer.py is called to update the agent's weights using AdamW. The loss is computed with multiple parameters, based on the most recent versions/iterations of the agents that have a output, value, and belief head.
