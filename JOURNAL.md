@@ -273,7 +273,6 @@ v3_A used my old matchups:
     [("self", "league")] * 2 +            Can stay, but adding self_guarded matchup version
     [("self", "bot:greedy")] * 2 +        
     [("self_guarded", "bot:greedy")] * 2
-
 v3_B focused on a 1:3 ratio between self and self_guarded
     [("self", "self")] +
     [("self", "league")] +
@@ -281,26 +280,24 @@ v3_B focused on a 1:3 ratio between self and self_guarded
     [("self", "self_guarded")] * 3 +
     [("self_guarded", "league")] * 3 +
     [("self_guarded", "bot:greedy")] * 3
-
 v3_C shifts from 1:3 to 3:1 of the following pools:
-EARLY_MATCHUPS_FOCUS =                  LATE_MATCHUPS = 
-    [("self_guarded", "self")] +          [("self", "self")] * 2 +
-    [("self_guarded", "league")] +        [("self", "league")] * 3 +
-    [("self_guarded", "bot:greedy")]      [("self", "bot:greedy")] +
-                                          [("self", "self_guarded")]
-    
-    
-    
-    
-
-
+EARLY_MATCHUPS_FOCUS = 
+    [("self_guarded", "self")] +
+    [("self_guarded", "league")] +
+    [("self_guarded", "bot:greedy")]
+LATE_MATCHUPS = 
+    [("self", "self")] +
+    [("self", "league")] * 2 +
+    [("self", "bot:greedy")] +
+    [("self", "self_guarded")]
 
 - **Result:** 
+
+
 - **Decision:** 
-Make many different fixes to my scripts: (From AI_USE.md, explaining what I did and what I used the AI for) Started with lower usage, doing my test after setting teacher_validation to zero hoping for a stronger model. Yet the performance against greedy dropped significantly compared to the last instance. I used Gemini to then go in a bug hunt accross my code, I found some issues with things that could potentially be against policy, like piece values, found an issue with how I feed the visibility mask to the next forward pass in the 1-ply. And it found several issues: the decay in the exploratory agent wrapper making self deterministic, a bug with the advantage used in RL but the implementation is causing good moves to be learned significantly less than mediocre moves because the gap from the value it expected is significantly smaller.
+
 
 - **AI help:** 
-Made a separate buffer pool for training data and validation data, so there shouldn't be overlap between them anymore and early dropping + overfitting should at least be better from now on.
-While doing this test, I was wondering why it's validation score kept getting really high, while a models performance against greedy kept degrading between iterations. And it found there was validation data leakage; since in RL I keep fetching positions from a large buffer. I don't know why I didn't think of the fact I was grabbing validation data from the same buffer I trained from(the new batch is added and last removed but still mostly the same).
+
 
 ### 2026-: Progress of no teacher labels vs teacher labels.
