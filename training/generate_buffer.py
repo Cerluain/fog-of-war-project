@@ -62,13 +62,14 @@ WARMUP_MATCHUPS = (
 # different numbers of entries.
 EARLY_MATCHUPS_FOCUS = (
     [("self_guarded", "self")] +
-    [("self_guarded", "league")] +
-    [("self_guarded", "bot:greedy")]
+    [("self_guarded", "league")] * 3 +
+    [("self_guarded", "bot:greedy")] * 4
 )
 LATE_MATCHUPS = (
-    [("self", "self")] * 2 +
-    [("self", "league")] * 3 +
-    [("self", "bot:greedy")] +
+    [("self", "self")] +
+    [("self", "self_hot")] +
+    [("self", "league")] * 2 +
+    [("self", "bot:greedy")] * 2 +
     [("self", "self_guarded")]
 )
 
@@ -239,40 +240,50 @@ class ExploratoryAgentWrapper:
         logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
         l = logits[keys]
 
+        k = min(self.topk, len(keys))
+        top_l, top_idx = torch.topk(l, k=k)
+
         # --- MODE A: FOG-CONSISTENT TOP-K NON-BLUNDER GUARDRAIL ---
         if self.guarded:
-            k = min(self.topk, len(keys))
-            top_indices = torch.topk(l, k=k).indices.tolist()
+            safe_pos = [
+                i for i, idx in enumerate(top_idx.tolist())
+                if not is_fog_or_king_blunder(obs, self.agent.memory, legal[keys[idx]], board)
+            ]
+            if not safe_pos:
+                # Fallback: check if any legal move outside top-k saves the King
+                for idx in torch.argsort(l, descending=True).tolist():
+                    cand_uci = legal[keys[idx]]
+                    if not is_fog_or_king_blunder(obs, self.agent.memory, cand_uci, board):
+                        return cand_uci
+                return legal[keys[top_idx[0].item()]]
 
-            for idx in top_indices:
-                cand_uci = legal[keys[idx]]
-                if not is_fog_or_king_blunder(obs, self.agent.memory, cand_uci, board):
-                    return cand_uci
+            if self.scale <= 0.0 or len(safe_pos) == 1:
+                return legal[keys[top_idx[safe_pos[0]].item()]]
 
-            # Fallback: check if any legal move saves the King
-            for idx in torch.argsort(l, descending=True).tolist():
-                cand_uci = legal[keys[idx]]
-                if not is_fog_or_king_blunder(obs, self.agent.memory, cand_uci, board):
-                    return cand_uci
+            # Restrict candidates strictly to safe moves, then apply scale temperature
+            top_l = top_l[safe_pos]
+            top_idx = top_idx[safe_pos]
 
-            return legal[keys[top_indices[0]]]
-
-        # --- MODE B: NATURAL SOFTMAX EXPLORATION (RESPECTS TRUE LOGIT GAPS) ---
+        # --- MODE B: NATURAL SOFTMAX EXPLORATION (ON ALL TOP-K OR SAFE TOP-K) ---
         if self.scale <= 0.0:
             best_idx = l.argmax().item()
             return legal[keys[best_idx]]
 
-        # Smooth temperature decay: explores genuinely close moves in the opening,
-        # but NEVER overrides a large tactical logit gap, and sharpens to near-argmax after ply 14.
         decay = 0.5 ** (self.ply / 6.0)
         temp = max(0.05, (0.05 + 0.75 * decay) * self.scale * self.jit)
 
-        k = min(self.topk, len(keys))
-        top_l, top_idx = torch.topk(l, k=k)
-        probs = F.softmax((top_l - top_l[0]) / temp, dim=-1)
+        # Prevent late-iteration logit inflation from turning opening play 100% deterministic
+        if self.ply <= 12 and len(top_l) > 1:
+            spread = max(1.0, (top_l[0] - top_l[-1]).item() / 2.5)
+            scaled_diff = (top_l - top_l[0]) / (temp * spread)
+        else:
+            scaled_diff = (top_l - top_l[0]) / temp
 
-        # Only keep candidates that have at least 10% of the top move's probability
+        probs = F.softmax(scaled_diff, dim=-1)
+
         keep_mask = probs >= 0.10
+        if not keep_mask.any():
+            keep_mask[0] = True
         cand_idx = top_idx[keep_mask]
         cand_probs = probs[keep_mask]
 
@@ -281,7 +292,6 @@ class ExploratoryAgentWrapper:
 
     def close(self):
         pass
-
 
 def normalize_uci(uci: str) -> str:
     return uci[:4] + "q" if len(uci) == 5 else uci
@@ -383,7 +393,7 @@ def save_shard_dict(path: str, buf: dict) -> int:
 
 
 def worker(args):
-    wid, n_games, nodes, teacher_rate, keep, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent, early_share = args
+    wid, n_games, nodes, teacher_rate, keep, keep_draw, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent, early_share = args
     torch.set_num_threads(1)
     t0 = time.time()
     rng = random.Random(seed + iteration * 1000 + wid)
@@ -507,7 +517,11 @@ def worker(args):
 
         for c, enc_x, p_idx, t_idx, has_t, p_ply, packed_mask, packed_belief in game_traj:
             if winner is None:
-                z_val = 0.0
+                # Per-position draw subsampling: keeps `keep_draw` fraction of positions from
+                # EVERY drawn game so we preserve state diversity across all drawn games.
+                if rng.random() >= keep_draw:
+                    continue
+                z_val = -0.5
             else:
                 z_val = 1.0 if winner == c else -1.0
             target_buf["x"].append(enc_x)
@@ -558,6 +572,7 @@ def main():
     ap.add_argument("--nodes", type=int, default=3000, help="Stockfish nodes per teacher label")
     ap.add_argument("--teacher-rate", type=float, default=0.3, help="Fraction of kept positions labeled by Stockfish")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training (default 1.0)")
+    ap.add_argument("--keep-draw", type=float, default=0.15, help="Fraction of drawn games kept in the buffer (default 0.15)")
     ap.add_argument("--agent-dir", default="submission", help="Agent directory for features and self-play")
     ap.add_argument("--pool-dirs", nargs="*", default=[], help="Additional agent directories for league opponents")
     ap.add_argument(
@@ -589,7 +604,7 @@ def main():
     per = [args.games // args.workers + (1 if i < args.games % args.workers else 0) for i in range(args.workers)]
     jobs = [
         (
-            i, per[i], args.nodes, args.teacher_rate, args.keep,
+            i, per[i], args.nodes, args.teacher_rate, args.keep, args.keep_draw,
             args.out, args.seed, args.iter, args.agent_dir, args.pool_dirs, has_trained_agent,
             min(1.0, max(0.0, args.early_share)),
         )

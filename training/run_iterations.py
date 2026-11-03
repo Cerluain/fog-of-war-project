@@ -50,8 +50,13 @@ def main():
     ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
     ap.add_argument("--teacher-rate-end", type=float, default=0.2, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--early-share-start", type=float, default=0.75, help="Share of games from EARLY_MATCHUPS_FOCUS on Iteration 1 (0.75 = 3:1 early:late)")
-    ap.add_argument("--early-share-end", type=float, default=0.25, help="Share of games from EARLY_MATCHUPS_FOCUS on the final iteration (0.25 = 1:3 early:late)")
+    ap.add_argument("--early-share-end", type=float, default=0.0, help="Share of games from EARLY_MATCHUPS_FOCUS once drop-early-matchups-by is reached")
+    ap.add_argument(
+        "--drop-early-matchups-by", type=int, default=30,
+        help="Iteration by which early_share reaches early-share-end (0 = ramp across all iterations)",
+    )
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
+    ap.add_argument("--keep-draw", type=float, default=0.15, help="Fraction of drawn games kept in the replay buffer")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
     ap.add_argument("--log-dir", default="data/logs", help="Directory for agent training logs")
@@ -117,9 +122,12 @@ def main():
         min_iter = 1 if (args.evict_warmup_after > 0 and it >= args.evict_warmup_after) else 0
         iter_keep = 0.333 if it == 0 else args.keep
 
-        # Matchup curriculum: Iteration 0 is warmup (reference bots only), so the early -> late ramp
-        # spans Iterations 1..N-1: early_share_start on Iteration 1, early_share_end on the last one.
-        matchup_frac = min(1.0, max(0.0, (it - 1) / max(1, args.iterations - 2)))
+        # Matchup curriculum: Iteration 0 is warmup (reference bots only).
+        # If --drop-early-matchups-by is set (e.g., 30), early_share ramps from early_share_start
+        # on Iteration 1 down to early_share_end on Iteration `drop_early_matchups_by`, and stays
+        # at early_share_end for all remaining iterations!
+        ramp_end_iter = args.drop_early_matchups_by if args.drop_early_matchups_by > 1 else (args.iterations - 1)
+        matchup_frac = min(1.0, max(0.0, (it - 1) / max(1, ramp_end_iter - 1)))
         early_share = args.early_share_start + matchup_frac * (args.early_share_end - args.early_share_start)
 
         # 1. Generate new shard(s) into the replay buffer
@@ -131,6 +139,7 @@ def main():
             "--nodes", str(args.nodes),
             "--teacher-rate", str(cur_t_rate),
             "--keep", str(iter_keep),
+            "--keep-draw", str(args.keep_draw),
             "--early-share", f"{early_share:.4f}",
             "--agent-dir", args.agent_dir,
             "--out", args.buffer_dir,

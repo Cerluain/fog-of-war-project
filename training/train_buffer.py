@@ -159,7 +159,7 @@ def main():
 
     win_pct = (z == 1).mean()
     loss_pct = (z == -1).mean()
-    draw_pct = (z == 0).mean()
+    draw_pct = ((z > -1.0) & (z < 1.0)).mean()
     t_pct = has_teacher.mean()
     print(f"  W/D/L: {win_pct:.1%}/{draw_pct:.1%}/{loss_pct:.1%} | Teacher labeled: {t_pct:.1%}")
 
