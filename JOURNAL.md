@@ -253,7 +253,7 @@ While doing this test, I was wondering why it's validation score kept getting re
 ### 2026-11-2: Testing different starting matchups
 - **Question / hypothesis:** If I change the start of the training to include more self_guarded matches and lower matches against self I believe it'll become stronger early on.
 Yet I also think it'll hinder performance later on.
-- **Commit:** 
+- **Commit:** 250a0f4008085b8516c07a4903f01d4bc88f308b
 - **Setup:** All ran:
 python training/run_iterations.py \
     --iterations 50 \
@@ -292,12 +292,45 @@ LATE_MATCHUPS =
     [("self", "self_guarded")]
 
 - **Result:** 
+Scores against bots while training:
+![alt text](shared plots\v3_se_model_arena_bots.png)
+![alt text](shared plots\v3_se_model_B_arena_bots.png)
+![alt text](shared plots\v3_se_model_C_arena_bots.png)
 
+Final Ratings (95% interval):
+  agents/v3_se_model_A              1616   [ 1215,  2330]
+  data/league/V3_C_iter042          1581   [ 1167,  2173]
+  agents/other                      1548   [ 1150,  2112]
+  agents/v3_se_model_B              1483   [ 1102,  2040]
+  agents/v3_se_model_C              1450   [ 1116,  1955]
+  agents/other                      1088   [  285,  1391]
+  bot:greedy                        1000   [ 1000,  1000] (reference, fixed)
+
+![alt text](shared plots\v3_se_model_validation.png)
+![alt text](shared plots\v3_se_model_B_validation.png)
+![alt text](shared plots\v3_se_model_C_validation.png)
 
 - **Decision:** 
+The graphs show clear disruptions every time there's a flood in draws. Overtime the model becomes more and more certain as shown in validation plots, this is making it near deterministic and it occasionally starts reaching draws when playing itself. What's likely is that it's causing the model to collapse by A. flooding the buffer with draws, B. the higher # of positions from draws is pushing much more data out the buffer so it reduces diversity, and of course also reducing diversity because each game is longer on average.
 
+Proposed changes are: making a --keep-draws arg, so only a percentage of positions in draws are kept,
+changing the matchups to have less self_guarded vs self games: v3_C had many of these it appeared in both pools and their high variance implies all games were very similar and likely not diverse enough for training.
+
+EARLY_MATCHUPS_FOCUS = (
+    [("self_guarded", "self")] +          # 1/8 (12.5%)
+    [("self_guarded", "league")] * 3 +    # 3/8 (37.5%)
+    [("self_guarded", "bot:greedy")] * 4  # 4/8 (50.0%)
+)
+LATE_MATCHUPS = (
+    [("self", "self")] +                
+    [("self", "self_hot")] +             # I'd have to reintroduce it
+    [("self", "league")] * 2 +           
+    [("self", "bot:greedy")] * 2 +       
+)
 
 - **AI help:** 
+I had gemini write the code to shift from early matchups focus towards late matchups, so that it used a percentage to select which pool. Then choose a matchup randomly. It changes 
+the percentage overtime. And at the end I used it again to verify whether the flood of draws was causing issues. It also helped me with the math of understanding how the temperature was doing at each ply of the game with my current decay for the self vs self matchups.
 
-
-### 2026-: Progress of no teacher labels vs teacher labels.
+### 2026-11-3: 50 iterations vs 90 iterations, not very scientific though
+Since I changed the draw rate and added self_hot this is not an ideal experiment on its own.
