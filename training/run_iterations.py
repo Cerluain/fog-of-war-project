@@ -50,9 +50,9 @@ def main():
     ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
     ap.add_argument("--teacher-rate-end", type=float, default=0.2, help="Stockfish labeling rate on final iteration")
     ap.add_argument("--early-share-start", type=float, default=0.75, help="Share of games from EARLY_MATCHUPS_FOCUS on Iteration 1 (0.75 = 3:1 early:late)")
-    ap.add_argument("--early-share-end", type=float, default=0.0, help="Share of games from EARLY_MATCHUPS_FOCUS once drop-early-matchups-by is reached")
+    ap.add_argument("--early-share-end", type=float, default=0.1, help="Share of games from EARLY_MATCHUPS_FOCUS once lock-early-matchups-by is reached")
     ap.add_argument(
-        "--drop-early-matchups-by", type=int, default=30,
+        "--lock-early-matchups-by", type=int, default=30,
         help="Iteration by which early_share reaches early-share-end (0 = ramp across all iterations)",
     )
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
@@ -124,9 +124,9 @@ def main():
 
         # Matchup curriculum: Iteration 0 is warmup (reference bots only).
         # If --drop-early-matchups-by is set (e.g., 30), early_share ramps from early_share_start
-        # on Iteration 1 down to early_share_end on Iteration `drop_early_matchups_by`, and stays
+        # on Iteration 1 down to early_share_end on Iteration `lock_early_matchups_by`, and stays
         # at early_share_end for all remaining iterations!
-        ramp_end_iter = args.drop_early_matchups_by if args.drop_early_matchups_by > 1 else (args.iterations - 1)
+        ramp_end_iter = args.lock_early_matchups_by if args.lock_early_matchups_by > 1 else (args.iterations - 1)
         matchup_frac = min(1.0, max(0.0, (it - 1) / max(1, ramp_end_iter - 1)))
         early_share = args.early_share_start + matchup_frac * (args.early_share_end - args.early_share_start)
 

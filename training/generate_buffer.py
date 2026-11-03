@@ -194,11 +194,11 @@ def build_bot(spec: str, agent_dir: str):
     if spec == "self":
         return ExploratoryAgentWrapper(agent_dir, scale=1.0, guarded=False)
     if spec == "self_guarded":
-        return ExploratoryAgentWrapper(agent_dir, scale=0.0, guarded=True, topk=5)
+        return ExploratoryAgentWrapper(agent_dir, scale=0.2, guarded=True, topk=5)
     if spec == "self_hot":
-        return ExploratoryAgentWrapper(agent_dir, scale=1.5, guarded=False)
+        return ExploratoryAgentWrapper(agent_dir, scale=1.6, guarded=False)
     if spec.startswith("agent:"):
-        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=0.5, guarded=False)
+        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=0.6, guarded=False)
     return make_bot(spec)
 
 
