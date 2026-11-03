@@ -76,6 +76,7 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--resume", action="store_true", help="Resume training from existing agent weights if they exist")
+    ap.add_argument("--start-iter", type=int, default=0, help="Iteration we resume from")
     args = ap.parse_args()
 
     py = sys.executable
@@ -97,9 +98,13 @@ def main():
             os.remove(weights_file)
 
     print(f"=== Piping all training & generation output to: {log_file} ===", flush=True)
-    league_snapshots = []
-
-    for it in range(args.iterations):
+    # Pre-populate league snapshots from previous iterations (0 .. start_iter - 1)
+    league_snapshots = [
+        os.path.join(args.league_dir, f"iter_{i:03d}")
+        for i in range(args.start_iter)
+        if os.path.exists(os.path.join(args.league_dir, f"iter_{i:03d}"))
+    ]
+    for it in range(args.start_iter, args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
         frac = it / max(1, args.iterations - 1)
 
@@ -148,7 +153,13 @@ def main():
         if league_snapshots:
             # Keep all league snapshots so opponent pool includes early, mid, and recent styles
             gen_cmd.extend(["--pool-dirs"] + league_snapshots)
-        run_cmd(gen_cmd, log_file=log_file)
+
+        # Now should be safe from reusing shards if resume the training run
+        existing_shards = glob.glob(os.path.join(args.buffer_dir, f"iter_{it:03d}_shard_{args.seed}_*.npz"))
+        if args.resume and len(existing_shards) >= args.workers:
+            print(f"=== Reusing existing Iteration {it} shards ({len(existing_shards)} files) ===", flush=True)
+        else:
+            run_cmd(gen_cmd, log_file=log_file)
 
         # 2. Train model on FIFO buffer
         train_cmd = [
