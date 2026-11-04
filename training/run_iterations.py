@@ -67,8 +67,12 @@ def main():
     ap.add_argument("--games-per-iter", type=int, default=1300, help="New games added per subsequent iteration")
     ap.add_argument("--workers", type=int, default=6, help="CPU workers for data generation")
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
-    ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
-    ap.add_argument("--teacher-rate-end", type=float, default=0.2, help="Stockfish labeling rate on final iteration")
+    ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0")
+    ap.add_argument("--teacher-rate-end", type=float, default=0.15, help="Stockfish labeling rate on final iteration")
+    ap.add_argument(
+        "--teacher-decay-power", type=float, default=0.5,
+        help="Front-loads teacher_rate & lambda decay (<1.0 = steeper early drop; 0.5 = sqrt warp, 1.0 = standard exp)",
+    )
     ap.add_argument(
         "--lock-early-matchups-by", type=int, default=30,
         help="Iteration by which early_share reaches early-share-end (0 = ramp across all iterations)",
@@ -127,17 +131,19 @@ def main():
     for it in range(args.start_iter, args.iterations):
         n_games = args.warmup_games if it == 0 else args.games_per_iter
         frac = it / max(1, args.iterations - 1)
+        # Warped fraction: frac ** 0.5 drops steeply in early iterations and flattens out later
+        t_frac = frac ** args.teacher_decay_power
 
         if args.iterations > 1 and args.lambda_start > 0 and args.lambda_end > 0:
-            lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** frac)
+            lam = args.lambda_start * ((args.lambda_end / args.lambda_start) ** t_frac)
         else:
             lam = args.lambda_start
 
         if args.iterations > 1:
             if args.teacher_rate_start > 0 and args.teacher_rate_end > 0:
-                cur_t_rate = args.teacher_rate_start * ((args.teacher_rate_end / args.teacher_rate_start) ** frac)
+                cur_t_rate = args.teacher_rate_start * ((args.teacher_rate_end / args.teacher_rate_start) ** t_frac)
             else:
-                cur_t_rate = args.teacher_rate_start + frac * (args.teacher_rate_end - args.teacher_rate_start)
+                cur_t_rate = args.teacher_rate_start + t_frac * (args.teacher_rate_end - args.teacher_rate_start)
         else:
             cur_t_rate = args.teacher_rate_start
 
