@@ -1,4 +1,4 @@
-"""Generate outcome + decoupled teacher replay buffer shards.
+"""Generate outcome + decoupled teacher replay buffer shards with 3-stage curriculum and opening book.
 
     python training/generate_buffer.py --iter 0 --games 2000 --workers 4 --teacher-rate 0.3 --agent-dir submission --out data/replay_buffer
 """
@@ -36,57 +36,93 @@ WARMUP_MATCHUPS = (
     [("bot:guess-sf-40x500", "bot:guess-sf-8x400")] * 2
 )
 
-# OLD MATCHUPS:
-# ITERATIVE_MATCHUPS = (
-#     [("self", "self")] * 3 +              I'll lower bc self starts off bad
-#     [("self", "self_guarded")] * 3 +      Can stay
-#     [("self", "league")] * 2 +            Can stay, but adding self_guarded matchup version
-#     [("self", "bot:greedy")] * 2 +        
-#     [("self_guarded", "bot:greedy")] * 2
-# )
-
-# PREVIOUS FIXED 1:3 "SPEEDY GROWTH" MATCHUPS (v3_B), replaced by the curriculum below:
-# ITERATIVE_MATCHUPS = (
-#     [("self", "self")] +
-#     [("self", "league")] +
-#     [("self", "bot:greedy")] +
-#     [("self", "self_guarded")] * 3 +
-#     [("self_guarded", "league")] * 3 +
-#     [("self_guarded", "bot:greedy")] * 3
-# )
-
-# MATCHUP CURRICULUM: the share of games drawn from EARLY_MATCHUPS_FOCUS vs LATE_MATCHUPS is set per
-# iteration by --early-share (run_iterations.py ramps it from 0.75 (3:1) down to 0.25 (1:3)).
-# Each game first picks a pool (early with probability early_share, else late), then a uniform
-# matchup inside that pool, so the 3:1 / 1:3 ratio holds between the pools even though they have
-# different numbers of entries.
-EARLY_MATCHUPS_FOCUS = (
-    [("self_guarded", "self")] +
-    [("self_guarded", "league")] * 3 +
-    [("self_guarded", "bot:greedy")] * 4
+# ---------------------------------------------------------------------------
+# 3-STAGE MATCHUP CURRICULUM (EARLY -> MID -> LATE)
+# ---------------------------------------------------------------------------
+# Stage 1 (Early): Heavy deterministic self_guarded + self_book to bootstrap high
+# tactical accuracy and expose the buffer to 10 distinct opening structures.
+EARLY_MATCHUPS = (
+    [("self_guarded", "bot:greedy")] * 3 +
+    [("self_guarded", "league")] * 2 +
+    [("self_guarded", "self_mild")] +
+    [("self_book", "self_mild")] +
+    [("self_book", "bot:greedy")] +
+    [("self_mild", "bot:greedy")]
 )
+
+# Stage 2 (Middle): Remove heavy training wheels; focus on self_mild and self
+# fighting the league, bot:greedy, self_book, and self_guard_mild.
+MID_MATCHUPS = (
+    [("self_mild", "league")] * 3 +
+    [("self_mild", "bot:greedy")] * 2 +
+    [("self_mild", "self")] * 2 +
+    [("self_mild", "self_book")] +
+    [("self_mild", "self_guard_mild")] +
+    [("self_guard_mild", "bot:greedy")]
+)
+
+# Stage 3 (Late): Stress-test weak spots with self_hot (unrecorded sparring partner)
+# and self_book while keeping sharp self_mild matchups against league and greedy.
 LATE_MATCHUPS = (
-    [("self", "self")] +
-    [("self", "self_hot")] +
-    [("self", "league")] * 2 +
-    [("self", "bot:greedy")] * 2 +
-    [("self", "self_guarded")]
+    [("self_mild", "league")] * 3 +
+    [("self_mild", "bot:greedy")] * 2 +
+    [("self_mild", "self_hot")] * 2 +
+    [("self_mild", "self_book")] +
+    [("self_mild", "self")] +
+    [("self_mild", "self_guard_mild")]
 )
 
+# 10 sound Fog-of-War & classical opening plans per color (4 moves deep).
+# `self_book` only plays a book move if it is legal AND passes `not is_fog_or_king_blunder`.
+OPENING_BOOK = {
+    "white": [
+        ["e2e4", "g1f3", "f1c4", "b1c3"],  # 1. Italian / Giuoco Piano
+        ["d2d4", "c2c4", "b1c3", "g1f3"],  # 2. Queen's Gambit
+        ["e2e4", "d2d4", "c2c3", "g1f3"],  # 3. FoW Center Radar Phalanx (with Nf3 instead of Na3)
+        ["d2d4", "g1f3", "c1f4", "e2e3"],  # 4. London System (solid central dark-square control)
+        ["g1f3", "g2g3", "f1g2", "d2d3"],  # 5. King's Indian Attack Fianchetto
+        ["c2c4", "b1c3", "g2g3", "f1g2"],  # 6. English Fianchetto
+        ["e2e4", "g1f3", "d2d4", "f1c4"],  # 7. Scotch Gambit
+        ["b2b3", "c1b2", "e2e3", "g1f3"],  # 8. Nimzo-Larsen Queen's Fianchetto
+        ["e2e3", "d2d4", "f1d3", "g1f3"],  # 9. Horwitz / Colle System
+        ["e2e4", "b1c3", "f1c4", "d2d3"],  # 10. Vienna Game
+    ],
+    "black": [
+        ["e7e5", "b8c6", "g8f6", "f8c5"],  # 1. Two Knights / Italian Defense
+        ["d7d5", "e7e6", "g8f6", "c7c6"],  # 2. Semi-Slav Fortress
+        ["c7c5", "b8c6", "e7e6", "g8f6"],  # 3. Sicilian Taimanov / Paulsen
+        ["e7e6", "d7d5", "g8f6", "c7c5"],  # 4. French Defense
+        ["c7c6", "d7d5", "c8f5", "e7e6"],  # 5. Caro-Kann Classical
+        ["g8f6", "g7g6", "f8g7", "d7d6"],  # 6. King's Indian Defense Fianchetto
+        ["d7d5", "c7c6", "g8f6", "e7e6"],  # 7. Slav Defense
+        ["e7e6", "b7b6", "c8b7", "g8f6"],  # 8. Owen's Queen's Fianchetto Defense
+        ["c7c5", "g7g6", "f8g7", "b8c6"],  # 9. Accelerated Dragon
+        ["d7d6", "g8f6", "e7e5", "b8d7"],  # 10. Philidor / Pirc Defense
+    ],
+}
 
-def pick_matchup(rng, early_pool, late_pool, early_share):
-    """Pick the pool by early_share, then a matchup uniformly inside it.
 
-    If one pool is empty (e.g. warmup, which has no late pool) fall back to the other
-    without consuming an extra rng draw.
-    """
-    if not late_pool:
+def pick_matchup(rng, early_pool, mid_pool, late_pool, w_early, w_mid, w_late):
+    """Pick the curriculum pool according to (w_early, w_mid, w_late), then sample uniformly."""
+    if not mid_pool and not late_pool:
         return rng.choice(early_pool)
-    if not early_pool:
+    r = rng.random()
+    if r < w_early and early_pool:
+        return rng.choice(early_pool)
+    elif r < (w_early + w_mid) and mid_pool:
+        return rng.choice(mid_pool)
+    elif late_pool:
         return rng.choice(late_pool)
-    pool = early_pool if rng.random() < early_share else late_pool
-    return rng.choice(pool)
+    return rng.choice(early_pool or mid_pool or late_pool)
 
+
+def pick_league_opponent(rng, valid_pool):
+    """Bias league opponent selection 65% toward the most recent 15 checkpoints so the model
+    is continually tested against strong recent iterations, while keeping 35% across all history.
+    """
+    if len(valid_pool) > 15 and rng.random() < 0.65:
+        return rng.choice(valid_pool[-15:])
+    return rng.choice(valid_pool)
 
 
 def load_local_module(agent_dir: str, name: str):
@@ -191,43 +227,73 @@ def is_fog_or_king_blunder(obs: dict, memory, uci: str, true_board: chess.Board 
 
 
 def build_bot(spec: str, agent_dir: str):
-    if spec == "self":
-        return ExploratoryAgentWrapper(agent_dir, scale=1.0, guarded=False)
     if spec == "self_guarded":
-        return ExploratoryAgentWrapper(agent_dir, scale=0.2, guarded=True, topk=5)
+        return ExploratoryAgentWrapper(agent_dir, scale=0.0, guarded=True, topk=5)
+    if spec == "self_guard_mild":
+        return ExploratoryAgentWrapper(agent_dir, scale=0.20, guarded=True, topk=5)
+    if spec == "self_book":
+        return ExploratoryAgentWrapper(agent_dir, scale=0.25, guarded=True, topk=5, use_book=True)
+    if spec == "self_mild":
+        return ExploratoryAgentWrapper(agent_dir, scale=0.40, guarded=False, topk=5)
+    if spec == "self":
+        return ExploratoryAgentWrapper(agent_dir, scale=0.80, guarded=False, topk=5)
     if spec == "self_hot":
-        return ExploratoryAgentWrapper(agent_dir, scale=1.6, guarded=False)
+        return ExploratoryAgentWrapper(agent_dir, scale=1.40, guarded=False, topk=6)
     if spec.startswith("agent:"):
-        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=0.6, guarded=False)
+        return ExploratoryAgentWrapper(spec.split("agent:", 1)[1], scale=0.45, guarded=False, topk=5)
     return make_bot(spec)
 
 
 class ExploratoryAgentWrapper:
-    """CPU self-play wrapper with natural logit temperature decay and fog-consistent blunder guardrail."""
-    def __init__(self, agent_dir: str, scale: float = 1.0, guarded: bool = False, topk: int = 5):
+    """CPU self-play wrapper with optional opening book, fog-consistent blunder guardrail,
+    and smooth temperature decay.
+    """
+    def __init__(
+        self,
+        agent_dir: str,
+        scale: float = 1.0,
+        guarded: bool = False,
+        topk: int = 5,
+        use_book: bool = False,
+    ):
         agent_mod = load_local_module(agent_dir, "agent")
         self.agent = agent_mod.Agent(agent_dir, device="cpu")
         self.scale = scale
         self.guarded = guarded
         self.topk = topk
+        self.use_book = use_book
         self.ply = 0
         self.jit = 1.0
         self.rng = random.Random(0)
+        self.book_line = []
 
     def reset(self, color: str, seed: int) -> None:
         self.agent.reset(color, seed)
         self.rng = random.Random(seed)
         self.ply = 0
         self.jit = self.rng.uniform(0.90, 1.10)
+        if self.use_book:
+            lines = OPENING_BOOK.get(color, OPENING_BOOK["white"])
+            self.book_line = self.rng.choice(lines)
+        else:
+            self.book_line = []
 
     @torch.no_grad()
     def act(self, obs: dict, board: chess.Board = None) -> str:
         self.ply += 1
         self.agent.memory.update(obs)
 
+        # Always capture the enemy King immediately if visible and legal
         for uci in obs["legal_moves"]:
             if obs["enemy"].get(uci[2:4]) == "K":
                 return uci
+
+        # Optional predefined opening repertoire for the first 4 moves (if safe and legal)
+        if self.use_book and self.ply <= len(self.book_line):
+            book_uci = self.book_line[self.ply - 1]
+            if book_uci in obs["legal_moves"]:
+                if not is_fog_or_king_blunder(obs, self.agent.memory, book_uci, board):
+                    return book_uci
 
         legal = self.agent.features.legal_indices(obs)
         keys = list(legal.keys())
@@ -264,22 +330,14 @@ class ExploratoryAgentWrapper:
             top_l = top_l[safe_pos]
             top_idx = top_idx[safe_pos]
 
-        # --- MODE B: NATURAL SOFTMAX EXPLORATION (ON ALL TOP-K OR SAFE TOP-K) ---
+        # --- MODE B: NATURAL SOFTMAX EXPLORATION (RESPECTS TRUE LOGIT GAPS) ---
         if self.scale <= 0.0:
             best_idx = l.argmax().item()
             return legal[keys[best_idx]]
 
         decay = 0.5 ** (self.ply / 6.0)
         temp = max(0.05, (0.05 + 0.75 * decay) * self.scale * self.jit)
-
-        # Prevent late-iteration logit inflation from turning opening play 100% deterministic
-        if self.ply <= 12 and len(top_l) > 1:
-            spread = max(1.0, (top_l[0] - top_l[-1]).item() / 2.5)
-            scaled_diff = (top_l - top_l[0]) / (temp * spread)
-        else:
-            scaled_diff = (top_l - top_l[0]) / temp
-
-        probs = F.softmax(scaled_diff, dim=-1)
+        probs = F.softmax((top_l - top_l[0]) / temp, dim=-1)
 
         keep_mask = probs >= 0.10
         if not keep_mask.any():
@@ -292,6 +350,7 @@ class ExploratoryAgentWrapper:
 
     def close(self):
         pass
+
 
 def normalize_uci(uci: str) -> str:
     return uci[:4] + "q" if len(uci) == 5 else uci
@@ -328,34 +387,57 @@ def extract_winner(game: Game):
 
 
 def should_record_player(spec: str, has_trained_agent: bool) -> bool:
-    """Never record weak bots (bot:greedy/bot:random). DO record self, self_guarded, and league!"""
-    if spec in ("bot:greedy", "bot:random"):
+    """Never record weak bots (bot:greedy/bot:random) or unguarded high-temp sparring partner (self_hot).
+    DO record self_mild, self, self_guarded, self_guard_mild, self_book, and league!
+    """
+    if spec in ("bot:greedy", "bot:random", "self_hot"):
         return False
     if has_trained_agent:
-        return spec in ("self", "self_guarded", "self_hot") or spec.startswith("agent:")
+        return (
+            spec in ("self", "self_mild", "self_guarded", "self_guard_mild", "self_book")
+            or spec.startswith("agent:")
+        )
     return True
+
+
+PRIMARY_ACTORS = ("self", "self_mild")
 
 
 def record_matchup(stats, left, right, winner, actor="self"):
     """Record the result from `actor`'s perspective for a matchup involving that actor.
-
-    `left` is the White spec and `right` the Black spec ("league" is left unresolved, so all league
-    snapshots share one key). In an actor-vs-actor mirror match the White side counts as the actor.
+    When `actor == "self"`, both `"self"` and `"self_mild"` are grouped as the primary self agent
+    so `plot_experiments.py` continues to track `vs bot:greedy`, `vs league`, `vs self`, etc. seamlessly.
     """
-    if actor not in (left, right):
+    actor_group = PRIMARY_ACTORS if actor == "self" else (actor,)
+    if left not in actor_group and right not in actor_group:
         return
 
-    opponent = right if left == actor else left
+    if left in actor_group and right in actor_group:
+        opponent = "self"
+        is_mirror = True
+        actor_is_white = True
+    elif left in actor_group:
+        opponent = right
+        is_mirror = False
+        actor_is_white = True
+    else:
+        opponent = left
+        is_mirror = False
+        actor_is_white = False
+
+    if opponent in ("self_guarded", "self_guard_mild") and actor == "self":
+        opponent = "self_guarded"
+
     result = stats.setdefault(opponent, {"games": 0, "wins": 0, "draws": 0, "losses": 0})
     result["games"] += 1
     if winner is None:
         result["draws"] += 1
-    elif left == right and left == actor:
+    elif is_mirror:
         if winner == "white":
             result["wins"] += 1
         else:
             result["losses"] += 1
-    elif left == actor and winner == "white" or right == actor and winner == "black":
+    elif (actor_is_white and winner == "white") or (not actor_is_white and winner == "black"):
         result["wins"] += 1
     else:
         result["losses"] += 1
@@ -393,7 +475,10 @@ def save_shard_dict(path: str, buf: dict) -> int:
 
 
 def worker(args):
-    wid, n_games, nodes, teacher_rate, keep, keep_draw, out, seed, iteration, agent_dir, pool_dirs, has_trained_agent, early_share = args
+    (
+        wid, n_games, nodes, teacher_rate, keep, keep_draw, out, seed,
+        iteration, agent_dir, pool_dirs, has_trained_agent, w_early, w_mid, w_late
+    ) = args
     torch.set_num_threads(1)
     t0 = time.time()
     rng = random.Random(seed + iteration * 1000 + wid)
@@ -411,11 +496,15 @@ def worker(args):
 
     valid_pool = [d for d in pool_dirs if os.path.exists(os.path.join(d, "weights", "model.safetensors"))]
     if has_trained_agent:
-        early_pool, late_pool = list(EARLY_MATCHUPS_FOCUS), list(LATE_MATCHUPS)
+        early_pool = list(EARLY_MATCHUPS)
+        mid_pool = list(MID_MATCHUPS)
+        late_pool = list(LATE_MATCHUPS)
     else:
-        early_pool, late_pool = list(WARMUP_MATCHUPS), []
+        early_pool, mid_pool, late_pool = list(WARMUP_MATCHUPS), [], []
+
     if not valid_pool:
         early_pool = [m for m in early_pool if "league" not in m]
+        mid_pool = [m for m in mid_pool if "league" not in m]
         late_pool = [m for m in late_pool if "league" not in m]
 
     bots = {}
@@ -432,14 +521,14 @@ def worker(args):
         is_val_game = (g % 10 == 0)
         target_buf = val_data if is_val_game else tr_data
 
-        a, b = pick_matchup(rng, early_pool, late_pool, early_share)
+        a, b = pick_matchup(rng, early_pool, mid_pool, late_pool, w_early, w_mid, w_late)
         if rng.random() < 0.5:
             a, b = b, a
 
         resolved_specs = []
         for spec in (a, b):
             if spec == "league":
-                resolved_specs.append(f"agent:{rng.choice(valid_pool)}")
+                resolved_specs.append(f"agent:{pick_league_opponent(rng, valid_pool)}")
             else:
                 resolved_specs.append(spec)
         a_spec, b_spec = resolved_specs
@@ -493,7 +582,7 @@ def worker(args):
 
             if keep_pos:
                 p_idx = move_index(normalize_uci(played_uci), c)
-                # Use guess-sf (in warmup) or self_guarded (in self-play) as a free fog-aware teacher!
+                # Only use guess-sf (warmup) or deterministic self_guarded (scale=0.0) as a free teacher
                 if has_t == 0 and (spec_by_color[c].startswith("bot:guess-sf") or spec_by_color[c] == "self_guarded"):
                     t_idx = p_idx
                     has_t = 1
@@ -508,17 +597,15 @@ def worker(args):
         winner = extract_winner(game)
         if winner is not None:
             decisive_games += 1
-        record_matchup(matchup_stats, a, b, winner)
+        record_matchup(matchup_stats, a, b, winner, actor="self")
         record_matchup(guarded_stats, a, b, winner, actor="self_guarded")
-        if a_spec == "self" and b_spec == "self":
+        if a_spec in PRIMARY_ACTORS and b_spec in PRIMARY_ACTORS:
             self_play_games += 1
             if winner is not None:
                 self_play_decisive += 1
 
         for c, enc_x, p_idx, t_idx, has_t, p_ply, packed_mask, packed_belief in game_traj:
             if winner is None:
-                # Per-position draw subsampling: keeps `keep_draw` fraction of positions from
-                # EVERY drawn game so we preserve state diversity across all drawn games.
                 if rng.random() >= keep_draw:
                     continue
                 z_val = -0.5
@@ -572,14 +659,12 @@ def main():
     ap.add_argument("--nodes", type=int, default=3000, help="Stockfish nodes per teacher label")
     ap.add_argument("--teacher-rate", type=float, default=0.3, help="Fraction of kept positions labeled by Stockfish")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training (default 1.0)")
-    ap.add_argument("--keep-draw", type=float, default=0.15, help="Fraction of drawn games kept in the buffer (default 0.15)")
+    ap.add_argument("--keep-draw", type=float, default=0.20, help="Fraction of drawn positions kept in the buffer (default 0.20)")
     ap.add_argument("--agent-dir", default="submission", help="Agent directory for features and self-play")
     ap.add_argument("--pool-dirs", nargs="*", default=[], help="Additional agent directories for league opponents")
-    ap.add_argument(
-        "--early-share", type=float, default=0.75,
-        help="Fraction of iterative (non-warmup) games drawn from EARLY_MATCHUPS_FOCUS; the rest come "
-             "from LATE_MATCHUPS (0.75 = 3:1, 0.25 = 1:3)",
-    )
+    ap.add_argument("--early-share", type=float, default=0.75, help="Share of games drawn from EARLY_MATCHUPS")
+    ap.add_argument("--mid-share", type=float, default=0.25, help="Share of games drawn from MID_MATCHUPS")
+    ap.add_argument("--late-share", type=float, default=0.0, help="Share of games drawn from LATE_MATCHUPS")
     ap.add_argument("--out", default="data/replay_buffer", help="Replay buffer directory")
     ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
@@ -588,16 +673,25 @@ def main():
     weights_file = os.path.join(args.agent_dir, "weights", "model.safetensors")
     has_trained_agent = os.path.exists(weights_file) and args.iter > 0
 
+    w_e = max(0.0, args.early_share)
+    w_m = max(0.0, args.mid_share)
+    w_l = max(0.0, args.late_share)
+    w_sum = w_e + w_m + w_l
+    if w_sum > 0:
+        w_e, w_m, w_l = w_e / w_sum, w_m / w_sum, w_l / w_sum
+    else:
+        w_e, w_m, w_l = 1.0, 0.0, 0.0
+
     if has_trained_agent:
         mode_str = (
             f"DAgger/League Self-Play ({args.agent_dir}) | "
-            f"early:late matchups = {args.early_share:.0%}:{1 - args.early_share:.0%}"
+            f"early:mid:late = {w_e:.0%}:{w_m:.0%}:{w_l:.0%}"
         )
     else:
         mode_str = "Warmup Reference Bots"
     print(
         f"=== Generating Iteration {args.iter}: {args.games} games [{mode_str}] "
-        f"(keep={args.keep}, teacher_rate={args.teacher_rate}) ===",
+        f"(keep={args.keep}, keep_draw={args.keep_draw}, teacher_rate={args.teacher_rate}) ===",
         flush=True,
     )
 
@@ -606,7 +700,7 @@ def main():
         (
             i, per[i], args.nodes, args.teacher_rate, args.keep, args.keep_draw,
             args.out, args.seed, args.iter, args.agent_dir, args.pool_dirs, has_trained_agent,
-            min(1.0, max(0.0, args.early_share)),
+            w_e, w_m, w_l,
         )
         for i in range(args.workers)
         if per[i] > 0
@@ -642,8 +736,6 @@ def main():
                 flush=True,
             )
     if guarded_stats:
-        # Deliberately a different layout from the "Self matchup results" block above (no "vs", no
-        # "xW-yD-zL"), so any log parser keyed on that format keeps reading only the self numbers.
         print("    Self_guarded matchup results:", flush=True)
         for opponent, stats in sorted(guarded_stats.items()):
             games = stats["games"]

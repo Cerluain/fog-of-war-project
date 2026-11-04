@@ -39,6 +39,26 @@ def snapshot_agent(agent_dir: str, league_root: str, iteration: int) -> str:
     shutil.copytree(agent_dir, snap_dir)
     return snap_dir
 
+def compute_3stage_weights(it: int, stage1_end: int, stage2_end: int):
+    """Smooth 3-block curriculum weights (w_early, w_mid, w_late)."""
+    if it <= 1:
+        return 0.85, 0.15, 0.0
+    if it <= stage1_end:
+        # Block 1 (Early -> Mid): Early ramps 0.85 -> 0.25, Mid ramps 0.15 -> 0.75
+        f = (it - 1) / max(1, stage1_end - 1)
+        w_e = 0.85 - 0.60 * f
+        w_m = 0.15 + 0.60 * f
+        return w_e, w_m, 0.0
+    if it <= stage2_end:
+        # Block 2 (Mid -> Late): Early 0.25 -> 0.10, Mid 0.75 -> 0.25, Late 0.0 -> 0.65
+        f = (it - stage1_end) / max(1, stage2_end - stage1_end)
+        w_e = 0.25 - 0.15 * f
+        w_m = 0.75 - 0.50 * f
+        w_l = 0.65 * f
+        return w_e, w_m, w_l
+    # Block 3 (Late Hardening): 10% Early, 20% Mid, 70% Late
+    return 0.10, 0.20, 0.70
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -49,14 +69,14 @@ def main():
     ap.add_argument("--nodes", type=int, default=5000, help="Stockfish nodes per teacher label")
     ap.add_argument("--teacher-rate-start", type=float, default=0.5, help="Stockfish labeling rate on Iteration 0 (0.0 uses free guess-sf labels)")
     ap.add_argument("--teacher-rate-end", type=float, default=0.2, help="Stockfish labeling rate on final iteration")
-    ap.add_argument("--early-share-start", type=float, default=0.75, help="Share of games from EARLY_MATCHUPS_FOCUS on Iteration 1 (0.75 = 3:1 early:late)")
-    ap.add_argument("--early-share-end", type=float, default=0.1, help="Share of games from EARLY_MATCHUPS_FOCUS once lock-early-matchups-by is reached")
     ap.add_argument(
         "--lock-early-matchups-by", type=int, default=30,
         help="Iteration by which early_share reaches early-share-end (0 = ramp across all iterations)",
     )
+    ap.add_argument("--stage1-end", type=int, default=18, help="Iteration where Block 1 (Early focus) transitions into Block 2 (Mid focus)")
+    ap.add_argument("--stage2-end", type=int, default=45, help="Iteration where Block 2 (Mid focus) transitions into Block 3 (Late focus)")
     ap.add_argument("--keep", type=float, default=1.0, help="Fraction of positions kept for outcome training")
-    ap.add_argument("--keep-draw", type=float, default=0.15, help="Fraction of drawn games kept in the replay buffer")
+    ap.add_argument("--keep-draw", type=float, default=0.20, help="Fraction of drawn positions kept in the replay buffer")
     ap.add_argument("--buffer-dir", default="data/replay_buffer")
     ap.add_argument("--league-dir", default="data/league", help="Directory storing past agent snapshots for league play")
     ap.add_argument("--log-dir", default="data/logs", help="Directory for agent training logs")
@@ -131,9 +151,7 @@ def main():
         # If --drop-early-matchups-by is set (e.g., 30), early_share ramps from early_share_start
         # on Iteration 1 down to early_share_end on Iteration `lock_early_matchups_by`, and stays
         # at early_share_end for all remaining iterations!
-        ramp_end_iter = args.lock_early_matchups_by if args.lock_early_matchups_by > 1 else (args.iterations - 1)
-        matchup_frac = min(1.0, max(0.0, (it - 1) / max(1, ramp_end_iter - 1)))
-        early_share = args.early_share_start + matchup_frac * (args.early_share_end - args.early_share_start)
+        w_early, w_mid, w_late = compute_3stage_weights(it, args.stage1_end, args.stage2_end)
 
         # 1. Generate new shard(s) into the replay buffer
         gen_cmd = [
@@ -145,7 +163,9 @@ def main():
             "--teacher-rate", str(cur_t_rate),
             "--keep", str(iter_keep),
             "--keep-draw", str(args.keep_draw),
-            "--early-share", f"{early_share:.4f}",
+            "--early-share", f"{w_early:.4f}",
+            "--mid-share", f"{w_mid:.4f}",
+            "--late-share", f"{w_late:.4f}",
             "--agent-dir", args.agent_dir,
             "--out", args.buffer_dir,
             "--seed", str(args.seed),
