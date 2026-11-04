@@ -281,73 +281,57 @@ class ExploratoryAgentWrapper:
     @torch.no_grad()
     def act(self, obs: dict, board: chess.Board = None) -> str:
         self.ply += 1
-        self.agent.memory.update(obs)
 
-        # Always capture the enemy King immediately if visible and legal
-        for uci in obs["legal_moves"]:
-            if obs["enemy"].get(uci[2:4]) == "K":
-                return uci
+        # 1. Run agent's 1-ply lookahead (updates self.agent.memory once and checks King capture)
+        cand_ucis, cand_scores = self.agent.score_moves(obs, top_k=self.topk)
+        if len(cand_ucis) == 1:
+            return cand_ucis[0]
 
-        # Optional predefined opening repertoire for the first 4 moves (if safe and legal)
+        # 2. Optional predefined opening book for the first 4 moves (if legal and safe)
         if self.use_book and self.ply <= len(self.book_line):
             book_uci = self.book_line[self.ply - 1]
             if book_uci in obs["legal_moves"]:
                 if not is_fog_or_king_blunder(obs, self.agent.memory, book_uci, board):
                     return book_uci
 
-        legal = self.agent.features.legal_indices(obs)
-        keys = list(legal.keys())
-        if len(keys) == 1:
-            return legal[keys[0]]
+        scores_t = torch.tensor(cand_scores, dtype=torch.float32)
 
-        encoded = self.agent.features.encode(obs, self.agent.memory)
-        x = torch.from_numpy(encoded).float().unsqueeze(0)
-        out = self.agent.net(x)
-        logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
-        l = logits[keys]
-
-        k = min(self.topk, len(keys))
-        top_l, top_idx = torch.topk(l, k=k)
-
-        # --- MODE A: FOG-CONSISTENT TOP-K NON-BLUNDER GUARDRAIL ---
+        # 3. MODE A: Fog-consistent non-blunder guardrail on 1-ply scored candidates
         if self.guarded:
-            safe_pos = [
-                i for i, idx in enumerate(top_idx.tolist())
-                if not is_fog_or_king_blunder(obs, self.agent.memory, legal[keys[idx]], board)
+            order = torch.argsort(scores_t, descending=True).tolist()
+            safe_order = [
+                i for i in order
+                if not is_fog_or_king_blunder(obs, self.agent.memory, cand_ucis[i], board)
             ]
-            if not safe_pos:
-                # Fallback: check if any legal move outside top-k saves the King
-                for idx in torch.argsort(l, descending=True).tolist():
-                    cand_uci = legal[keys[idx]]
-                    if not is_fog_or_king_blunder(obs, self.agent.memory, cand_uci, board):
-                        return cand_uci
-                return legal[keys[top_idx[0].item()]]
+            if not safe_order:
+                for uci in obs["legal_moves"]:
+                    if not is_fog_or_king_blunder(obs, self.agent.memory, uci, board):
+                        return uci
+                return cand_ucis[order[0]]
 
-            if self.scale <= 0.0 or len(safe_pos) == 1:
-                return legal[keys[top_idx[safe_pos[0]].item()]]
+            if self.scale <= 0.0 or len(safe_order) == 1:
+                return cand_ucis[safe_order[0]]
 
-            # Restrict candidates strictly to safe moves, then apply scale temperature
-            top_l = top_l[safe_pos]
-            top_idx = top_idx[safe_pos]
+            cand_ucis = [cand_ucis[i] for i in safe_order]
+            scores_t = scores_t[safe_order]
 
-        # --- MODE B: NATURAL SOFTMAX EXPLORATION (RESPECTS TRUE LOGIT GAPS) ---
+        # 4. MODE B: Temperature sampling over 1-ply lookahead composite scores
         if self.scale <= 0.0:
-            best_idx = l.argmax().item()
-            return legal[keys[best_idx]]
+            return cand_ucis[scores_t.argmax().item()]
 
         decay = 0.5 ** (self.ply / 6.0)
         temp = max(0.05, (0.05 + 0.75 * decay) * self.scale * self.jit)
-        probs = F.softmax((top_l - top_l[0]) / temp, dim=-1)
+        probs = F.softmax((scores_t - scores_t.max()) / temp, dim=-1)
 
         keep_mask = probs >= 0.10
         if not keep_mask.any():
-            keep_mask[0] = True
-        cand_idx = top_idx[keep_mask]
-        cand_probs = probs[keep_mask]
+            keep_mask[scores_t.argmax()] = True
+        kept_ucis = [u for u, m in zip(cand_ucis, keep_mask.tolist()) if m]
+        kept_probs = probs[keep_mask].tolist()
 
-        chosen = self.rng.choices(cand_idx.tolist(), weights=cand_probs.tolist(), k=1)[0]
-        return legal[keys[chosen]]
-
+        return self.rng.choices(kept_ucis, weights=kept_probs, k=1)[0]
+    
+    
     def close(self):
         pass
 

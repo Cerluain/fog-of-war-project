@@ -21,7 +21,7 @@ class AgentMemory(BaseMemory):
     """Wraps official fow.memory.Memory and tracks prior observations."""
     def __init__(self):
         super().__init__()
-        self.prev = {"enemy": {}}
+        self.prev = {"enemy": {}}   
         self.pre_prev = {"enemy": {}}
         self._curr = None
 
@@ -163,7 +163,7 @@ def step_1ply_tensors(
         enemy_map = enemy_cont
     else:
         # Binary version for the network input (matches the {0, 1} training distribution)
-        enemy_map = (enemy_cont > 0.35).astype(np.float32)
+        enemy_map = (enemy_cont > 0.30).astype(np.float32)
         kr, kf = divmod(int(np.argmax(enemy_cont[5])), 8)  # Guarantee one enemy king
         enemy_map[5] = 0.0
         enemy_map[5, kr, kf] = 1.0
@@ -196,7 +196,7 @@ def step_1ply_tensors(
 
         # Remove any enemy piece captured on the destination square
         e_map = enemy_map.copy()
-        captured = bool(enemy_cont[:, tr, tf].max() > 0.35)
+        captured = bool(enemy_cont[:, tr, tf].max() > 0.30)
         e_map[:, tr, tf] = 0.0
 
         own_planes = np.zeros((6, 8, 8), dtype=np.float32)
@@ -206,14 +206,24 @@ def step_1ply_tensors(
 
         # Opponent's view (ranks flipped): their pieces = planes 0-5, ours = planes 6-11
         opp_own = np.flip(e_map, axis=1)
-        opp_enemy = np.flip(own_planes, axis=1)
+        opp_enemy_all = np.flip(own_planes, axis=1)
+
+        # Estimate opponent's visible mask (their occupied squares + 1 rank forward sight + unobserved fog)
+        opp_occ = np.clip(opp_own.sum(axis=0), 0.0, 1.0)
+        opp_fwd = np.zeros((8, 8), dtype=np.float32)
+        opp_fwd[1:8, :] = opp_occ[0:7, :]
+        opp_vis = np.clip(opp_vis_approx + opp_occ + opp_fwd, 0.0, 1.0)
+
+        # Only show the opponent our pieces that are inside their visible mask!
+        opp_enemy_vis = opp_enemy_all * opp_vis[None, :, :]
+        opp_prev_vis = opp_enemy_before * opp_vis[None, :, :]
 
         next_x[k, 0:6] = opp_own
-        next_x[k, 6:12] = opp_enemy
-        next_x[k, 12] = np.clip(opp_vis_approx + opp_own.sum(axis=0) + opp_enemy.sum(axis=0), 0.0, 1.0)
-        next_x[k, 13:19] = opp_enemy_before  # Turn t-1 positions
-        next_x[k, 19:25] = opp_enemy_before  # Turn t-2 proxy
-        next_x[k, 25:31] = opp_enemy         # Memory
+        next_x[k, 6:12] = opp_enemy_vis
+        next_x[k, 12] = opp_vis
+        next_x[k, 13:19] = opp_prev_vis      # Turn t-1 visible positions
+        next_x[k, 19:25] = opp_prev_vis      # Turn t-2 proxy
+        next_x[k, 25:31] = opp_enemy_vis     # Memory
         next_x[k, 31] = 1.0
         next_x[k, 32] = 1.0
         if captured:

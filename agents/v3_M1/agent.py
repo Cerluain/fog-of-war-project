@@ -58,29 +58,33 @@ class Agent:
         self.memory = mem_cls()
 
     @torch.no_grad()
-    def act(self, obs: dict) -> str:
-        """Executes a 2-pass searchless neural evaluation."""
+    def score_moves(self, obs: dict, top_k: int = None):
+        """Returns (cand_ucis, cand_scores) for the top-K legal moves using 2-pass 1-ply lookahead."""
         self.memory.update(obs)
 
         # Game rule: capturing a visible enemy King immediately wins the game
         for uci in obs["legal_moves"]:
             if obs["enemy"].get(uci[2:4]) == "K":
-                return uci
+                return [uci], [100.0]
 
         legal = self.features.legal_indices(obs)
         legal_idx = list(legal)
         if len(legal_idx) == 1:
-            return legal[legal_idx[0]]
+            return [legal[legal_idx[0]]], [0.0]
 
         encoded = self.features.encode(obs, self.memory)
         x = torch.from_numpy(encoded).float().unsqueeze(0).to(self.device)
 
         # 1. PASS 1: Policy + Belief on the real observation
         out = self.net(x)
+        k_lim = top_k if top_k is not None else self.top_k
+
         if not isinstance(out, tuple) or len(out) < 3 or not hasattr(self.features, "step_1ply_tensors") or self.value_weight <= 0.0:
             logits = (out[0] if isinstance(out, tuple) else out)[0].cpu()
-            best = max(legal, key=lambda i: logits[i].item())
-            return legal[best]
+            log_p_tensor = torch.log_softmax(logits[legal_idx], dim=0)
+            log_p = dict(zip(legal_idx, log_p_tensor.tolist()))
+            top = sorted(legal_idx, key=lambda i: logits[i].item(), reverse=True)[:k_lim]
+            return [legal[i] for i in top], [float(log_p[i]) for i in top]
 
         logits, _, b_logits = out
         logits = logits[0].cpu()
@@ -88,12 +92,12 @@ class Agent:
         # 2. Restrict to legal moves, compute log-probabilities, and pick top-k candidates
         log_p_tensor = torch.log_softmax(logits[legal_idx], dim=0)
         log_p = dict(zip(legal_idx, log_p_tensor.tolist()))
-        top = sorted(legal_idx, key=lambda i: logits[i].item(), reverse=True)[: self.top_k]
+        top = sorted(legal_idx, key=lambda i: logits[i].item(), reverse=True)[:k_lim]
         cand_ucis = [legal[i] for i in top]
         cand_log_probs = [log_p[i] for i in top]
         k = len(cand_ucis)
         if k == 1:
-            return cand_ucis[0]
+            return cand_ucis, [float(cand_log_probs[0])]
 
         # 3. Calibrate belief probabilities (undoing pos_weight=10 prior shift) -> (6, 8, 8)
         b_probs = torch.sigmoid(b_logits[0] - self.log_pos_weight).cpu().numpy()
@@ -110,10 +114,15 @@ class Agent:
         our_1ply_value = -v_opp
 
         # 6. Combine Policy log-prob + 1-ply neural Value evaluation
-        best_i, best_score = 0, -1e9
-        for i in range(k):
-            score = float(cand_log_probs[i]) + self.value_weight * float(our_1ply_value[i])
-            if score > best_score:
-                best_score, best_i = score, i
+        cand_scores = [
+            float(cand_log_probs[i]) + self.value_weight * float(our_1ply_value[i])
+            for i in range(k)
+        ]
+        return cand_ucis, cand_scores
 
+    @torch.no_grad()
+    def act(self, obs: dict) -> str:
+        """Executes a 2-pass searchless neural evaluation (deterministic best move for Arena/Tournament)."""
+        cand_ucis, cand_scores = self.score_moves(obs)
+        best_i = max(range(len(cand_scores)), key=lambda i: cand_scores[i])
         return cand_ucis[best_i]
