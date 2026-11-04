@@ -230,11 +230,11 @@ def build_bot(spec: str, agent_dir: str):
     if spec == "self_guarded":
         return ExploratoryAgentWrapper(agent_dir, scale=0.0, guarded=True, topk=5)
     if spec == "self_guard_mild":
-        return ExploratoryAgentWrapper(agent_dir, scale=0.20, guarded=True, topk=5)
+        return ExploratoryAgentWrapper(agent_dir, scale=0.20, guarded=True, topk=5, device="cuda") #Trying to make some games generate via GPU to increase 12.5M param training throughput
     if spec == "self_book":
         return ExploratoryAgentWrapper(agent_dir, scale=0.25, guarded=True, topk=5, use_book=True)
     if spec == "self_mild":
-        return ExploratoryAgentWrapper(agent_dir, scale=0.40, guarded=False, topk=5)
+        return ExploratoryAgentWrapper(agent_dir, scale=0.40, guarded=False, topk=5, device="cuda")
     if spec == "self":
         return ExploratoryAgentWrapper(agent_dir, scale=0.80, guarded=False, topk=5)
     if spec == "self_hot":
@@ -255,9 +255,10 @@ class ExploratoryAgentWrapper:
         guarded: bool = False,
         topk: int = 5,
         use_book: bool = False,
+        device: str = "cpu"
     ):
         agent_mod = load_local_module(agent_dir, "agent")
-        self.agent = agent_mod.Agent(agent_dir, device="cpu")
+        self.agent = agent_mod.Agent(agent_dir, device=device)
         self.scale = scale
         self.guarded = guarded
         self.topk = topk
