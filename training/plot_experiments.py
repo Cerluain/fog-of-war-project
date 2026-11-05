@@ -90,12 +90,12 @@ def parse_log_file(log_path: str, exp_name: str, agent_name: str) -> dict:
     # Supports both legacy logs and new logs with value/belief/val_losses
     step_pattern = re.compile(
         r"step\s+(\d+)/(\d+)(?::\s*|\s+\([^)]+\)(?:\s+\*saved\*)?\s*)"
-        r".*?tot=([0-9.]+)\s+"
+        r"[^\n]*?tot=([0-9.]+)\s+"
         r"\(out=([0-9.]+),\s*teach=([0-9.]+)"
-        r"(?:,\s*(?:value|val_mse)=([0-9.]+),\s*belief=([0-9.]+))?\).*?\|\s*"
-        r"val_teacher=([0-9.]+),\s*val_win_move=([0-9.]+)"
-        r"(?:,\s*val_out=([0-9.]+),\s*val_teach=([0-9.]+),\s*val_val=([0-9.]+),\s*val_belief=([0-9.]+))?"
-        , re.DOTALL
+        r"(?:,\s*(?:value|val_mse)=([0-9.]+),\s*belief=([0-9.]+))?\)"
+        r".*?val_teacher=([0-9.]+)(?:\s*\([^)]+\))?,\s*val_win_move=([0-9.]+)(?:\s*\([^)]+\))?"
+        r"(?:(?:\s*,\s*|\s*\n\s*\+-\s*Val Loss\s*\[v\]:\s*)val_out=([0-9.]+),\s*val_teach=([0-9.]+),\s*val_val=([0-9.]+),\s*val_belief=([0-9.]+))?",
+        re.DOTALL,
     )
 
     last_raw_step = 0
@@ -270,7 +270,6 @@ def plot_validation_metrics(runs: list, out_path: str):
     ax1.set_xlabel("Training Iteration (i)")
     ax1.set_ylabel("Max Top-1 Validation Match")
     ax1.grid(True, alpha=0.3)
-    ax1.legend(fontsize=8)
 
     # Panel 2: Continuous Validation Win-Move & Teacher Alignment over Steps
     ax2 = axes[0, 1]
@@ -283,7 +282,6 @@ def plot_validation_metrics(runs: list, out_path: str):
     ax2.set_xlabel("Cumulative SGD Steps")
     ax2.set_ylabel("Top-1 Match Accuracy")
     ax2.grid(True, alpha=0.3)
-    ax2.legend(fontsize=8)
 
     # Panel 3: Outcome & Teacher Validation Losses
     ax3 = axes[1, 0]
@@ -296,7 +294,6 @@ def plot_validation_metrics(runs: list, out_path: str):
     ax3.set_xlabel("Cumulative SGD Steps")
     ax3.set_ylabel("Loss")
     ax3.grid(True, alpha=0.3)
-    ax3.legend(fontsize=8)
 
     # Panel 4: Value & Belief Losses (Continuous + Min per Iteration)
     ax4 = axes[1, 1]
@@ -309,7 +306,11 @@ def plot_validation_metrics(runs: list, out_path: str):
     ax4.set_xlabel("Cumulative SGD Steps")
     ax4.set_ylabel("Loss")
     ax4.grid(True, alpha=0.3)
-    ax4.legend(fontsize=8)
+
+    for ax in (ax1, ax2, ax3, ax4):
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            ax.legend(fontsize=8)
 
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
