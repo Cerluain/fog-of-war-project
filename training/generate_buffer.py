@@ -44,10 +44,8 @@ WARMUP_MATCHUPS = (
 EARLY_MATCHUPS = (
     [("self_guarded", "bot:greedy")] * 3 +
     [("self_guarded", "league")] * 2 +
-    [("self_guarded", "self_mild")] +
     [("self_book", "self_mild")] +
-    [("self_book", "bot:greedy")] +
-    [("self_mild", "bot:greedy")]
+    [("self_book", "bot:greedy")] 
 )
 
 # Stage 2 (Middle): Remove heavy training wheels; focus on self_mild and self
@@ -56,20 +54,18 @@ MID_MATCHUPS = (
     [("self_mild", "league")] * 3 +
     [("self_mild", "bot:greedy")] * 2 +
     [("self_mild", "self")] * 2 +
-    [("self_mild", "self_book")] +
-    [("self_mild", "self_guard_mild")] +
-    [("self_guard_mild", "bot:greedy")]
+    [("self_book", "self")] +
+    [("self_mild", "self_guard_mild")]
 )
 
 # Stage 3 (Late): Stress-test weak spots with self_hot (unrecorded sparring partner)
 # and self_book while keeping sharp self_mild matchups against league and greedy.
 LATE_MATCHUPS = (
-    [("self_mild", "league")] * 3 +
-    [("self_mild", "bot:greedy")] * 2 +
+    [("self", "league")] * 3 +
+    [("self", "bot:greedy")] * 2 +
     [("self_mild", "self_hot")] * 2 +
-    [("self_mild", "self_book")] +
-    [("self_mild", "self")] +
-    [("self_mild", "self_guard_mild")]
+    [("self_book", "self_hot")] * 2+
+    [("self_mild", "self")] 
 )
 
 # 10 sound Fog-of-War & classical opening plans per color (4 moves deep).
@@ -234,7 +230,7 @@ def build_bot(spec: str, agent_dir: str):
     if spec == "self_book":
         return ExploratoryAgentWrapper(agent_dir, scale=0.25, guarded=True, topk=5, use_book=True)
     if spec == "self_mild":
-        return ExploratoryAgentWrapper(agent_dir, scale=0.40, guarded=False, topk=5, device="cuda")
+        return ExploratoryAgentWrapper(agent_dir, scale=0.45, guarded=False, topk=5, device="cuda")
     if spec == "self":
         return ExploratoryAgentWrapper(agent_dir, scale=0.80, guarded=False, topk=5)
     if spec == "self_hot":
